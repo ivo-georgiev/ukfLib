@@ -1,11 +1,11 @@
 #include<stdio.h>
 #include<math.h>
 #include <stdlib.h>
+#include "mtxLib.h"
 /*---------------------------------------------*/
 /*           Function Prototype                */
 /*---------------------------------------------*/
-int MtxCholUpper(double* mtxA, double* mtxL,int mtxSize);
-void MtxCholUpper1(double* mtxA,int mtxSz);
+
 double* doubleMtxMul(double* A, double* B, double* C, int m,int n);
 int* MtxMul(int* A, int* B, int* C, int n,int m);
 int* MtxTrDest(int* A,int* B,int m,int n);
@@ -24,11 +24,11 @@ void MtxTr(int* A,int m,int n);
 /*         Structure prototype                 */
 /*---------------------------------------------*/
 struct matrix
-    {
-        int row;
-        int col;
-        int* val;
-    };
+{
+    int row;
+    int col;
+    int* val;
+};
 
 struct matrix MtxMul1(struct matrix A, struct matrix B,struct matrix C);
 
@@ -100,7 +100,7 @@ void main(void)
 
     puts("TEST 1 - Cholesky factorization " );
     //(void)MtxCholUpper(&symMtx[0][0], &upL[0][0],5);
-    MtxCholUpper1(&Px[0][0],2);
+    mtxLib_Cholesky_LL_dp(&Px[0][0],2);
     /*-----------------------------------------*/ 
     /*        TEST 0 Matrix product in Double  */
     /*        M=C*D result is 3x3 matrix       */
@@ -468,154 +468,12 @@ struct matrix MtxMul1(struct matrix A, struct matrix B,struct matrix C)
     return C;
 }
 
-//cholesky Decomposition Upper variant 1
-int MtxCholUpper(double* mtxA, double* mtxL,int mtxSize)
-{
-    int colIdxL, rowIdxL,tempIdxL;
-    int ReturnL = 0;
-    double sumL=0;
-
-    for(rowIdxL=0;rowIdxL<mtxSize;rowIdxL++)
-    {
-        for(colIdxL=0;colIdxL<mtxSize;colIdxL++)
-        {
-            sumL = *(mtxA+mtxSize*rowIdxL+colIdxL);
-            
-            for(tempIdxL = rowIdxL-1;tempIdxL>=0;tempIdxL--)
-            {
-                sumL -= *(mtxL+mtxSize*tempIdxL+rowIdxL) *  *(mtxL+mtxSize*tempIdxL+colIdxL);
-            }
-
-            if(rowIdxL==colIdxL)
-            {
-                if(sumL>0)
-                {
-                    *(mtxL+mtxSize*rowIdxL + colIdxL) = sqrt(sumL);
-                }
-                else
-                {
-                    //matrix is not positive definite
-                    ReturnL = 1;
-                }
-            }
-            else if(rowIdxL < colIdxL)
-            {
-                *(mtxL+mtxSize*rowIdxL + colIdxL) = sumL/ *(mtxL+mtxSize*rowIdxL + rowIdxL);
-            }
-            else
-            {
-                *(mtxL+mtxSize*rowIdxL + colIdxL) = 0;
-            }
-        }
-    }
-    
-    return ReturnL;
-}
 
 
-//return result matrix in A
-void MtxCholUpper1(double* mtxA,int mtxSz)
-{
-    int colJ, rowI,tmpK;
-    double sumL=0;
-    
-    for(rowI=0;rowI<mtxSz;rowI++)
-    {
-        for(colJ=0;colJ<mtxSz;colJ++)
-        {
-            sumL = *(mtxA+mtxSz*rowI+colJ);
-            
-            for(tmpK = rowI-1;tmpK>=0;tmpK--)
-            {
-                sumL -= *(mtxA+mtxSz*tmpK+rowI) *  *(mtxA+mtxSz*tmpK+colJ);
-            }
-            
-            *(mtxA+mtxSz*rowI+colJ) = (rowI==colJ) ? sqrt(sumL): (sumL/ *(mtxA+mtxSz*rowI + rowI));
-        }
-    }
-}
 
-//Perform a cholesky factor downdate
-//Ported from the LINPACK FORTRAN function DCHDD
-int dchdd(int p, gsl_vector *x, gsl_vector *c, gsl_vector *s, gsl_matrix *r) {
-    int info; //ldr,ldz,nz;
-    int i,ii,j,k;
-    double alpha, norm, a; //azeta,dnrm2;
-    double t, xx, scale, b; //ddot,zeta;
-    double tempVar;
-    double rvectemp[20];
-    double sVectemp[20];
-    double cVectemp[20];
-    info = 0;
-    sVectemp[0] = gsl_vector_get(x,0)/gsl_matrix_get(r, 0, 0);
-    if (p>=2) {
-        for (j=2; j<=p; j++) {
-            for (k=0; k<p; k++) {
-                rvectemp[k]=gsl_matrix_get(r,k,j-1);
-            }
-            sVectemp[j-1] = gsl_vector_get(x, j-1) - cblas_ddot(j-1,rvectemp,1,sVectemp,1);
-            sVectemp[j-1] = sVectemp[j-1]/gsl_matrix_get(r, j-1,j-1);
-        }
-    }
-    for (k=0; k<p; k++) {
-    }
-    norm = cblas_dnrm2(p, sVectemp, 1);
-    if (norm<1.0) {
-        alpha = sqrt(1.0-norm*norm);
-        for (ii=1; ii<=p; ii++) {
-            i = p - ii + 1;
-            scale = alpha + abs(sVectemp[i-1]);
-            a = alpha/scale;
-            b=sVectemp[i-1]/scale;
-            norm=sqrt(a*a+b*b);
-            cVectemp[i-1] = a/norm;
-            sVectemp[i-1] = b/norm;
-            alpha = scale*norm;
-        }
-        for (j=1; j<=p; j++) {
-            xx = 0;
-            for (ii=1; ii<=j; ii++) {
-                i = j-ii+1;
-                t=cVectemp[i-1]*xx+sVectemp[i-1]*gsl_matrix_get(r, i-1, j-1);
-                tempVar=cVectemp[i-1]*gsl_matrix_get(r,i-1,j-1)-sVectemp[i-1]*xx;
-                gsl_matrix_set(r, i-1, j-1, tempVar);
-                xx=t;				  
-            }
-        }
-        
-    }
-    else info = -1;
-    for (k=0; k<p; k++) {
-        gsl_vector_set(s,k,sVectemp[k]);
-        gsl_vector_set(c,k, cVectemp[k]);
-    }
-    return info;
-    
-}
 
-//Perform a cholesky factor update
-//Ported from the LINPACK FORTRAN function DCHUD
-void dchud(int p, gsl_vector *x, gsl_vector *c, gsl_vector *s, gsl_matrix *r) {
-    int j, i, jm1;
-    double t, xj, rtmp, ctmp, stmp;
-    for (j=1; j<=p; j++) {
-        xj = gsl_vector_get(x, j-1);
-        jm1 = j-1;
-        if (jm1>=1) {
-            for (i=1; i<=jm1; i++) {
-                t = gsl_vector_get(c, (i-1))*gsl_matrix_get(r,i-1,j-1) + gsl_vector_get(s,(i-1))*xj;
-                xj = gsl_vector_get(c,(i-1))*xj - gsl_vector_get(s,(i-1))*gsl_matrix_get(r,i-1,j-1);
-                gsl_matrix_set(r,i-1,j-1,t);
-            }
-        }
-        rtmp = gsl_matrix_get(r, j-1, j-1);
-        ctmp = gsl_vector_get(c, j-1);
-        stmp = gsl_vector_get(s, j-1);
-        cblas_drotg(&rtmp,&xj,&ctmp,&stmp);
-        gsl_matrix_set(r, j-1, j-1, rtmp);
-        gsl_vector_set(c, j-1, ctmp);
-        gsl_vector_set(s, j-1, stmp);
-    }
-}
+
+
+
 
 
