@@ -88,6 +88,7 @@ int N[3][3]; // destination matrix
 void main(void)
 {
     struct matrix a1,a2,a12 ;
+    struct sMatrixType myFactMatrix;
     int i=0,j=0;
     int *ptr;
     int *ptr1;
@@ -99,8 +100,10 @@ void main(void)
     printf("num rows*cols = %d \n ",rowxcol(sz));
 
     puts("TEST 1 - Cholesky factorization " );
-    //(void)MtxCholUpper(&symMtx[0][0], &upL[0][0],5);
-    mtxLib_Cholesky_LL_dp(&Px[0][0],2);
+    myFactMatrix.nrow = 5;
+    myFactMatrix.ncol = 5;
+    myFactMatrix.val = &symMtx[0][0];
+    mtxLib_Cholesky_LL_dp(myFactMatrix);
     /*-----------------------------------------*/ 
     /*        TEST 0 Matrix product in Double  */
     /*        M=C*D result is 3x3 matrix       */
@@ -235,23 +238,7 @@ void main(void)
     printf("\nUpper diag sum = %8d\n",MtxSumUpDiag(&N[0][0],3, 3));
     putchar('\n');
 
-    /*-----------------------------------------*/ 
-    /*        TEST 5  down diagonal sum        */
-    /*-----------------------------------------*/ 
-    puts("TEST 5 - down diagonal sum " ); 
-    for(i=0;i<3;i++)
-    {
-       
-        putchar('|');
 
-        for(j=0;j<3;j++)
-        {           
-            printf(" %8d",*(&N[0][0]+i*3+j)); 
-        }       
-        puts("|");   
-    }
-    printf("\n down diag sum of matrix = %8d\n",MtxSumDownDiag(&N[0][0],3, 3));
-    putchar('\n');
 
     /*------------------------------------------*/ 
     /*        TEST 6 number of columns          */
@@ -398,51 +385,8 @@ void MtxTr(int* A,int m,int n)
     }
 }
 
-int MtxSumDiag(int*A ,int m, int n)
-{
-    int i,j,sum=0;
-    for(i=0;i<m;i++)
-    {
-        for(j=0;j<n;j++)
-        {
-            if(i == j)
-            {
-                sum += *(A+i*n+j);
-            }
-        }
-    } 
-    return sum;
-}
-int MtxSumUpDiag(int*A ,int m, int n)
-{
-    int i,j,sum=0;
-    for(i=0;i<m;i++)
-    {
-        for(j=1;j<n;j++)
-        {
-            if(i < j)
-            {
-                sum += *(A+i*n+j);
-            }
-        }
-    }
-    return sum;
-}
-int MtxSumDownDiag(int*A ,int m, int n)
-{
-    int i,j,sum=0;
-    for(i=1;i<m;i++)
-    {
-        for(j=0;j<n;j++)
-        {
-            if(i > j)
-            {
-                sum += *(A+i*n+j);
-            }
-        }
-    } 
-    return sum;
-}
+
+
 
 struct matrix MtxMul1(struct matrix A, struct matrix B,struct matrix C)
 {
@@ -469,9 +413,37 @@ struct matrix MtxMul1(struct matrix A, struct matrix B,struct matrix C)
 }
 
 
+int MtxSumUpDiag(int*A ,int m, int n)
+{
+    int i,j,sum=0;
+    for(i=0;i<m;i++)
+    {
+        for(j=1;j<n;j++)
+        {
+            if(i < j)
+            {
+                sum += *(A+i*n+j);
+            }
+        }
+    }
+    return sum;
+}
 
-
-
+int MtxSumDiag(int*A ,int m, int n)
+{
+    int i,j,sum=0;
+    for(i=0;i<m;i++)
+    {
+        for(j=0;j<n;j++)
+        {
+            if(i == j)
+            {
+                sum += *(A+i*n+j);
+            }
+        }
+    } 
+    return sum;
+}
 
 
 
