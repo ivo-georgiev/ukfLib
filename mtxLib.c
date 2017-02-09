@@ -1,45 +1,55 @@
 #include<math.h>
 #include "mtxLib.h"
 
-mtxResultInfo mtx_diagsum_dp(sMatrixType A, double * DiagSum)
-{
-    mtxResultInfo ResultL = MTX_OPERATION_OK;
-    int i,j;
-    double sum=0;
 
-    for(i=1;i<A.nrow;i++)
-    {
-        for(j=0;j<A.ncol;j++)
-        {
-            if(i > j)
-            {
-                sum += *(A.val+i*A.ncol+j);
-            }
-        }
-    }
-    *DiagSum = sum;
-    
-    return ResultL;
+mtxResultInfo mtx_init_dp(sMatrixType* A, double * M, int nrow, int ncol)
+{
+    A->val = M;
+    A->ncol = ncol;
+    A->nrow = nrow;
+
+    return MTX_OPERATION_OK; 
 }
 
 
+mtxResultInfo mtx_diagsum_dp(sMatrixType A, double * diagsum)
+{
+    mtxResultInfo Result = MTX_OPERATION_OK;
+    int row,col;
+    double sum=0;
+
+    for(row=1;row<A.nrow;row++)
+    {
+        for(col=0;col<A.ncol;col++)
+        {
+            if(row > col)
+            {
+                sum += A.val[A.ncol*row+col];
+            }
+        }
+    }
+    *diagsum = sum;
+    
+    return Result;
+}
+
 
 //A=A'
-mtxResultInfo mtxLib_Transp_dp(sMatrixType A)
+mtxResultInfo mtx_transp_dp(sMatrixType A)
 {
     mtxResultInfo ResultL = MTX_OPERATION_OK;
-    int i,j;
+    int row,col;
     double temp;
 
-    for(i=0;i<A.nrow;i++)
+    for(row=0;row<A.nrow;row++)
     {
-        for(j=0;j<A.ncol;j++)
+        for(col=0;col<A.ncol;col++)
         {
-            if(i != j && i<j)
+            if(row != col && row<col)
             {
-                temp = *(A.val+i*A.ncol+j);
-                *(A.val+i*A.ncol+j) = *(A.val+j*A.ncol+i);
-                *(A.val+j*A.ncol+i) = temp;
+                temp = A.val[A.ncol*row+col];
+                A.val[A.ncol*row+col] = A.val[A.ncol*col+row];
+                A.val[A.ncol*col+row] = temp;
             }
         }
     }
@@ -47,7 +57,7 @@ mtxResultInfo mtxLib_Transp_dp(sMatrixType A)
 }
 
 //C=A*B
-mtxResultInfo mtxLib_Mul_dp(sMatrixType A, sMatrixType B, sMatrixType C)
+mtxResultInfo mtx_mul_dp(sMatrixType A, sMatrixType B, sMatrixType C)
 {
     mtxResultInfo ResultL = MTX_OPERATION_OK;
     int row,col,k;
@@ -55,19 +65,18 @@ mtxResultInfo mtxLib_Mul_dp(sMatrixType A, sMatrixType B, sMatrixType C)
     
     if(A.ncol != B.nrow)
     {
-        ResultL = MTX_OPERATION_ERROR;
+        ResultL = MTX_DIMENSION_ERR;
     }
-    for(row=0;row<A.nrow;row++)//A.nrow= 2
+    for(row=0;row<A.nrow;row++)
     {
-        for(col=0;col<B.ncol;col++)//B.col  
+        for(col=0;col<B.ncol;col++)  
         {
             sum = 0;
-            for(k=0;k<B.nrow;k++)//B.col = 2
+            for(k=0;k<B.nrow;k++)
             {
-                //sum = sum+ A[i][k] * B[k][col];
-                sum += *(A.val+row*A.ncol+k) * *(B.val+k*B.ncol+col);//*((int *)y + 2 * NUMBER_OF_COLUMNS + 2); // Right!
+                sum += A.val[A.ncol*row+k] * B.val[B.ncol*k+col];
             }
-            *(C.val+row*C.ncol+col) = sum;//C[i][col] 
+            C.val[C.ncol*row+col] = sum;
         }
     }
     return ResultL;
@@ -75,77 +84,99 @@ mtxResultInfo mtxLib_Mul_dp(sMatrixType A, sMatrixType B, sMatrixType C)
 
 //A=chol(A)
 //http://rosettacode.org/wiki/Cholesky_decomposition
-mtxResultInfo mtxLib_Cholesky_LL_dp(sMatrixType A)
+mtxResultInfo mtx_chol_dp(sMatrixType A)
 {
     mtxResultInfo ResultL = MTX_OPERATION_OK;
-    int col, row,tmp;
-    double sumL=0;
+    int col,row,tmp;
+    double sum=0;
     
     if(A.ncol == A.nrow)
     {       
         for(row=0;row<A.nrow;row++)
         {
-            for(col=0;col<A.ncol;col++)//col<A.ncol
+            for(col=0;col<A.ncol;col++)
             {
-                sumL = A.val[A.ncol*row + col];
+                sum = A.val[A.ncol*row + col];
                 
                 for(tmp = row-1;tmp>=0;tmp--)
                 {
-                    sumL -= A.val[A.ncol*tmp+row] *  A.val[A.ncol*tmp+col];
+                    sum -= A.val[A.ncol*tmp+row] * A.val[A.ncol*tmp+col];
                 }
                 
-                A.val[A.ncol*row + col] = (row==col) ? sqrt(sumL): (sumL/A.val[A.ncol*row+row]);
+                A.val[A.ncol*row + col] = (row==col) ? sqrt(sum) : (sum / A.val[A.ncol*row+row]);
+                
+                
+                if((row==col) && (sum<=0))
+                {
+                    ResultL = MTX_NOT_POS_DEFINED;
+                }
+                
             }
         }
     }
     else
     {
-        ResultL = MTX_OPERATION_ERROR;//not square
+        ResultL = MTX_NOT_SQUARE;
     }
 
     return ResultL;
 }
 
 //cholesky Decomposition Upper variant 1
-int mtxLib_Cholesky1_LL_dp(double* mtxA, double* mtxL,int mtxSize)
+int mtx_chol1_dp(double* A, double* L,int size)
 {
-    int colIdxL, rowIdxL,tempIdxL;
-    int ReturnL = 0;
-    double sumL=0;
+    int Result = MTX_OPERATION_OK;
+    int col,row,tmp;
+    double sum=0;
     
-    for(rowIdxL=0;rowIdxL<mtxSize;rowIdxL++)
+    for(row=0;row<size;row++)
     {
-        for(colIdxL=0;colIdxL<mtxSize;colIdxL++)
+        for(col=0;col<size;col++)
         {
-            sumL = *(mtxA+mtxSize*rowIdxL+colIdxL);
+            sum = A[size*row + col];
             
-            for(tempIdxL = rowIdxL-1;tempIdxL>=0;tempIdxL--)
+            for(tmp = row-1;tmp>=0;tmp--)
             {
-                sumL -= *(mtxL+mtxSize*tempIdxL+rowIdxL) *  *(mtxL+mtxSize*tempIdxL+colIdxL);
+                sum -= L[size*tmp + row] * L[size*tmp + col];
             }
             
-            if(rowIdxL==colIdxL)
+            if(row==col)
             {
-                if(sumL>0)
+                if(sum>0)
                 {
-                    *(mtxL+mtxSize*rowIdxL + colIdxL) = sqrt(sumL);
+                    L[size*row + col] = sqrt(sum);
                 }
                 else
                 {
-                    //matrix is not positive definite
-                    ReturnL = 1;
+                    Result = MTX_NOT_POS_DEFINED;
                 }
             }
-            else if(rowIdxL < colIdxL)
+            else if(row < col)
             {
-                *(mtxL+mtxSize*rowIdxL + colIdxL) = sumL/ *(mtxL+mtxSize*rowIdxL + rowIdxL);
+                L[size*row + col] = sum/ L[size*row + row];//sum/Lii(diag)
             }
             else
             {
-                *(mtxL+mtxSize*rowIdxL + colIdxL) = 0;
+                L[size*row + col] = 0;
             }
         }
     }
     
-    return ReturnL;
+    return Result;
+}
+
+int mtx_sum_updiag_dp(int*A ,int m, int n)
+{
+    int i,j,sum=0;
+    for(i=0;i<m;i++)
+    {
+        for(j=1;j<n;j++)
+        {
+            if(i < j)
+            {
+                sum += *(A+i*n+j);
+            }
+        }
+    }
+    return sum;
 }
