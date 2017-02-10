@@ -1,10 +1,9 @@
 #include<math.h>
 #include "mtxLib.h"
 
-
-mtxResultInfo mtx_init_dp(sMatrixType* A, double * M, int nrow, int ncol)
+mtxResultInfo mtx_init_f64(sMatrixType * A, double * pValue, int nrow, int ncol)
 {
-    A->val = M;
+    A->val = pValue;
     A->ncol = ncol;
     A->nrow = nrow;
 
@@ -12,7 +11,7 @@ mtxResultInfo mtx_init_dp(sMatrixType* A, double * M, int nrow, int ncol)
 }
 
 
-mtxResultInfo mtx_diagsum_dp(sMatrixType A, double * diagsum)
+mtxResultInfo mtx_diagsum_f64(sMatrixType A, double * diagsum)
 {
     mtxResultInfo Result = MTX_OPERATION_OK;
     int row,col;
@@ -35,21 +34,23 @@ mtxResultInfo mtx_diagsum_dp(sMatrixType A, double * diagsum)
 
 
 //A=A'
-mtxResultInfo mtx_transp_dp(sMatrixType A)
+mtxResultInfo mtx_transp_f64(sMatrixType * pA)
 {
     mtxResultInfo ResultL = MTX_OPERATION_OK;
+    const int nrow = pA->nrow;
+    const int ncol = pA->ncol;
     int row,col;
     double temp;
 
-    for(row=0;row<A.nrow;row++)
+    for(row=0;row<nrow;row++)
     {
-        for(col=0;col<A.ncol;col++)
+        for(col=0;col<ncol;col++)
         {
             if(row != col && row<col)
             {
-                temp = A.val[A.ncol*row+col];
-                A.val[A.ncol*row+col] = A.val[A.ncol*col+row];
-                A.val[A.ncol*col+row] = temp;
+                temp = pA->val[ncol*row+col];
+                pA->val[ncol*row+col] = pA->val[ncol*col+row];
+                pA->val[ncol*col+row] = temp;
             }
         }
     }
@@ -57,7 +58,7 @@ mtxResultInfo mtx_transp_dp(sMatrixType A)
 }
 
 //C=A*B
-mtxResultInfo mtx_mul_dp(sMatrixType A, sMatrixType B, sMatrixType C)
+mtxResultInfo mtx_mul_f64(sMatrixType A, sMatrixType B, sMatrixType C)
 {
     mtxResultInfo ResultL = MTX_OPERATION_OK;
     int row,col,k;
@@ -65,7 +66,7 @@ mtxResultInfo mtx_mul_dp(sMatrixType A, sMatrixType B, sMatrixType C)
     
     if(A.ncol != B.nrow)
     {
-        ResultL = MTX_DIMENSION_ERR;
+        ResultL = MTX_SIZE_MISMATCH;
     }
     for(row=0;row<A.nrow;row++)
     {
@@ -84,7 +85,7 @@ mtxResultInfo mtx_mul_dp(sMatrixType A, sMatrixType B, sMatrixType C)
 
 //A=chol(A)
 //http://rosettacode.org/wiki/Cholesky_decomposition
-mtxResultInfo mtx_chol_dp(sMatrixType A)
+mtxResultInfo mtx_chol_f64(sMatrixType A)
 {
     mtxResultInfo ResultL = MTX_OPERATION_OK;
     int col,row,tmp;
@@ -123,7 +124,7 @@ mtxResultInfo mtx_chol_dp(sMatrixType A)
 }
 
 //cholesky Decomposition Upper variant 1
-int mtx_chol1_dp(double* A, double* L,int size)
+int mtx_chol1_f64(double* A, double* L,int size)
 {
     int Result = MTX_OPERATION_OK;
     int col,row,tmp;
@@ -165,7 +166,7 @@ int mtx_chol1_dp(double* A, double* L,int size)
     return Result;
 }
 
-int mtx_sum_updiag_dp(int*A ,int m, int n)
+int mtx_sum_updiag_f64(int*A ,int m, int n)
 {
     int i,j,sum=0;
     for(i=0;i<m;i++)
@@ -179,4 +180,64 @@ int mtx_sum_updiag_dp(int*A ,int m, int n)
         }
     }
     return sum;
+}
+
+//* pA - source  pI- destination
+mtxResultInfo mtx_inv_f64(sMatrixType * pA, sMatrixType * pI)
+{
+    mtxResultInfo ResultL = MTX_OPERATION_OK;
+    const int nrow = pA->nrow;
+    const int ncol = pA->ncol;
+    int j,i,k,l;
+    double s=0;
+    double t=0;
+    
+    for(j = 0;j<nrow;j++)
+    {
+        for(i = j; i<nrow; i++)
+        {
+            if(0 != pA->val[ncol*i+j])
+            {
+                for(k = 0;k<nrow;k++)
+                {
+                    s = pA->val[ncol*j+k];
+                    pA->val[ncol*j+k] = pA->val[ncol*i+k];
+                    pA->val[ncol*i+k] = s;
+                    
+                    s = pI->val[ncol*j+k];
+                    pI->val[ncol*j+k] = pI->val[ncol*i+k];
+                    pI->val[ncol*i+k] = s;
+                }
+                
+                t = 1 / pA->val[ncol*j+j];
+                
+                for(k=0;k<nrow;k++)
+                {
+                    pA->val[ncol*j+k] = t * pA->val[ncol*j+k];
+                    pI->val[ncol*j+k] = t * pI->val[ncol*j+k];
+                }
+
+                for(l=0;l<nrow;l++)
+                {
+                    if(l != j)
+                    {
+                        t = -pA->val[ncol*l+j];
+                        for(k=0;k<nrow;k++)
+                        {
+                            pA->val[ncol*l+k] += t *  pA->val[ncol*j+k];
+                            pI->val[ncol*l+k] += t *  pI->val[ncol*j+k];
+                        }
+                    }
+                }
+            }
+            break;
+        }
+        if(0 == pA->val[ncol*l+k])
+        {
+            ResultL = MTX_SINGULAR;
+        }
+    }
+    
+    return ResultL;
+    
 }
