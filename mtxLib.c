@@ -11,19 +11,22 @@ mtxResultInfo mtx_init_f64(sMatrixType * A, double * pValue, int nrow, int ncol)
 }
 
 
-mtxResultInfo mtx_diagsum_f64(sMatrixType A, double * diagsum)
+mtxResultInfo mtx_diagsum_f64(sMatrixType * pA, double * diagsum)
 {
     mtxResultInfo Result = MTX_OPERATION_OK;
+    const double * const pSrcL = (double *)pA->val;
+    const int nrow = pA->nrow;
+    const int ncol = pA->ncol;
     int row,col;
     double sum=0;
 
-    for(row=1;row<A.nrow;row++)
+    for(row=1;row<nrow;row++)
     {
-        for(col=0;col<A.ncol;col++)
+        for(col=0;col<ncol;col++)
         {
             if(row > col)
             {
-                sum += A.val[A.ncol*row+col];
+                sum += pSrcL[ncol*row+col];
             }
         }
     }
@@ -34,77 +37,128 @@ mtxResultInfo mtx_diagsum_f64(sMatrixType A, double * diagsum)
 
 
 //A=A'
-mtxResultInfo mtx_transp_f64(sMatrixType * pA)
+mtxResultInfo mtx_transp_square_f64(sMatrixType * pA)
 {
     mtxResultInfo ResultL = MTX_OPERATION_OK;
     const int nrow = pA->nrow;
     const int ncol = pA->ncol;
+    double * pSrcL = (double *)pA->val;
     int row,col;
     double temp;
-
-    for(row=0;row<nrow;row++)
+    
+    if(nrow == ncol)
     {
-        for(col=0;col<ncol;col++)
+        for(row=0;row<nrow;row++)
         {
-            if(row != col && row<col)
+            for(col=0;col<ncol;col++) 
             {
-                temp = pA->val[ncol*row+col];
-                pA->val[ncol*row+col] = pA->val[ncol*col+row];
-                pA->val[ncol*col+row] = temp;
+                if(row != col && row<col)
+                {
+                    temp = pSrcL[nrow*row+col];
+                    pSrcL[ncol*row+col] = pSrcL[ncol*col+row];
+                    pSrcL[ncol*col+row] = temp;     
+                }
             }
         }
     }
+    else
+    {
+        ResultL = MTX_NOT_SQUARE;
+    }
+
+
     return ResultL;
 }
 
-//C=A*B
-mtxResultInfo mtx_mul_f64(sMatrixType A, sMatrixType B, sMatrixType C)
+//
+mtxResultInfo mtx_transp_dest_f64(sMatrixType * pA,sMatrixType * pB)
 {
     mtxResultInfo ResultL = MTX_OPERATION_OK;
+    double * pSrcL = (double *)pA->val;
+    double * pDstL = (double *)pB->val;
+    const int nRowSrcL = pA->nrow;
+    const int nColSrcL = pA->ncol;
+    const int nRowDstL = pB->nrow;
+    const int nColDstL = pB->ncol;
+    int row,col;
+    
+    if(nRowSrcL == nColDstL || nColSrcL == nRowDstL)
+    {
+        for(row=0;row<nRowDstL;row++)
+        {
+            for(col=0;col<nColDstL;col++)
+            {
+                pDstL[nColDstL*row + col] = pSrcL[nColSrcL*col + row];          
+            }
+        }
+    }
+    else
+    {
+        ResultL = MTX_SIZE_MISMATCH;   
+    }
+
+return ResultL;
+}
+
+//C=A*B
+mtxResultInfo mtx_mul_f64(sMatrixType * pA, sMatrixType * pB, sMatrixType * pC)
+{
+    mtxResultInfo ResultL = MTX_OPERATION_OK;
+    double * const pSrc1L = (double *)pA->val;
+    double * const pSrc2L = (double *)pB->val;
+    double * const pDstL = (double *)pC->val;
+    const int nrow = pA->nrow;
+    const int ncol = pA->ncol;
     int row,col,k;
     double sum;
-    
-    if(A.ncol != B.nrow)
+
+    if(ncol == nrow)
+    {        
+        for(row=0;row<nrow;row++)
+        {
+            for(col=0;col<ncol;col++)  
+            {
+                sum = 0;
+                for(k=0;k<nrow;k++)
+                {
+                    sum += pSrc1L[ncol*row+k] * pSrc2L[ncol*k+col];
+                }
+                pDstL[ncol*row+col] = sum;
+            }
+        }
+    }
+    else
     {
         ResultL = MTX_SIZE_MISMATCH;
-    }
-    for(row=0;row<A.nrow;row++)
-    {
-        for(col=0;col<B.ncol;col++)  
-        {
-            sum = 0;
-            for(k=0;k<B.nrow;k++)
-            {
-                sum += A.val[A.ncol*row+k] * B.val[B.ncol*k+col];
-            }
-            C.val[C.ncol*row+col] = sum;
-        }
     }
     return ResultL;
 }
 
 //A=chol(A)
 //http://rosettacode.org/wiki/Cholesky_decomposition
-mtxResultInfo mtx_chol_f64(sMatrixType A)
+mtxResultInfo mtx_chol_f64(sMatrixType * pA)
 {
     mtxResultInfo ResultL = MTX_OPERATION_OK;
+    double * const pSrcL = (double *)pA->val;
+    const int nrow = pA->nrow;
+    const int ncol = pA->ncol;
     int col,row,tmp;
     double sum=0;
     
-    if(A.ncol == A.nrow)
+    if(ncol == nrow)
     {       
-        for(row=0;row<A.nrow;row++)
+        for(row=0;row<nrow;row++)
         {
-            for(col=0;col<A.ncol;col++)
+            for(col=0;col<ncol;col++)
             {
-                sum = A.val[A.ncol*row + col];
+                sum = pSrcL[ncol*row + col];
                 
                 for(tmp = row-1;tmp>=0;tmp--)
                 {
-                    sum -= A.val[A.ncol*tmp+row] * A.val[A.ncol*tmp+col];
+                    sum -= pSrcL[ncol*tmp+row] * pSrcL[ncol*tmp+col];
                 }
                 
-                A.val[A.ncol*row + col] = (row==col) ? sqrt(sum) : (sum / A.val[A.ncol*row+row]);
+                pSrcL[ncol*row + col] = (row==col) ? sqrt(sum) : (sum / pSrcL[ncol*row+row]);
                 
                 
                 if((row==col) && (sum<=0))

@@ -25,10 +25,11 @@ typedef struct sMatrixType
 }sMatrixType;
 
 mtxResultInfo mtx_init_f64(sMatrixType* A, double * M, int nrow, int ncol);
-mtxResultInfo mtx_mul_f64(sMatrixType A, sMatrixType B, sMatrixType C);
-mtxResultInfo mtx_transp_f64(sMatrixType * pA);
-mtxResultInfo mtx_diagsum_f64(sMatrixType A, double * diagsum);
-mtxResultInfo mtx_chol_f64(sMatrixType A);
+mtxResultInfo mtx_mul_f64(sMatrixType * pA, sMatrixType * pB, sMatrixType * pC);
+mtxResultInfo mtx_transp_square_f64(sMatrixType * pA);
+mtxResultInfo mtx_transp_dest_f64(sMatrixType * pA,sMatrixType * pB);
+mtxResultInfo mtx_diagsum_f64(sMatrixType * pA, double * diagsum);
+mtxResultInfo mtx_chol_f64(sMatrixType * pA);
 mtxResultInfo mtx_inv_f64(sMatrixType * pA, sMatrixType * pI);
 
 //old integerlib

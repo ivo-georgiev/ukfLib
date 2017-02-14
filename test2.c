@@ -6,14 +6,6 @@
 /*---------------------------------------------*/
 /*           Function Prototype                */
 /*---------------------------------------------*/
-
-double* doubleMtxMul(double* A, double* B, double* C, int m,int n);
-int* MtxMul(int* A, int* B, int* C, int n,int m);
-int* MtxTrDest(int* A,int* B,int m,int n);
-int MtxSumDiag(int*A ,int m, int n);
-int MtxSumUpDiag(int*A ,int m, int n);
-void MtxTr(int* A,int m,int n);
-
 void show_matrix_obj(sMatrixType A);
 void show_matrix(double * A, int n,int m);
 
@@ -63,6 +55,13 @@ double TestMatrix_1_2x3[2][3] =
 { {1.11, 29.3, 31.2},   //size 3x3
   {45.3, 5.17, 6.11}};
 
+double TestMatrixDest_3x2[3][2] =
+{
+    {0,0},
+    {0,0},
+    {0,0}  
+};
+
 
 void main(void)
 {
@@ -71,12 +70,13 @@ void main(void)
     sMatrixType myChol={0,0,NULL};
     sMatrixType Im={0,0,NULL};
     sMatrixType oTestMatrix_0_4x4={0,0,NULL};
+    sMatrixType oTestMatrixDest_3x2={0,0,NULL};
 
     mtx_init_f64(&myTestMatx,&TestMatrix_1_2x3[0][0],NROWS(TestMatrix_1_2x3),NCOL(TestMatrix_1_2x3));
     mtx_init_f64(&myChol,&symMtxChol[0][0],NROWS(symMtxChol),NCOL(symMtxChol));
     mtx_init_f64(&Im,&Identity_5x5[0][0],NROWS(Identity_5x5),NCOL(Identity_5x5));
     mtx_init_f64(&oTestMatrix_0_4x4,&TestMatrix_0_4x4[0][0],NROWS(TestMatrix_0_4x4),NCOL(TestMatrix_0_4x4));
-
+    mtx_init_f64(&oTestMatrixDest_3x2,&TestMatrixDest_3x2[0][0],NROWS(TestMatrixDest_3x2),NCOL(TestMatrixDest_3x2));
     //show_matrix(&TestMatrix_1_2x3[0][0],2,3);
     //show_matrix_obj(myTestMatx);
 
@@ -84,11 +84,11 @@ void main(void)
     (void)mtx_init_f64(&myFactMatrix,&symMtx[0][0],NROWS(symMtx),NCOL(symMtx));
     //show_matrix(&symMtx[0][0],5,5);
 
-    (void)mtx_chol_f64(myFactMatrix);
+    (void)mtx_chol_f64(&myFactMatrix);
     //show_matrix_obj(myFactMatrix);
 
     show_matrix_obj(myChol);
-    mtx_transp_f64(&myChol);
+    mtx_transp_square_f64(&myChol);
     show_matrix_obj(myChol);
 
 
@@ -96,6 +96,10 @@ void main(void)
     show_matrix_obj(oTestMatrix_0_4x4);
     mtx_inv_f64(&oTestMatrix_0_4x4, &Im);
     show_matrix_obj(Im);
+
+    show_matrix_obj(myTestMatx);
+    mtx_transp_dest_f64(&myTestMatx,&oTestMatrixDest_3x2);
+    show_matrix_obj(oTestMatrixDest_3x2);
 
 }
 
@@ -128,43 +132,6 @@ void show_matrix(double * A, int n,int m)
     }
     printf("\n");
 }
-
-int* MtxTrDest(int* A,int* B,int m,int n)
-{
-    int i,j;
-    for(i=0;i<m;i++)
-    {
-        for(j=0;j<n;j++)
-        {
-            *(B+i*n+j) = *(A+j*n+i); 
-        }
-    }
-    return B;
-}
-
-void MtxTr(int* A,int m,int n)
-{
-    int i,j,temp;
-    for(i=0;i<m;i++)
-    {
-        putchar('[');
-        for(j=0;j<n;j++)
-        {
-            if(i != j && i<j)
-            {
-                temp = *(A+i*n+j);
-                *(A+i*n+j) = *(A+j*n+i);
-                *(A+j*n+i) = temp;
-            }
-            printf(" %8d",*(A+i*n+j)); 
-        }
-        puts(" ]");
-    }
-}
-
-
-
-
 
 int MtxSumDiag(int*A ,int m, int n)
 {
