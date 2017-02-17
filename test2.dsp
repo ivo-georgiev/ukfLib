@@ -91,6 +91,10 @@ SOURCE=.\mtxLib.c
 
 SOURCE=.\test2.c
 # End Source File
+# Begin Source File
+
+SOURCE=.\ukfLib.c
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -98,6 +102,10 @@ SOURCE=.\test2.c
 # Begin Source File
 
 SOURCE=.\mtxLib.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ukfLib.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

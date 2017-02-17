@@ -1,33 +1,51 @@
 #include "ukfLib.h"
 
 
-void ukf_init(tUKF * const pUkf,double alfa,double beta,double k,int stLen, sMatrixType * pCovX, sMatrixType * pCovY, sMatrixType * pSigma, sMatrixType * pEta);
+void ukf_init(tUKF * const pUkf,double scaling[scalingLen],int stateLen, sMatrixType * pCovX, sMatrixType * pCovY, sMatrixType * pSigma, sMatrixType * pWm, sMatrixType * pWc);
 
 
-void ukf_init(tUKF * const pUkf,double alfa,double beta,double k,int stLen, sMatrixType * pCovX, sMatrixType * pCovY, sMatrixType * pSigma, sMatrixType * pEta)
+void ukf_init(tUKF * const pUkf,double scaling[scalingLen],int stateLen, sMatrixType * pCovX, sMatrixType * pCovY, sMatrixType * pSigma, sMatrixType * pWm, sMatrixType * pWc)
 {
     tUKFpar * ukfPar = (tUKFpar *)&pUkf->par;
     tUKFvar * ukfVar = (tUKFvar *)&pUkf->var;
-    const int nRows = pEta->nrow;
-    int row;
+    const int WmLen = pWm->ncol;
+    const int WcLen = pWc->ncol;
+    const int expWmLen = 2*stateLen+1;
+    
 
-    ukfPar->pEta = pEta;
-    ukfPar->alfa = alfa;
-    ukfPar->beta = beta;
-    ukfPar->stLen = stLen;
-    ukfPar->k = k;
+    ukfPar->pWm = pWm;
+    ukfPar->alpha = scaling[alphaIdx];
+    ukfPar->betha = scaling[bethaIdx];
+    ukfPar->kappa = scaling[kappaIdx];
+    ukfPar->stateLen = stateLen;
+    
 
-    ukfPar->lambda = alfa * alfa;
-    ukfPar->lambda *= (double)(stLen + k);
-    ukfPar->lambda -= (double)stLen;
-
-    for(row=0;row<nRows/* 2*stLen */;row++)
+    //calculate UKF lambda parameter
+    ukfPar->lambda = ukfPar->alpha * ukfPar->alpha;
+    ukfPar->lambda *= (double)(stateLen + ukfPar->kappa);
+    ukfPar->lambda -= (double)stateLen;
+    
+    if(WmLen == expWmLen && WcLen == WmLen)
     {
-        ukfPar->pEta->val[row] = 1 / (2*(stLen + ukfPar->lambda));
+        int col = 0;
+
+        ukfPar->pWm->val[col] = 0;
+        ukfPar->pWc->val[col] = 0;
+
+        for(col=1;col<WmLen;col++)
+        {
+            ukfPar->pWm->val[col] = 1 / (2*(ukfPar->stateLen + ukfPar->lambda));
+            ukfPar->pWc->val[col] = ukfPar->pWm->val[col];
+        }
+    }
+    else
+    {
+        //UKF init fail 
     }
 
 
-    ukfVar->pPx = pCovX;
+
+//    ukfVar->predict.pPk= pCovX;
     ukfVar->pPy = pCovY;
     ukfVar->pChi = pSigma;
 
