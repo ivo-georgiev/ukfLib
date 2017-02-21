@@ -9,7 +9,7 @@
 typedef struct tUKFpar
 {
     int stateLen;//lenght of state vector
-    double alpha;//Range:[10e-4 : 1].Smaller alfa leads to a tighter (closer) selection of sigma-points,
+    double alpha;//Range:[10e-4 : 1].Smaller alpha leads to a tighter (closer) selection of sigma-points,
     double betha;//Contain information about the prior distribution (for Gaussian, beta = 2 is optimal).
     double kappa; //tertiary scaling parameter, usual value 0.
     double lambda;
@@ -22,18 +22,18 @@ typedef struct tUKFpar
 
 typedef struct tUKFpredict //p(previous)==k-1, m(minus)=(k|k-1)
 {
-    sMatrixType * pPk_sqrt; //1. pPcovXsqrt=sqrt(pPcovX)  &pPcovXsqrt = &pPcovX
-    sMatrixType * pXk_p;
-    sMatrixType * pSk_p;     // S(k-1)   Calculate the sigma-points
-    sMatrixType * pSk_m;    // S(k|k-1) Propagate each sigma-point through prediction f(Chi)
-    sMatrixType * pXk_m;    // X(k|k-1) Calculate mean of predicted state
+    sMatrixType * pPsqrt; //1. pPcovXsqrt=sqrt(pPcovX)  &pPcovXsqrt = &pPcovX
+    sMatrixType * px_p;    // x(k-1)
+    sMatrixType * pX_p;    // X(k-1)   Calculate the sigma-points
+    sMatrixType * pX_m;    // X(k|k-1) Propagate each sigma-point through prediction f(Chi)
+    sMatrixType * px_m;    // x(k|k-1) Calculate mean of predicted state
     sMatrixType * pP_m;    // P(k|k-1) Calculate covariance of predicted state   
 }tUKFpredict;
 
 typedef struct tUKFobserv
 {
-    sMatrixType * pPsi_m; //1. Propagate each sigma-point through observation
-    sMatrixType * pY_m;   //2. Calculate mean of predicted output
+    sMatrixType * pY_m;   //1. Y(k|k-1) Propagate each sigma-point through observation
+    sMatrixType * py_m;   //2. y(k|k-1) Calculate mean of predicted output
     sMatrixType * pPyy;   //3. Calculate covariance of predicted output
     sMatrixType * pPxy;   //4. Calculate cross-covariance of state and output
     
@@ -41,9 +41,9 @@ typedef struct tUKFobserv
 
 typedef struct tUKFupdate
 {
-    sMatrixType * pKgain;     //1. Calculate Kalman gain
-    sMatrixType * pX;         //2. Update state estimate   Xk
-    sMatrixType * pP;      //3. Update error covariance Pk
+    sMatrixType * pK;     //1. K(k) Calculate Kalman gain
+    sMatrixType * px;     //2. x(k) Update state estimate   
+    sMatrixType * pP;     //3. P(k) Update error covariance 
 
 
 }tUKFupdate;
@@ -53,13 +53,6 @@ typedef struct tUKFvar
     tUKFpredict predict;
     tUKFobserv  observ;
     tUKFupdate  update;
-
-    sMatrixType * pChi;//sigma points 
-    sMatrixType * pPsi;//f(Chi[i])  
-
-    sMatrixType * pPy;
-    
-
 }tUKFvar;
 
 typedef struct tUKF

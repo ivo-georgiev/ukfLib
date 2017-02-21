@@ -46,8 +46,8 @@ void ukf_init(tUKF * const pUkf,double scaling[scalingLen],int stateLen, sMatrix
 
 
 //    ukfVar->predict.pPk= pCovX;
-    ukfVar->pPy = pCovY;
-    ukfVar->pChi = pSigma;
+//    ukfVar->pPy = pCovY;
+//    ukfVar->pChi = pSigma;
 
 }
 
