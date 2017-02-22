@@ -6,7 +6,7 @@
 /*---------------------------------------------*/
 /*           Function Prototype                */
 /*---------------------------------------------*/
-void show_matrix_obj(sMatrixType A);
+void show_matrix_obj(tMatrix A);
 void show_matrix(double * A, int n,int m);
 
 
@@ -65,12 +65,12 @@ double TestMatrixDest_3x2[3][2] =
 
 void main(void)
 {
-    sMatrixType myFactMatrix;
-    sMatrixType myTestMatx={0,0,NULL};
-    sMatrixType myChol={0,0,NULL};
-    sMatrixType Im={0,0,NULL};
-    sMatrixType oTestMatrix_0_4x4={0,0,NULL};
-    sMatrixType oTestMatrixDest_3x2={0,0,NULL};
+    tMatrix myFactMatrix;
+    tMatrix myTestMatx={0,0,NULL};
+    tMatrix myChol={0,0,NULL};
+    tMatrix Im={0,0,NULL};
+    tMatrix oTestMatrix_0_4x4={0,0,NULL};
+    tMatrix oTestMatrixDest_3x2={0,0,NULL};
 
     mtx_init_f64(&myTestMatx,&TestMatrix_1_2x3[0][0],NROWS(TestMatrix_1_2x3),NCOL(TestMatrix_1_2x3));
     mtx_init_f64(&myChol,&symMtxChol[0][0],NROWS(symMtxChol),NCOL(symMtxChol));
@@ -103,7 +103,7 @@ void main(void)
 
 }
 
-void show_matrix_obj(sMatrixType A)
+void show_matrix_obj(tMatrix A)
 {
     int i,j;
     

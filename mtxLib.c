@@ -1,7 +1,7 @@
 #include<math.h>
 #include "mtxLib.h"
 
-mtxResultInfo mtx_init_f64(sMatrixType * A, double * pValue, int nrow, int ncol)
+mtxResultInfo mtx_init_f64(tMatrix * A, double * pValue, int nrow, int ncol)
 {
     A->val = pValue;
     A->ncol = ncol;
@@ -11,7 +11,7 @@ mtxResultInfo mtx_init_f64(sMatrixType * A, double * pValue, int nrow, int ncol)
 }
 
 
-mtxResultInfo mtx_diagsum_f64(sMatrixType * pA, double * diagsum)
+mtxResultInfo mtx_diagsum_f64(tMatrix * pA, double * diagsum)
 {
     mtxResultInfo Result = MTX_OPERATION_OK;
     const double * const pSrcL = (double *)pA->val;
@@ -37,7 +37,7 @@ mtxResultInfo mtx_diagsum_f64(sMatrixType * pA, double * diagsum)
 
 
 //A=A'
-mtxResultInfo mtx_transp_square_f64(sMatrixType * pA)
+mtxResultInfo mtx_transp_square_f64(tMatrix * pA)
 {
     mtxResultInfo ResultL = MTX_OPERATION_OK;
     const int nrow = pA->nrow;
@@ -71,7 +71,7 @@ mtxResultInfo mtx_transp_square_f64(sMatrixType * pA)
 }
 
 //
-mtxResultInfo mtx_transp_dest_f64(sMatrixType * pA,sMatrixType * pB)
+mtxResultInfo mtx_transp_dest_f64(tMatrix * pA,tMatrix * pB)
 {
     mtxResultInfo ResultL = MTX_OPERATION_OK;
     double * pSrcL = (double *)pA->val;
@@ -101,7 +101,7 @@ return ResultL;
 }
 
 //C=A*B
-mtxResultInfo mtx_mul_f64(sMatrixType * pA, sMatrixType * pB, sMatrixType * pC)
+mtxResultInfo mtx_mul_f64(tMatrix * pA, tMatrix * pB, tMatrix * pC)
 {
     mtxResultInfo ResultL = MTX_OPERATION_OK;
     double * const pSrc1L = (double *)pA->val;
@@ -136,7 +136,7 @@ mtxResultInfo mtx_mul_f64(sMatrixType * pA, sMatrixType * pB, sMatrixType * pC)
 
 //A=chol(A)
 //http://rosettacode.org/wiki/Cholesky_decomposition
-mtxResultInfo mtx_chol_f64(sMatrixType * pA)
+mtxResultInfo mtx_chol_f64(tMatrix * pA)
 {
     mtxResultInfo ResultL = MTX_OPERATION_OK;
     double * const pSrcL = (double *)pA->val;
@@ -237,7 +237,7 @@ int mtx_sum_updiag_f64(int*A ,int m, int n)
 }
 
 //* pA - source  pI- destination
-mtxResultInfo mtx_inv_f64(sMatrixType * pA, sMatrixType * pI)
+mtxResultInfo mtx_inv_f64(tMatrix * pA, tMatrix * pI)
 {
     mtxResultInfo ResultL = MTX_OPERATION_OK;
     const int nrow = pA->nrow;

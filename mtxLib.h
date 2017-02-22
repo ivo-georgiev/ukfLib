@@ -17,19 +17,19 @@ typedef int mtxResultInfo;
 #define MTX_NOT_POS_DEFINED (mtxResultInfo)254
 #define MTX_OPERATION_ERROR (mtxResultInfo)255
 
-typedef struct sMatrixType
+typedef struct tMatrix
 {
     int nrow;
     int ncol;
     double* val;
-}sMatrixType;
+}tMatrix;
 
-mtxResultInfo mtx_init_f64(sMatrixType* A, double * M, int nrow, int ncol);
-mtxResultInfo mtx_mul_f64(sMatrixType * pA, sMatrixType * pB, sMatrixType * pC);
-mtxResultInfo mtx_transp_square_f64(sMatrixType * pA);
-mtxResultInfo mtx_transp_dest_f64(sMatrixType * pA,sMatrixType * pB);
-mtxResultInfo mtx_diagsum_f64(sMatrixType * pA, double * diagsum);
-mtxResultInfo mtx_chol_f64(sMatrixType * pA);
-mtxResultInfo mtx_inv_f64(sMatrixType * pA, sMatrixType * pI);
+mtxResultInfo mtx_init_f64(tMatrix* A, double * M, int nrow, int ncol);
+mtxResultInfo mtx_mul_f64(tMatrix * pA, tMatrix * pB, tMatrix * pC);
+mtxResultInfo mtx_transp_square_f64(tMatrix * pA);
+mtxResultInfo mtx_transp_dest_f64(tMatrix * pA,tMatrix * pB);
+mtxResultInfo mtx_diagsum_f64(tMatrix * pA, double * diagsum);
+mtxResultInfo mtx_chol_f64(tMatrix * pA);
+mtxResultInfo mtx_inv_f64(tMatrix * pA, tMatrix * pI);
 
 //old integerlib
