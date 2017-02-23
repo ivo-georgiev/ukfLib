@@ -1,5 +1,7 @@
 #include "mtxLib.h"
 
+typedef void (* tPredictFcn) (tMatrix * pu_p, tMatrix * px_p, tMatrix * pX_m,int sigmaIdx);
+typedef void (* tObservFcn) (tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,int sigmaIdx);
 
 typedef struct tUkfMatrix
 {
@@ -61,13 +63,17 @@ typedef struct tUKFpredict //p(previous)==k-1, m(minus)=(k|k-1)
     tMatrix * pP_m;    //P(k|k-1) Calculate covariance of predicted state  
     tMatrix * pY_m;    //Y(k|k-1) Propagate each sigma-point through observation
     tMatrix * py_m;    //y(k|k-1) Calculate mean of predicted output
+    tPredictFcn * pFcnPredict;
+    tObservFcn * pFcnObserv;
 }tUKFpredict;
+
+
 
 typedef struct tUKFupdate
 {
     tMatrix * pPyy;   //Calculate covariance of predicted output
     tMatrix * pPxy;   //Calculate cross-covariance of state and output
-    tMatrix * pK;     //K(k) Calculate Kalman gain
+    tMatrix * pK;     //K(k) Calculate gain
     tMatrix * px;     //x(k) Update state estimate   
     tMatrix * pP;     //P(k) Update error covariance
     tMatrix * pI;     //tmp buffer initialized as identity matrix stor result from inversion  
@@ -83,3 +89,6 @@ typedef struct tUKF
     tUKFupdate  update;
 
 }tUKF;
+
+typedef void (* tPredictFcn) (tMatrix * pu_p, tMatrix * px_p, tMatrix * pX_m,int sigmaIdx);
+typedef void (* tObservFcn) (tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,int sigmaIdx);

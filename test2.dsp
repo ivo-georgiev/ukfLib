@@ -93,6 +93,10 @@ SOURCE=.\test2.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\ukfCfg.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\ukfLib.c
 # End Source File
 # End Group
@@ -102,6 +106,10 @@ SOURCE=.\ukfLib.c
 # Begin Source File
 
 SOURCE=.\mtxLib.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ukfCfg.h
 # End Source File
 # Begin Source File
 

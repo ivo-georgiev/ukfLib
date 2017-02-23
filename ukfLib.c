@@ -91,9 +91,35 @@ void ukf_sigmapoint(tUKF * const pUkf)
 //Step 2: Prediction Transformation
 void ukf_predict(tUKF * const pUkf)
 {
-    //1. Propagate each sigma-point through prediction
+    tUKFpar * pPar = (tUKFpar *)&pUkf->par;
+    tUKFpredict * pPredict = (tUKFpredict *)&pUkf->predict;
+    const int sigmaLen = 2*pPar->xLen+1;
+    const int stateLen = pPar->xLen;
+    int sigmaIdx,stateIdx;
+    
 
-    //2.Calculate mean of predicted state
+    for(stateIdx=0;stateIdx<stateLen;stateIdx++)
+    {
+        double * px_m = (double *)&pPredict->px_m;
+        double sum;
+        sum = 0;       
+        for(sigmaIdx=0;sigmaIdx<sigmaLen;sigmaIdx++)
+        {
+            
+            double * pWm = (double *)&pPar->pWm->val;
+            double * pX_m = (double *)&pPredict->pX_m->val;
+            
+            //1. Propagate each sigma-point through prediction 
+            pPredict->pFcnPredict[sigmaIdx](pUkf->prev.pu_p, pUkf->prev.pX_p, pUkf->predict.pY_m,sigmaIdx);
+            
+            //2.Calculate mean of predicted state xk_mean(stateIdx)
+            sum += pWm[sigmaLen * sigmaIdx] * pX_m[sigmaLen*sigmaIdx + stateIdx];
+        }
+        //assume row check size !!! row or column
+        px_m[stateLen * stateIdx]= sum ;
+    }
+
+    
 
     //3.Calculate covariance of predicted state
 
@@ -104,9 +130,21 @@ void ukf_predict(tUKF * const pUkf)
 
 void ukf_observe(tUKF * const pUkf)
 {
-    //1.Propagate each sigma-point through observation
+    tUKFpar * pPar = (tUKFpar *)&pUkf->par;
+    tUKFpredict * pPredict = (tUKFpredict *)&pUkf->predict;
+    const int sigmaLen = 2*pPar->xLen+1;
+    int sigmaIdx;
+    
+    
+    for(sigmaIdx=0;sigmaIdx<sigmaLen;sigmaIdx++)
+    {
+        //1.Propagate each sigma-point through observation
+        pPredict->pFcnObserv[sigmaIdx](pUkf->input.pu, pUkf->predict.pX_m, pUkf->predict.pY_m,sigmaIdx);
 
-    //2.Calculate mean of predicted output
+        //2.Calculate mean of predicted output
+    }
+
+
 
 }
 
