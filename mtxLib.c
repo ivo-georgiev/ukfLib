@@ -20,7 +20,7 @@ mtxResultInfo mtx_diagsum_f64(tMatrix * pA, double * diagsum)
     int row,col;
     double sum=0;
 
-    for(row=1;row<nrow;row++)
+    for(row=1;row<nrow;row++)//?bug this is for upper diag sum???
     {
         for(col=0;col<ncol;col++)
         {
@@ -294,4 +294,110 @@ mtxResultInfo mtx_inv_f64(tMatrix * pA, tMatrix * pI)
     
     return ResultL;
     
+}
+
+//A=A+B
+mtxResultInfo mtx_add_f64(tMatrix * pA,tMatrix * pB)
+{
+    int Result = MTX_OPERATION_OK;
+    double * pDest= (double *)&pA->val;
+    double * pSrc1= (double *)&pB->val;
+
+    const int nRow = pA->nrow;
+    const int nCol = pA->ncol;
+    int col,row;
+
+    double sum=0;
+    
+    for(row=0;row<nRow;row++)
+    {
+        for(col=0;col<nCol;col++)
+        {
+            pDest[nCol*row+col] += pSrc1[nCol*row+col];
+        }
+    }
+
+    return Result;
+}
+//A=A-B
+mtxResultInfo mtx_subtract_f64(tMatrix * pA,tMatrix * pB)
+{
+    int Result = MTX_OPERATION_OK;
+    double * pDest= (double *)&pA->val;
+    double * pSrc1= (double *)&pB->val;    
+    const int nRow = pA->nrow;
+    const int nCol = pA->ncol;
+    int col,row;
+  
+    
+    for(row=0;row<nRow;row++)
+    {
+        for(col=0;col<nCol;col++)
+        {
+            pDest[nCol*row+col] -= pSrc1[nCol*row+col];
+        }
+    }
+    
+    return Result;
+}
+
+//A=k*A=A*k
+mtxResultInfo mtx_mul_scalar_f64(tMatrix * pA,double scalar)
+{
+    int Result = MTX_OPERATION_OK;
+    double * pDest= (double *)&pA->val;    
+    const int nRow = pA->nrow;
+    const int nCol = pA->ncol;
+    int col,row;
+    
+    
+    for(row=0;row<nRow;row++)
+    {
+        for(col=0;col<nCol;col++)
+        {
+            pDest[nCol*row+col] *= scalar;
+        }
+    }
+    
+    return Result;
+}
+
+mtxResultInfo mtx_subtract_scalar_f64(tMatrix * pA,double scalar)
+{
+    int Result = MTX_OPERATION_OK;
+    double * pDest= (double *)&pA->val;    
+    const int nRow = pA->nrow;
+    const int nCol = pA->ncol;
+    int col,row;
+    
+    
+    for(row=0;row<nRow;row++)
+    {
+        for(col=0;col<nCol;col++)
+        {
+            pDest[nCol*row+col] -= scalar;
+        }
+    }
+    
+    return Result;
+}
+
+mtxResultInfo mtx_add_scalar_f64(tMatrix * pA,double scalar)
+{
+    int Result = MTX_OPERATION_OK;
+    double * pDest= (double *)&pA->val;    
+    const int nRow = pA->nrow;
+    const int nCol = pA->ncol;
+    int col,row;
+    
+    
+    for(row=0;row<nRow;row++)
+    {
+        for(col=0;col<nCol;col++)
+        {
+            pDest[nCol*row+col] += scalar;
+        }
+    }
+    
+    return Result;
 }

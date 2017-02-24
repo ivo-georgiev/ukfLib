@@ -1,4 +1,5 @@
 #include "ukfLib.h"
+#include "stdio.h" //?ok or not ok
 
 
 void ukf_init(tUKF * const pUkf,double scaling[scalingLen],int xLen, tUkfMatrix * pUkfMatrix);
@@ -91,8 +92,12 @@ void ukf_sigmapoint(tUKF * const pUkf)
 //Step 2: Prediction Transformation
 void ukf_predict(tUKF * const pUkf)
 {
+    tPredictFcn * pFcnPredict = (tPredictFcn *)&pUkf->predict.pFcnPredict;
     tUKFpar * pPar = (tUKFpar *)&pUkf->par;
-    tUKFpredict * pPredict = (tUKFpredict *)&pUkf->predict;
+    double * pWm = (double *)&pPar->pWm->val;
+    double * pWc = (double *)&pPar->pWc->val;
+    double * pX_m = (double *)&pUkf->predict.pX_m->val;
+    double * px_m = (double *)&pUkf->predict.px_m;
     const int sigmaLen = 2*pPar->xLen+1;
     const int stateLen = pPar->xLen;
     int sigmaIdx,stateIdx;
@@ -100,29 +105,47 @@ void ukf_predict(tUKF * const pUkf)
 
     for(stateIdx=0;stateIdx<stateLen;stateIdx++)
     {
-        double * px_m = (double *)&pPredict->px_m;
-        double sum;
-        sum = 0;       
+        px_m[stateIdx] = 0;
+        
         for(sigmaIdx=0;sigmaIdx<sigmaLen;sigmaIdx++)
-        {
-            
-            double * pWm = (double *)&pPar->pWm->val;
-            double * pX_m = (double *)&pPredict->pX_m->val;
-            
-            //1. Propagate each sigma-point through prediction 
-            pPredict->pFcnPredict[sigmaIdx](pUkf->prev.pu_p, pUkf->prev.pX_p, pUkf->predict.pY_m,sigmaIdx);
-            
-            //2.Calculate mean of predicted state xk_mean(stateIdx)
-            sum += pWm[sigmaLen * sigmaIdx] * pX_m[sigmaLen*sigmaIdx + stateIdx];
+        {                     
+            if(pFcnPredict[stateIdx] != NULL)
+            {
+                //1. Propagate each sigma-point through prediction X_m[L][2L+1] = f(X_p, u_p) 
+                pFcnPredict[stateIdx](pUkf->prev.pu_p, pUkf->prev.pX_p, pUkf->predict.pX_m,sigmaIdx);
+            }
+            //2.Calculate mean of predicted state x_m[L][1] = sum(Wm(i)*X_m(i))
+            px_m[stateIdx] += pWm[sigmaIdx] * pX_m[sigmaLen*sigmaIdx + stateIdx];
+
         }
-        //assume row check size !!! row or column
-        px_m[stateLen * stateIdx]= sum ;
     }
 
     
 
-    //3.Calculate covariance of predicted state
+    //3.Calculate covariance of predicted state P(k|k-1)
+    //consider to upgarde lib
 
+    for(sigmaIdx=0;sigmaIdx<sigmaLen;sigmaIdx++)
+    {
+        double * pP_m = (double *)&pUkf->predict.pP_m->val;
+        
+        for(stateIdx=0;stateIdx<stateLen;stateIdx++)
+        {
+            int stateTrIdx;
+
+            for(stateTrIdx=0;stateTrIdx<stateLen;stateTrIdx++)
+            {
+                double term1 = (pX_m[sigmaLen*stateIdx + sigmaIdx] - px_m[stateIdx]);
+                double term2 = (pX_m[sigmaLen*stateTrIdx + sigmaIdx] - px_m[stateIdx]);
+
+                pP_m[stateLen*stateIdx + stateTrIdx] = pWm[sigmaIdx]*term1*term2;
+            }           
+        }
+        //pP_m[L][L]
+        //pP_m[sigmaLen*sigmaIdx + stateIdx] += pWm[sigmaIdx];
+
+        
+    }
     //4.Propagate each sigma-point through observation
 
     //5.Calculate mean of predicted output

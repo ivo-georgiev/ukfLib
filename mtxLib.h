@@ -31,5 +31,9 @@ mtxResultInfo mtx_transp_dest_f64(tMatrix * pA,tMatrix * pB);
 mtxResultInfo mtx_diagsum_f64(tMatrix * pA, double * diagsum);
 mtxResultInfo mtx_chol_f64(tMatrix * pA);
 mtxResultInfo mtx_inv_f64(tMatrix * pA, tMatrix * pI);
-
+mtxResultInfo mtx_add_f64(tMatrix * pA,tMatrix * pB);
+mtxResultInfo mtx_subtract_f64(tMatrix * pA,tMatrix * pB);
+mtxResultInfo mtx_mul_scalar_f64(tMatrix * pA,double scalar);
+mtxResultInfo mtx_add_scalar_f64(tMatrix * pA,double scalar);
+mtxResultInfo mtx_subtract_scalar_f64(tMatrix * pA,double scalar);
 //old integerlib
