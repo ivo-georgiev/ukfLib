@@ -401,3 +401,34 @@ mtxResultInfo mtx_add_scalar_f64(tMatrix * pA,double scalar)
     
     return Result;
 }
+
+mtxResultInfo mtx_cpy_f64(tMatrix * pA,tMatrix * pB)
+{
+    int Result = MTX_OPERATION_OK;
+    double * pDest= (double *)&pA->val;
+    double * pSrc= (double *)&pB->val;
+    const int nRow = pA->nrow;
+    const int nCol = pA->ncol;
+    int row,col;
+
+    if(pA->ncol == pB->ncol && pA->nrow == pB->nrow)
+    {
+        for(row=0;row<nRow;row++)
+        {
+            for(col=0;col<nCol;col++)
+            {
+                pDest[nCol*row+col] = pSrc[nCol*row+col];
+            }
+        }
+        
+        //memcpy(pDest,pSrc,sizeof(pSrc));
+    }
+    else
+    {
+        Result = MTX_SIZE_MISMATCH;
+
+    }
+
+    return Result;
+
+}

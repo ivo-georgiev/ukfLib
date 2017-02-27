@@ -31,7 +31,8 @@ typedef struct tUkfMatrix
 
 typedef struct tUKFpar
 {
-    int xLen;//lenght of state vector
+    int xLen;//length of state vector
+    int yLen;//length of measurement vector
     double alpha;//Range:[10e-4 : 1].Smaller alpha leads to a tighter (closer) selection of sigma-points,
     double betha;//Contain information about the prior distribution (for Gaussian, beta = 2 is optimal).
     double kappa; //tertiary scaling parameter, usual value 0.
@@ -46,6 +47,7 @@ typedef struct tUKFpar
 typedef struct tUKFin
 {
     tMatrix * pu;    // u(k)   Current inputs
+    tMatrix * py;    // y(k)   Current measurement
 }tUKFin;
 
 typedef struct tUKFprev

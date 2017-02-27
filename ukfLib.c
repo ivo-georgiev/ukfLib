@@ -2,18 +2,17 @@
 #include "stdio.h" //?ok or not ok
 
 
-void ukf_init(tUKF * const pUkf,double scaling[scalingLen],int xLen, tUkfMatrix * pUkfMatrix);
+void ukf_init(tUKF * const pUkf,double scaling[scalingLen],int xLen,int yLen, tUkfMatrix * pUkfMatrix);
 
 
 void ukf_step(tUKF * const pUkf);
 void ukf_predict(tUKF * const pUkf);
-void ukf_observe(tUKF * const pUkf);
 void ukf_meas_update(tUKF * const pUkf);
 void ukf_sigmapoint(tUKF * const pUkf);
 
 
 
-void ukf_init(tUKF * const pUkf,double scaling[scalingLen],int xLen, tUkfMatrix * pUkfMatrix)
+void ukf_init(tUKF * const pUkf,double scaling[scalingLen],int xLen,int yLen, tUkfMatrix * pUkfMatrix)
 {
     tUKFpar * pPar = (tUKFpar *)&pUkf->par;
     tUKFprev * pPrev = (tUKFprev *)&pUkf->prev;
@@ -27,6 +26,7 @@ void ukf_init(tUKF * const pUkf,double scaling[scalingLen],int xLen, tUkfMatrix 
     pPar->betha = scaling[bethaIdx];
     pPar->kappa = scaling[kappaIdx];
     pPar->xLen = xLen;
+    pPar->yLen = yLen;//check length of output matrix to compare
     
 
     //calculate UKF lambda parameter
@@ -76,7 +76,6 @@ void ukf_step(tUKF * const pUkf)
 {
     ukf_sigmapoint(pUkf);
     ukf_predict(pUkf);
-    ukf_observe(pUkf);
     ukf_meas_update(pUkf);  
 }
 
@@ -93,91 +92,126 @@ void ukf_sigmapoint(tUKF * const pUkf)
 void ukf_predict(tUKF * const pUkf)
 {
     tPredictFcn * pFcnPredict = (tPredictFcn *)&pUkf->predict.pFcnPredict;
+    tObservFcn * pFcnObserve = (tObservFcn *)&pUkf->predict.pFcnObserv;
     tUKFpar * pPar = (tUKFpar *)&pUkf->par;
     double * pWm = (double *)&pPar->pWm->val;
     double * pWc = (double *)&pPar->pWc->val;
     double * pX_m = (double *)&pUkf->predict.pX_m->val;
+    double * pY_m = (double *)&pUkf->predict.pY_m->val;
+    double * pP_m = (double *)&pUkf->predict.pP_m->val;
+    double * pPyy = (double *)&pUkf->update.pPyy;
+    double * pPxy = (double *)&pUkf->update.pPxy;
     double * px_m = (double *)&pUkf->predict.px_m;
+    double * py_m = (double *)&pUkf->predict.py_m;
     const int sigmaLen = 2*pPar->xLen+1;
-    const int stateLen = pPar->xLen;
-    int sigmaIdx,stateIdx;
+    const int xLen = pPar->xLen;
+    const int yLen= pPar->yLen;
+    int sigmaIdx,xIdx,xTrIdx,yIdx,yTrIdx;
     
 
-    for(stateIdx=0;stateIdx<stateLen;stateIdx++)
+    for(xIdx=0;xIdx<xLen;xIdx++)
     {
-        px_m[stateIdx] = 0;
+        px_m[xIdx] = 0;
+        py_m[xIdx] = 0;
         
         for(sigmaIdx=0;sigmaIdx<sigmaLen;sigmaIdx++)
         {                     
-            if(pFcnPredict[stateIdx] != NULL)
+            if(pFcnPredict[xIdx] != NULL)
             {
-                //1. Propagate each sigma-point through prediction X_m[L][2L+1] = f(X_p, u_p) 
-                pFcnPredict[stateIdx](pUkf->prev.pu_p, pUkf->prev.pX_p, pUkf->predict.pX_m,sigmaIdx);
+                //Propagate each sigma-point through prediction
+                //X_m[L][2L+1] = f(X_p, u_p) 
+                pFcnPredict[xIdx](pUkf->prev.pu_p, pUkf->prev.pX_p, pUkf->predict.pX_m,sigmaIdx);
             }
-            //2.Calculate mean of predicted state x_m[L][1] = sum(Wm(i)*X_m(i))
-            px_m[stateIdx] += pWm[sigmaIdx] * pX_m[sigmaLen*sigmaIdx + stateIdx];
 
+            //Calculate mean of predicted state 
+            //x_m[L][1] = sum(Wm(i)*X_m(i))
+            px_m[xIdx] += pWm[sigmaIdx] * pX_m[sigmaLen*sigmaIdx + xIdx];
+        }
+    }
+    
+    //loop for each sigma point column vector  
+    for(sigmaIdx=0;sigmaIdx<sigmaLen;sigmaIdx++)
+    {
+        
+        //3.Calculate covariance of predicted state P(k|k-1)
+        //loop row of COV[:][L]
+        for(xIdx=0;xIdx<xLen;xIdx++)
+        {                      
+            //ToDo: P(k|k-1) = Q(k-1) 
+            for(xTrIdx=0;xTrIdx<xLen;xTrIdx++)
+            {
+                //loop col of COV[L][:] 
+                
+                double term1 = (pX_m[sigmaLen*xIdx + sigmaIdx] - px_m[xIdx]);
+                double term2 = (pX_m[sigmaLen*xTrIdx + sigmaIdx] - px_m[xIdx]);
+                
+                //Perform multiplication with accumulation for each covariance matrix index
+                //P(k|k-1)[xIdx][xTrIdx]= Wc(sigmaIdx)*(X_m-x_mean)*(X_m-x_mean)'
+                //result is 2L+1 COV[L][L] matrix which are weighted in one common
+                pP_m[xLen*xIdx + xTrIdx] += pWc[sigmaIdx]*term1*term2;
+            }           
+        } 
+        
+        //Calculate outputs for each sigma point
+        for(yIdx=0;yIdx<yLen;yIdx++)
+        {
+            if(pFcnObserve[yIdx] != NULL)
+            {
+                //Propagate each sigma-point through observation Y_m[L][2L+1] = h(X_m, u)             
+                pFcnObserve[yIdx](pUkf->input.pu, pUkf->predict.pX_m,pUkf->predict.pY_m,sigmaIdx);
+            }
+            else
+            {
+                //assign 0 if observation function is specified
+                pY_m[sigmaLen*sigmaIdx + yIdx]=0;
+            }
+            //Calculate mean of predicted output 
+            //y_m[L] = sum(Wm(i)*Y_m(i))
+            py_m[yIdx] += pWm[sigmaIdx] * pY_m[sigmaLen*sigmaIdx + yIdx];
         }
     }
 
     
-
-    //3.Calculate covariance of predicted state P(k|k-1)
-    //consider to upgarde lib
-
     for(sigmaIdx=0;sigmaIdx<sigmaLen;sigmaIdx++)
-    {
-        double * pP_m = (double *)&pUkf->predict.pP_m->val;
-        
-        for(stateIdx=0;stateIdx<stateLen;stateIdx++)
-        {
-            int stateTrIdx;
-
-            for(stateTrIdx=0;stateTrIdx<stateLen;stateTrIdx++)
+    {       
+        //Calculate covariance of predicted output
+        //loop row of Pyy[:][yL]
+        for(yIdx=0;yIdx<yLen;yIdx++)
+        {                      
+            //ToDo: Pyy(k|k-1) = R(k) 
+            for(yTrIdx=0;yTrIdx<yLen;yTrIdx++)
             {
-                double term1 = (pX_m[sigmaLen*stateIdx + sigmaIdx] - px_m[stateIdx]);
-                double term2 = (pX_m[sigmaLen*stateTrIdx + sigmaIdx] - px_m[stateIdx]);
-
-                pP_m[stateLen*stateIdx + stateTrIdx] = pWm[sigmaIdx]*term1*term2;
+                //loop col of COV[L][:] 
+                
+                double term1 = (pY_m[sigmaLen*yIdx + sigmaIdx] - py_m[yIdx]);
+                double term2 = (pY_m[sigmaLen*yTrIdx + sigmaIdx] - py_m[yIdx]);
+                
+                //Perform multiplication with accumulation for each covariance matrix index
+                //Pyy(k)[yIdx][yTrIdx]= Wc(sigmaIdx)*(Y_m-y_m)*(Y_m-y_m)'
+                //result is (2L+1)x(Pyy[yL][yL]) matrix which are weighted in one common
+                pPyy[yLen*yIdx + yTrIdx] += pWc[sigmaIdx]*term1*term2;            
             }           
         }
-        //pP_m[L][L]
-        //pP_m[sigmaLen*sigmaIdx + stateIdx] += pWm[sigmaIdx];
-
         
+        //Calculate cross-covariance of state and output
+        for(xIdx=0;xIdx<xLen;xIdx++)
+        {
+            for(yTrIdx=0;yTrIdx<yLen;yTrIdx++)
+            {
+                double term1 = (pX_m[sigmaLen*xIdx + sigmaIdx] - px_m[xIdx]);
+                double term2 = (pY_m[sigmaLen*yTrIdx + sigmaIdx] - py_m[yIdx]);
+
+                
+                pPxy[yLen*xIdx + yTrIdx] += pWc[sigmaIdx]*term1*term2;
+            }
+        }
     }
-    //4.Propagate each sigma-point through observation
-
-    //5.Calculate mean of predicted output
-}
-
-void ukf_observe(tUKF * const pUkf)
-{
-    tUKFpar * pPar = (tUKFpar *)&pUkf->par;
-    tUKFpredict * pPredict = (tUKFpredict *)&pUkf->predict;
-    const int sigmaLen = 2*pPar->xLen+1;
-    int sigmaIdx;
-    
-    
-    for(sigmaIdx=0;sigmaIdx<sigmaLen;sigmaIdx++)
-    {
-        //1.Propagate each sigma-point through observation
-        pPredict->pFcnObserv[sigmaIdx](pUkf->input.pu, pUkf->predict.pX_m, pUkf->predict.pY_m,sigmaIdx);
-
-        //2.Calculate mean of predicted output
-    }
-
-
-
 }
 
 void ukf_meas_update(tUKF * const pUkf)
 {
     tUKFupdate * pUpdate = (tUKFupdate*)&pUkf->update;
 
-    //1.Calculate covariance of predicted output
-
-    //2.Calculate cross-covariance of state and output
 
     //3.Calculate Kalman gain: Pxy * inv(Pyy)
 
@@ -185,6 +219,15 @@ void ukf_meas_update(tUKF * const pUkf)
     (void)mtx_mul_f64(pUpdate->pPxy,pUpdate->pI,pUpdate->pK);
     
     //4.Update state estimate
+
+    // y = y - y_m
+    (void)mtx_subtract_f64(pUkf->input.py,pUkf->predict.py_m);
+    // K*(y - y_m) temporal stored in py
+    (void)mtx_mul_f64(pUpdate->pK,pUkf->input.py,pUkf->input.py);
+
+    // x_m + K*(y - y_m)
+    (void)mtx_add_f64(pUkf->predict.px_m,pUkf->input.py);
+
 
     //5.Update error covariance
 
