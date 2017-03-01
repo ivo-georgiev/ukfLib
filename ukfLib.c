@@ -95,7 +95,7 @@ void ukf_sigmapoint(tUKF * const pUkf)
     const int xLen = pUkf->par.xLen;
     int xIdx;
     int sigmaIdx=0;
-
+    
     //1. Calculate error covariance matrix square root: P_p = sqrt(P_p)
     (void)mtx_chol_f64(pUkf->prev.pP_p);
     
@@ -107,30 +107,23 @@ void ukf_sigmapoint(tUKF * const pUkf)
     }
     
     scalarMultiplier = sqrt(xLen+(double)Lambda);
-
+    
     (void)mtx_mul_scalar_f64(pUkf->prev.pP_p,scalarMultiplier);
-
+    
     for(sigmaIdx=1;sigmaIdx < sLen;sigmaIdx++)
     {
-        if(sigmaIdx <= xLen)
+        for(xIdx=0;xIdx<xLen;xIdx++)
         {
-            for(xIdx=0;xIdx<xLen;xIdx++)
+            if(sigmaIdx <= xLen)
             {
                 pX_p[sLen*xIdx+sigmaIdx] = px_p[xIdx] + pP_p[xLen*xIdx + (sigmaIdx-1)];
             }
-            
-        }
-        else
-        {
-            for(xIdx=0;xIdx<xLen;xIdx++)
+            else
             {
                 pX_p[sLen*xIdx+sigmaIdx] = px_p[xIdx] - pP_p[xLen*xIdx + (sigmaIdx-5)];
-            }           
+            }            
         }
-    }
-
-
-    
+    }    
 }
 
 //Step 2: Prediction Transformation
