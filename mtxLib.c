@@ -402,22 +402,22 @@ mtxResultInfo mtx_add_scalar_f64(tMatrix * pA,double scalar)
     return Result;
 }
 
-mtxResultInfo mtx_cpy_f64(tMatrix * pA,tMatrix * pB)
+mtxResultInfo mtx_cpy_f64(tMatrix * const pDestP,tMatrix const * const pSrcP)
 {
     int Result = MTX_OPERATION_OK;
-    double * pDest= (double *)&pA->val;
-    double * pSrc= (double *)&pB->val;
-    const int nRow = pA->nrow;
-    const int nCol = pA->ncol;
+    double * const pDestL= (double *)&pDestP->val;
+    double const * const pSrcL= (double *)&pSrcP->val;
+    const int nRow = pDestP->nrow;
+    const int nCol = pSrcP->ncol;
     int row,col;
 
-    if(pA->ncol == pB->ncol && pA->nrow == pB->nrow)
+    if(pDestP->ncol == pSrcP->ncol && pDestP->nrow == pSrcP->nrow)
     {
         for(row=0;row<nRow;row++)
         {
             for(col=0;col<nCol;col++)
             {
-                pDest[nCol*row+col] = pSrc[nCol*row+col];
+                pDestL[nCol*row+col] = pSrcL[nCol*row+col];
             }
         }
         

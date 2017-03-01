@@ -36,5 +36,5 @@ mtxResultInfo mtx_subtract_f64(tMatrix * pA,tMatrix * pB);
 mtxResultInfo mtx_mul_scalar_f64(tMatrix * pA,double scalar);
 mtxResultInfo mtx_add_scalar_f64(tMatrix * pA,double scalar);
 mtxResultInfo mtx_subtract_scalar_f64(tMatrix * pA,double scalar);
-mtxResultInfo mtx_cpy_f64(tMatrix * pA,tMatrix * pB);
+mtxResultInfo mtx_cpy_f64(tMatrix * const pDestP,tMatrix const * const pSrcP);
 //old integerlib

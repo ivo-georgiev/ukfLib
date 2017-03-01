@@ -10,10 +10,10 @@ typedef struct tUkfMatrix
     tMatrix * x_system_states;
     tMatrix * u_system_input;
     tMatrix * u_prev_system_input;
-    tMatrix * X_sigma_point_gen;
-    tMatrix * Y_sigma_point_propagated;
+    tMatrix * X_sigma_points;
+    tMatrix * Y_sigma_points;
     tMatrix * y_predicted_mean;
-    tMatrix * Pyy_predicted_covariance;
+    tMatrix * Pyy_out_covariance;
     tMatrix * Pxy_cross_covariance;
     tMatrix * P_error_covariance;
     tMatrix * K_kalman_gain;
@@ -33,6 +33,7 @@ typedef struct tUKFpar
 {
     int xLen;//length of state vector
     int yLen;//length of measurement vector
+    int sLen;//length of sigma point
     double alpha;//Range:[10e-4 : 1].Smaller alpha leads to a tighter (closer) selection of sigma-points,
     double betha;//Contain information about the prior distribution (for Gaussian, beta = 2 is optimal).
     double kappa; //tertiary scaling parameter, usual value 0.

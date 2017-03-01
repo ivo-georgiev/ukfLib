@@ -1,5 +1,6 @@
 #include "ukfLib.h"
 #include "stdio.h" //?ok or not ok
+#include "math.h"
 
 
 void ukf_init(tUKF * const pUkf,double scaling[scalingLen],int xLen,int yLen, tUkfMatrix * pUkfMatrix);
@@ -20,6 +21,8 @@ void ukf_init(tUKF * const pUkf,double scaling[scalingLen],int xLen,int yLen, tU
     const int WcLen = pUkfMatrix->Wc_weight_vector->ncol;
     const int expWmLen = 2*xLen+1;
     
+    mtx_cpy_f64(pUkf->prev.pP_p, pPar->pQ);
+    //mtx_cpy_f64(pUkf->prev.pP_p, pPar->pR);
 
     pPar->pWm = pUkfMatrix->Wm_weight_vector;
     pPar->alpha = scaling[alphaIdx];
@@ -27,6 +30,7 @@ void ukf_init(tUKF * const pUkf,double scaling[scalingLen],int xLen,int yLen, tU
     pPar->kappa = scaling[kappaIdx];
     pPar->xLen = xLen;
     pPar->yLen = yLen;//check length of output matrix to compare
+    pPar->sLen = 2*xLen+1;
     
 
     //calculate UKF lambda parameter
@@ -55,20 +59,20 @@ void ukf_init(tUKF * const pUkf,double scaling[scalingLen],int xLen,int yLen, tU
     pUkf->input.pu = pUkfMatrix->u_system_input;
 
     pPrev->pP_p = pUkfMatrix->P_error_covariance;
-    pPrev->pX_p = pUkfMatrix->X_sigma_point_gen; //share same memory with pX_m
+    pPrev->pX_p = pUkfMatrix->X_sigma_points; //share same memory with pX_m
     pPrev->pu_p = pUkfMatrix->u_system_input;
     pPrev->px_p = pUkfMatrix->x_system_states;
 
     pUkf->predict.pP_m = pUkfMatrix->P_error_covariance;
-    pUkf->predict.pX_m = pUkfMatrix->X_sigma_point_gen;
+    pUkf->predict.pX_m = pUkfMatrix->X_sigma_points;
     pUkf->predict.px_m = pUkfMatrix->x_system_states;
-    pUkf->predict.pY_m = pUkfMatrix->Y_sigma_point_propagated;
+    pUkf->predict.pY_m = pUkfMatrix->Y_sigma_points;
     pUkf->predict.py_m = pUkfMatrix->y_predicted_mean;
 
     pUkf->update.pK = pUkfMatrix->K_kalman_gain;
     pUkf->update.pP = pUkfMatrix->P_error_covariance;
     pUkf->update.pPxy = pUkfMatrix->Pxy_cross_covariance;
-    pUkf->update.pPyy = pUkfMatrix->Pyy_predicted_covariance;
+    pUkf->update.pPyy = pUkfMatrix->Pyy_out_covariance;
     pUkf->update.px = pUkfMatrix->x_system_states; //&px = &px_m = &px_p
 }
 
@@ -82,9 +86,50 @@ void ukf_step(tUKF * const pUkf)
 //Step 1: Generate the Sigma-Points
 void ukf_sigmapoint(tUKF * const pUkf)
 {
-    //1. Calculate error covariance matrix square root
+    double * pP_p = (double *)&pUkf->prev.pP_p->val;
+    double * pX_p = (double *)&pUkf->prev.pX_p->val;
+    double * px_p = (double *)&pUkf->prev.px_p->val;
+    double scalarMultiplier;
+    const double Lambda = pUkf->par.lambda;
+    const int sLen = pUkf->par.sLen;
+    const int xLen = pUkf->par.xLen;
+    int xIdx;
+    int sigmaIdx=0;
 
+    //1. Calculate error covariance matrix square root: P_p = sqrt(P_p)
+    (void)mtx_chol_f64(pUkf->prev.pP_p);
+    
     //2. Calculate the sigma-points
+    for(xIdx=0;xIdx<xLen;xIdx++)
+    {
+        //first column of sigma point matrix is equal of previous state value
+        pX_p[sLen*xIdx+sigmaIdx] = px_p[xIdx];
+    }
+    
+    scalarMultiplier = sqrt(xLen+(double)Lambda);
+
+    (void)mtx_mul_scalar_f64(pUkf->prev.pP_p,scalarMultiplier);
+
+    for(sigmaIdx=1;sigmaIdx < sLen;sigmaIdx++)
+    {
+        if(sigmaIdx <= xLen)
+        {
+            for(xIdx=0;xIdx<xLen;xIdx++)
+            {
+                pX_p[sLen*xIdx+sigmaIdx] = px_p[xIdx] + pP_p[xLen*xIdx + (sigmaIdx-1)];
+            }
+            
+        }
+        else
+        {
+            for(xIdx=0;xIdx<xLen;xIdx++)
+            {
+                pX_p[sLen*xIdx+sigmaIdx] = px_p[xIdx] - pP_p[xLen*xIdx + (sigmaIdx-5)];
+            }           
+        }
+    }
+
+
     
 }
 
@@ -157,7 +202,7 @@ void ukf_predict(tUKF * const pUkf)
         {
             if(pFcnObserve[yIdx] != NULL)
             {
-                //Propagate each sigma-point through observation Y_m[L][2L+1] = h(X_m, u)             
+                //Propagate each sigma-point through observation Y_m[yL][2L+1] = h(X_m, u)             
                 pFcnObserve[yIdx](pUkf->input.pu, pUkf->predict.pX_m,pUkf->predict.pY_m,sigmaIdx);
             }
             else
