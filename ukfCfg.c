@@ -18,8 +18,8 @@ static const tObservFcn  ObservFcn[stateVectorLen] = {&Hy1,&Hy2};
 //-----------------------
 //UKF Processing matrix
 //-----------------------
-double sigma_weight_Wm_1x9[1][9] = {0,0,0,0,0,0,0,0,0};
-double sigma_weight_Wc_1x9[1][9] = {0,0,0,0,0,0,0,0,0};
+double Wm_sigma_weight_1x9[9] = {3,3,3,3,3,3,3,3,3};
+double Wc_sigma_weight_1x9[9] = {0,0,0,0,0,0,0,0,0};
 
 //System input current u(k)
 double u_curr_system_input_4x1[4] = {0,0,0,0}; 
@@ -34,7 +34,7 @@ double y_curr_system_meas_2x1[4] = {0,0};
 double y_mean_system_predict_2x1[4] = {0,0};
 
 //System states: x(k), x(k-1), x(k|k-1) common array for all 
-double x_system_states_4x1[4] = {0,0,0,0};
+double x_system_states_4x1[4] = {0,0,50,50};
 
 //Sigma points X(k), X(k|k-1):
 double X_sigma_points_4x9[4][9]=
@@ -46,7 +46,7 @@ double X_sigma_points_4x9[4][9]=
 };
 
 //Sigma points Y(k|k-1) = y_m
-double Y_sigma_points_2x9[4][9]=
+double Y_sigma_points_2x9[2][9]=
 {/*  s1  s2  s3  s4  s5  s6  s7  s8  s9        */
     {0,  0,  0,  0,  0,  0,  0,  0,  0}, /* y1 */
     {0,  0,  0,  0,  0,  0,  0,  0,  0}, /* y2 */
@@ -71,7 +71,7 @@ const double P0_state_cov_4x4[4][4]=
 };
 
 //Process noise covariance Q : initial noise assumptions
-const double Qx_process_noise_cov_4x4[4][4]=
+const double Qxx_process_noise_cov_4x4[4][4]=
 {/*  x1, x2, x3, x4        */
     {0,  0,  0,  0}, /* x1 */
     {0,  0,  0,  0}, /* x2 */ 
@@ -80,7 +80,7 @@ const double Qx_process_noise_cov_4x4[4][4]=
 };
 
 //Output noise covariance: initial noise assumptions
-const double Ry_out_cov_noise_2x2[2][2]=
+const double Ryy_out_cov_noise_2x2[2][2]=
 {/*  y1, y2         */
     {1,  0},  /* y1 */
     {0,  1},  /* y2 */
@@ -112,22 +112,20 @@ double K_kalman_gain_4x2[4][2]=
     {0, 0},
 };
 
-//temporal result ,matrix 4*4
-double temp_4x4[4][4]=
-{
+//Kalman gain transponce matrix
+double K_kalman_transp_gain_4x2[2][4]=
+{  
     {0, 0, 0, 0},
-    {0, 0, 0, 0},
-    {0, 0, 0, 0},
-    {0, 0, 0, 0},
+    {0, 0, 0, 0}
 };
 
-//temporal result ,matrix 4*4
-const double Identity_4x4[4][4]=
+
+double temporal_4x4[4][4]=
 {
-    {1,0,0,0},
-    {0,1,0,0},
-    {0,0,1,0},
-    {0,0,0,1},
+    {0,  0,  0,  0},
+    {0,  0,  0,  0},
+    {0,  0,  0,  0}, 
+    {0,  0,  0,  0},
 };
 
 //State transition matrix
@@ -138,6 +136,7 @@ static const double A[stateVectorLen][stateVectorLen] =
     {0,   0,   1,   0},
     {0,   0,   0,   1}
 };
+
 
 
 void Fx0(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,int sigmaIdx)
@@ -177,10 +176,36 @@ void Fx3(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,int sigmaIdx)
 
 void Hy1(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,int sigmaIdx)
 {
+    static const N1 = 20;
+    static const E1 = 0;
+    double term1;
+    double term2;
+    const int nCol = pY_m->ncol;
+
+    term1 = pX_m->val[nCol*sigmaIdx + idxSt0] - N1;
+    term1 *= term1;
+
+    term2 = pX_m->val[nCol*sigmaIdx + idxSt1] - E1;
+    term2 *= term2;
+
+    pY_m->val[nCol*sigmaIdx + 0] = sqrt(term1+term2);
     
 }
 
 void Hy2(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,int sigmaIdx)
 {
+    static const N2 = 20;
+    static const E2 = 0;
+    double term1;
+    double term2;
+    const int nCol = pY_m->ncol;
+    
+    term1 = pX_m->val[nCol*sigmaIdx + idxSt0] - N2;
+    term1 *= term1;
+    
+    term2 = pX_m->val[nCol*sigmaIdx + idxSt1] - E2;
+    term2 *= term2;
+    
+    pY_m->val[nCol*sigmaIdx + 0] = sqrt(term1+term2);
     
 }

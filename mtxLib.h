@@ -17,12 +17,15 @@ typedef int mtxResultInfo;
 #define MTX_NOT_POS_DEFINED (mtxResultInfo)254
 #define MTX_OPERATION_ERROR (mtxResultInfo)255
 
+#ifndef MTXLIB_FILE
+#define MTXLIB_FILE
 typedef struct tMatrix
 {
     int nrow;
     int ncol;
     double* val;
 }tMatrix;
+#endif
 
 mtxResultInfo mtx_init_f64(tMatrix* A, double * M, int nrow, int ncol);
 mtxResultInfo mtx_mul_f64(tMatrix * pA, tMatrix * pB, tMatrix * pC);
@@ -37,4 +40,5 @@ mtxResultInfo mtx_mul_scalar_f64(tMatrix * pA,double scalar);
 mtxResultInfo mtx_add_scalar_f64(tMatrix * pA,double scalar);
 mtxResultInfo mtx_subtract_scalar_f64(tMatrix * pA,double scalar);
 mtxResultInfo mtx_cpy_f64(tMatrix * const pDestP,tMatrix const * const pSrcP);
+mtxResultInfo mtx_identity_f64(tMatrix * pI);
 //old integerlib

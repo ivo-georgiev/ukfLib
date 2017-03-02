@@ -432,3 +432,29 @@ mtxResultInfo mtx_cpy_f64(tMatrix * const pDestP,tMatrix const * const pSrcP)
     return Result;
 
 }
+
+mtxResultInfo mtx_identity_f64(tMatrix * pI)
+{
+    int Result = MTX_OPERATION_OK;
+    double * pDest= (double *)&pI->val;    
+    const int nRow = pI->nrow;
+    const int nCol = pI->ncol;
+    int col,row;
+    
+    if(nRow == nCol)
+    {        
+        for(row=0;row<nRow;row++)
+        {
+            for(col=0;col<nCol;col++)
+            {
+                pDest[nCol*row+col] = (row==col) ?  1 : 0;             
+            }
+        }
+    }
+    else
+    {
+        Result = MTX_SIZE_MISMATCH;
+    }
+
+    return Result;
+}

@@ -13,10 +13,12 @@ typedef struct tUkfMatrix
     tMatrix * X_sigma_points;
     tMatrix * Y_sigma_points;
     tMatrix * y_predicted_mean;
+    tMatrix * y_meas;
     tMatrix * Pyy_out_covariance;
     tMatrix * Pxy_cross_covariance;
     tMatrix * P_error_covariance;
     tMatrix * K_kalman_gain;
+    tMatrix * K_kalman_gain_transp;
     tMatrix * I_identity_matrix;
 
 }tUkfMatrix;
@@ -77,9 +79,10 @@ typedef struct tUKFupdate
     tMatrix * pPyy;   //Calculate covariance of predicted output
     tMatrix * pPxy;   //Calculate cross-covariance of state and output
     tMatrix * pK;     //K(k) Calculate gain
+    tMatrix * pKt;     //Kt(k) Kalman gain transponce
     tMatrix * px;     //x(k) Update state estimate   
     tMatrix * pP;     //P(k) Update error covariance
-    tMatrix * pI;     //tmp buffer initialized as identity matrix stor result from inversion  
+    tMatrix * pIxx;     //tmp buffer initialized as identity matrix stor result from inversion and other operation  
 }tUKFupdate;
 
 
@@ -95,3 +98,6 @@ typedef struct tUKF
 
 typedef void (* tPredictFcn) (tMatrix * pu_p, tMatrix * px_p, tMatrix * pX_m,int sigmaIdx);
 typedef void (* tObservFcn) (tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,int sigmaIdx);
+
+extern void ukf_init(tUKF * const pUkf,double scaling[scalingLen],int xLen,int yLen, tUkfMatrix * pUkfMatrix);
+extern void ukf_step(tUKF * const pUkf);
