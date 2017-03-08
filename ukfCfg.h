@@ -1,3 +1,4 @@
+//#include "ukfCfg.h"
 
 #define idxSt0 (int)0
 #define idxSt1 (int)1
@@ -39,4 +40,8 @@ extern double K_kalman_gain_4x2[4][2];
 
 extern double K_kalman_transp_gain_4x2[2][4];
 
+extern double Qxx_process_noise_cov_4x4[4][4];
+
 extern double temporal_4x4[4][4];
+
+//extern PredictFcn[stateVectorLen];

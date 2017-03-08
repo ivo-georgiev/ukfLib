@@ -167,42 +167,44 @@ void ukf_test(void)
 
     z=Wm_sigma_weight_1x9[0];
 
-    //mtx_init_f64(&myTestMatx,&TestMatrix_1_2x3[0][0],NROWS(TestMatrix_1_2x3),NCOL(TestMatrix_1_2x3));
+    mtx_init_f64(&myTestMatx,&TestMatrix_1_2x3[0][0],NROWS(TestMatrix_1_2x3),NCOL(TestMatrix_1_2x3));
 
-   //mtx_init_f64(UkfMat.Wm_weight_vector, &Wm_sigma_weight_1x9[0],1,9);
-/*
-    mtx_init_f64(UkfMat.Wc_weight_vector, &Wc_sigma_weight_1x9[0],1,9);
+    mtx_init_f64(&UkfMat.Wm_weight_vector, &Wm_sigma_weight_1x9[0],1,9);
 
-    mtx_init_f64(UkfMat.u_system_input, &u_curr_system_input_4x1[0],1,4);
+    mtx_init_f64(&UkfMat.Wc_weight_vector, &Wc_sigma_weight_1x9[0],1,9);
 
-    mtx_init_f64(UkfMat.u_prev_system_input, &u_prev_system_input_4x1[0],1,4);
+    mtx_init_f64(&UkfMat.u_system_input, &u_curr_system_input_4x1[0],1,4);
 
-    mtx_init_f64(UkfMat.y_meas, &y_curr_system_meas_2x1[0],1,2);
+    mtx_init_f64(&UkfMat.u_prev_system_input, &u_prev_system_input_4x1[0],1,4);
 
-    mtx_init_f64(UkfMat.y_predicted_mean, &y_mean_system_predict_2x1[0],2,1);
+    mtx_init_f64(&UkfMat.y_meas, &y_curr_system_meas_2x1[0],1,2);
 
-    mtx_init_f64(UkfMat.x_system_states, &x_system_states_4x1[0],4,1);
+    mtx_init_f64(&UkfMat.y_predicted_mean, &y_mean_system_predict_2x1[0],2,1);
 
-    mtx_init_f64(UkfMat.X_sigma_points, &X_sigma_points_4x9[0][0],4,9);
+    mtx_init_f64(&UkfMat.x_system_states, &x_system_states_4x1[0],4,1);
 
-    mtx_init_f64(UkfMat.Y_sigma_points, &Y_sigma_points_2x9[0][0],2,9);
+    mtx_init_f64(&UkfMat.X_sigma_points, &X_sigma_points_4x9[0][0],4,9);
 
-    mtx_init_f64(UkfMat.P_error_covariance, &Px_state_cov_4x4[0][0],4,4);
+    mtx_init_f64(&UkfMat.Y_sigma_points, &Y_sigma_points_2x9[0][0],2,9);
 
-    mtx_init_f64(UkfMat.Pyy_out_covariance, &Pyy_out_cov_2x2[0][0],2,2);
+    mtx_init_f64(&UkfMat.P_error_covariance, &Px_state_cov_4x4[0][0],4,4);
 
-    mtx_init_f64(UkfMat.Pxy_cross_covariance, &Pxy_state_out_cov_4x2[0][0],4,2);
+    mtx_init_f64(&UkfMat.Pyy_out_covariance, &Pyy_out_cov_2x2[0][0],2,2);
 
-    mtx_init_f64(UkfMat.K_kalman_gain, &K_kalman_gain_4x2[0][0],4,2);
+    mtx_init_f64(&UkfMat.Pxy_cross_covariance, &Pxy_state_out_cov_4x2[0][0],4,2);
 
-    mtx_init_f64(UkfMat.K_kalman_gain_transp, &K_kalman_transp_gain_4x2[0][0],2,4);
+    mtx_init_f64(&UkfMat.K_kalman_gain, &K_kalman_gain_4x2[0][0],4,2);
 
-    mtx_init_f64(UkfMat.I_identity_matrix, &temporal_4x4[0][0],4,4);
+    mtx_init_f64(&UkfMat.K_kalman_gain_transp, &K_kalman_transp_gain_4x2[0][0],2,4);
 
+    mtx_init_f64(&UkfMat.I_identity_matrix, &temporal_4x4[0][0],4,4);
+
+    mtx_init_f64(&UkfMat.Qxx_process_noise_cov, &Qxx_process_noise_cov_4x4[0][0],4,4);
+
+    //UkfMat.fcnPredict = &PredictFcn[0];
 
     (void)ukf_init(&ukfIo,param,4,2, &UkfMat);
-    (void)ukf_step(&ukfIo);
- */   
+    (void)ukf_step(&ukfIo);   
 
 }
 //

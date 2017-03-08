@@ -12,8 +12,8 @@ void Fx3(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,int sigmaIdx);
 void Hy1(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,int sigmaIdx);
 void Hy2(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,int sigmaIdx);
 
-static const tPredictFcn PredictFcn[stateVectorLen] = {&Fx0,&Fx1,&Fx2,&Fx3};
-static const tObservFcn  ObservFcn[stateVectorLen] = {&Hy1,&Hy2};
+tPredictFcn PredictFcn[stateVectorLen] = {&Fx0,&Fx1,&Fx2,&Fx3};
+tObservFcn  ObservFcn[stateVectorLen] = {&Hy1,&Hy2};
 
 //-----------------------
 //UKF Processing matrix
@@ -71,7 +71,7 @@ const double P0_state_cov_4x4[4][4]=
 };
 
 //Process noise covariance Q : initial noise assumptions
-const double Qxx_process_noise_cov_4x4[4][4]=
+/*const*/ double Qxx_process_noise_cov_4x4[4][4]=
 {/*  x1, x2, x3, x4        */
     {0,  0,  0,  0}, /* x1 */
     {0,  0,  0,  0}, /* x2 */ 

@@ -5,21 +5,23 @@ typedef void (* tObservFcn) (tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,int si
 
 typedef struct tUkfMatrix
 {
-    tMatrix * Wm_weight_vector;
-    tMatrix * Wc_weight_vector;
-    tMatrix * x_system_states;
-    tMatrix * u_system_input;
-    tMatrix * u_prev_system_input;
-    tMatrix * X_sigma_points;
-    tMatrix * Y_sigma_points;
-    tMatrix * y_predicted_mean;
-    tMatrix * y_meas;
-    tMatrix * Pyy_out_covariance;
-    tMatrix * Pxy_cross_covariance;
-    tMatrix * P_error_covariance;
-    tMatrix * K_kalman_gain;
-    tMatrix * K_kalman_gain_transp;
-    tMatrix * I_identity_matrix;
+    tMatrix Wm_weight_vector;
+    tMatrix Wc_weight_vector;
+    tMatrix x_system_states;
+    tMatrix u_system_input;
+    tMatrix u_prev_system_input;
+    tMatrix X_sigma_points;
+    tMatrix Y_sigma_points;
+    tMatrix y_predicted_mean;
+    tMatrix y_meas;
+    tMatrix Pyy_out_covariance;
+    tMatrix Pxy_cross_covariance;
+    tMatrix P_error_covariance;
+    tMatrix Qxx_process_noise_cov;
+    tMatrix K_kalman_gain;
+    tMatrix K_kalman_gain_transp;
+    tMatrix I_identity_matrix;
+    tPredictFcn * fcnPredict;
 
 }tUkfMatrix;
 
@@ -40,34 +42,34 @@ typedef struct tUKFpar
     double betha;//Contain information about the prior distribution (for Gaussian, beta = 2 is optimal).
     double kappa; //tertiary scaling parameter, usual value 0.
     double lambda;
-    tMatrix * pWm;
-    tMatrix * pWc;
-    tMatrix * pQ;
-    tMatrix * pR;
+    tMatrix Wm;
+    tMatrix Wc;
+    tMatrix Qxx;
+    tMatrix R;
 
 }tUKFpar;
 
 typedef struct tUKFin
 {
-    tMatrix * pu;    // u(k)   Current inputs
-    tMatrix * py;    // y(k)   Current measurement
+    tMatrix u;    // u(k)   Current inputs
+    tMatrix y;    // y(k)   Current measurement
 }tUKFin;
 
 typedef struct tUKFprev
 {
-    tMatrix * pu_p;    // u(k-1)   Previous inputs
-    tMatrix * px_p;    // x(k-1)   Previous states
-    tMatrix * pX_p;    // X(k-1)   Calculate the sigma-points
-    tMatrix * pP_p;    // P(k-1)    Previous error covariance 
+    tMatrix u_p;    // u(k-1)   Previous inputs
+    tMatrix x_p;    // x(k-1)   Previous states
+    tMatrix X_p;    // X(k-1)   Calculate the sigma-points
+    tMatrix Pxx_p;    // P(k-1)    Previous error covariance 
 }tUKFprev;
 
 typedef struct tUKFpredict //p(previous)==k-1, m(minus)=(k|k-1)
 {
-    tMatrix * pX_m;    //X(k|k-1) Propagate each sigma-point through prediction f(Chi)
-    tMatrix * px_m;    //x(k|k-1) Calculate mean of predicted state
-    tMatrix * pP_m;    //P(k|k-1) Calculate covariance of predicted state  
-    tMatrix * pY_m;    //Y(k|k-1) Propagate each sigma-point through observation
-    tMatrix * py_m;    //y(k|k-1) Calculate mean of predicted output
+    tMatrix X_m;    //X(k|k-1) Propagate each sigma-point through prediction f(Chi)
+    tMatrix x_m;    //x(k|k-1) Calculate mean of predicted state
+    tMatrix P_m;    //P(k|k-1) Calculate covariance of predicted state  
+    tMatrix Y_m;    //Y(k|k-1) Propagate each sigma-point through observation
+    tMatrix y_m;    //y(k|k-1) Calculate mean of predicted output
     tPredictFcn * pFcnPredict;
     tObservFcn * pFcnObserv;
 }tUKFpredict;
@@ -76,13 +78,13 @@ typedef struct tUKFpredict //p(previous)==k-1, m(minus)=(k|k-1)
 
 typedef struct tUKFupdate
 {
-    tMatrix * pPyy;   //Calculate covariance of predicted output
-    tMatrix * pPxy;   //Calculate cross-covariance of state and output
-    tMatrix * pK;     //K(k) Calculate gain
-    tMatrix * pKt;     //Kt(k) Kalman gain transponce
-    tMatrix * px;     //x(k) Update state estimate   
-    tMatrix * pP;     //P(k) Update error covariance
-    tMatrix * pIxx;     //tmp buffer initialized as identity matrix stor result from inversion and other operation  
+    tMatrix Pyy;   //Calculate covariance of predicted output
+    tMatrix Pxy;   //Calculate cross-covariance of state and output
+    tMatrix K;     //K(k) Calculate gain
+    tMatrix Kt;     //Kt(k) Kalman gain transponce
+    tMatrix x;     //x(k) Update state estimate   
+    tMatrix Pxx;     //P(k) Update error covariance
+    tMatrix Ixx;     //tmp buffer initialized as identity matrix stor result from inversion and other operation  
 }tUKFupdate;
 
 
