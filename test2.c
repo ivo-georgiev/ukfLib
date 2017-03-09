@@ -187,7 +187,7 @@ void ukf_test(void)
 
     mtx_init_f64(&UkfMat.Y_sigma_points, &Y_sigma_points_2x9[0][0],2,9);
 
-    mtx_init_f64(&UkfMat.P_error_covariance, &Px_state_cov_4x4[0][0],4,4);
+    mtx_init_f64(&UkfMat.Pxx_error_covariance, &Px_state_cov_4x4[0][0],4,4);
 
     mtx_init_f64(&UkfMat.Pyy_out_covariance, &Pyy_out_cov_2x2[0][0],2,2);
 
@@ -201,7 +201,10 @@ void ukf_test(void)
 
     mtx_init_f64(&UkfMat.Qxx_process_noise_cov, &Qxx_process_noise_cov_4x4[0][0],4,4);
 
-    //UkfMat.fcnPredict = &PredictFcn[0];
+    mtx_init_f64(&UkfMat.Pxx0_init_error_covariance, &P0_state_cov_4x4[0][0],4,4);
+
+    UkfMat.fcnPredict = &PredictFcn[0];
+    UkfMat.fcnObserve = &ObservFcn[0];
 
     (void)ukf_init(&ukfIo,param,4,2, &UkfMat);
     (void)ukf_step(&ukfIo);   

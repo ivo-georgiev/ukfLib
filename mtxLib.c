@@ -131,6 +131,7 @@ mtxResultInfo mtx_mul_f64(tMatrix * pA, tMatrix * pB, tMatrix * pC)
     {
         ResultL = MTX_SIZE_MISMATCH;
     }
+    
     return ResultL;
 }
 
@@ -139,7 +140,7 @@ mtxResultInfo mtx_mul_f64(tMatrix * pA, tMatrix * pB, tMatrix * pC)
 mtxResultInfo mtx_chol_f64(tMatrix * pA)
 {
     mtxResultInfo ResultL = MTX_OPERATION_OK;
-    double * const pSrcL = (double *)pA->val;
+    double * const pSrcL = pA->val;
     const int nrow = pA->nrow;
     const int ncol = pA->ncol;
     int col,row,tmp;
@@ -345,7 +346,7 @@ mtxResultInfo mtx_subtract_f64(tMatrix * pA,tMatrix * pB)
 mtxResultInfo mtx_mul_scalar_f64(tMatrix * pA,double scalar)
 {
     int Result = MTX_OPERATION_OK;
-    double * pDest= (double *)&pA->val;    
+    double * pDest= pA->val;    
     const int nRow = pA->nrow;
     const int nCol = pA->ncol;
     int col,row;
@@ -365,7 +366,7 @@ mtxResultInfo mtx_mul_scalar_f64(tMatrix * pA,double scalar)
 mtxResultInfo mtx_subtract_scalar_f64(tMatrix * pA,double scalar)
 {
     int Result = MTX_OPERATION_OK;
-    double * pDest= (double *)&pA->val;    
+    double * pDest= pA->val;    
     const int nRow = pA->nrow;
     const int nCol = pA->ncol;
     int col,row;
@@ -385,7 +386,7 @@ mtxResultInfo mtx_subtract_scalar_f64(tMatrix * pA,double scalar)
 mtxResultInfo mtx_add_scalar_f64(tMatrix * pA,double scalar)
 {
     int Result = MTX_OPERATION_OK;
-    double * pDest= (double *)&pA->val;    
+    double * pDest= pA->val;    
     const int nRow = pA->nrow;
     const int nCol = pA->ncol;
     int col,row;
@@ -405,8 +406,8 @@ mtxResultInfo mtx_add_scalar_f64(tMatrix * pA,double scalar)
 mtxResultInfo mtx_cpy_f64(tMatrix * const pDestP,tMatrix const * const pSrcP)
 {
     int Result = MTX_OPERATION_OK;
-    double * const pDestL= (double *)&pDestP->val;
-    double const * const pSrcL= (double *)&pSrcP->val;
+    double * const pDestL = pDestP->val;
+    double const * const pSrcL= pSrcP->val;
     const int nRow = pDestP->nrow;
     const int nCol = pSrcP->ncol;
     int row,col;

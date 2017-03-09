@@ -1,5 +1,8 @@
 #include "mtxLib.h"
 
+#ifndef UKFLIB_FILE
+#define UKFLIB_FILE
+
 typedef void (* tPredictFcn) (tMatrix * pu_p, tMatrix * px_p, tMatrix * pX_m,int sigmaIdx);
 typedef void (* tObservFcn) (tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,int sigmaIdx);
 
@@ -16,12 +19,14 @@ typedef struct tUkfMatrix
     tMatrix y_meas;
     tMatrix Pyy_out_covariance;
     tMatrix Pxy_cross_covariance;
-    tMatrix P_error_covariance;
+    tMatrix Pxx_error_covariance;
+    tMatrix Pxx0_init_error_covariance;
     tMatrix Qxx_process_noise_cov;
     tMatrix K_kalman_gain;
     tMatrix K_kalman_gain_transp;
     tMatrix I_identity_matrix;
     tPredictFcn * fcnPredict;
+    tObservFcn * fcnObserve;
 
 }tUkfMatrix;
 
@@ -46,6 +51,7 @@ typedef struct tUKFpar
     tMatrix Wc;
     tMatrix Qxx;
     tMatrix R;
+    tMatrix Pxx0;
 
 }tUKFpar;
 
@@ -98,8 +104,7 @@ typedef struct tUKF
 
 }tUKF;
 
-typedef void (* tPredictFcn) (tMatrix * pu_p, tMatrix * px_p, tMatrix * pX_m,int sigmaIdx);
-typedef void (* tObservFcn) (tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,int sigmaIdx);
+#endif
 
 extern void ukf_init(tUKF * const pUkf,double scaling[scalingLen],int xLen,int yLen, tUkfMatrix * pUkfMatrix);
 extern void ukf_step(tUKF * const pUkf);

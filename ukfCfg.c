@@ -4,16 +4,8 @@
 #include "ukfLib.h"
 #include "math.h"
 
-void Fx0(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,int sigmaIdx);
-void Fx1(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,int sigmaIdx);
-void Fx2(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,int sigmaIdx);
-void Fx3(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,int sigmaIdx);
-
-void Hy1(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,int sigmaIdx);
-void Hy2(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,int sigmaIdx);
-
 tPredictFcn PredictFcn[stateVectorLen] = {&Fx0,&Fx1,&Fx2,&Fx3};
-tObservFcn  ObservFcn[stateVectorLen] = {&Hy1,&Hy2};
+tObservFcn  ObservFcn[measVectorLen] = {&Hy1,&Hy2};
 
 //-----------------------
 //UKF Processing matrix
@@ -39,10 +31,10 @@ double x_system_states_4x1[4] = {0,0,50,50};
 //Sigma points X(k), X(k|k-1):
 double X_sigma_points_4x9[4][9]=
 {/*  s1  s2  s3  s4  s5  s6  s7  s8  s9        */
-    {0,  0,  0,  0,  0,  0,  0,  0,  0}, /* x1 */
-    {0,  0,  0,  0,  0,  0,  0,  0,  0}, /* x2 */
-    {0,  0,  0,  0,  0,  0,  0,  0,  0}, /* x3 */
-    {0,  0,  0,  0,  0,  0,  0,  0,  0}, /* x4 */
+    {1,  2,  3,  4,  5,  6,  7,  8,  9}, /* x1 */
+    {10,  11,  12,  13,  14,  15,  16,  17,  18}, /* x2 */
+    {19,  20,  21,  22,  23,  24,  25,  26,  27}, /* x3 */
+    {28,  29,  30,  31,  32,  33,  34,  35,  36}, /* x4 */
 };
 
 //Sigma points Y(k|k-1) = y_m
@@ -62,7 +54,7 @@ double Px_state_cov_4x4[4][4]=
 };
 
 //State covariance initial values
-const double P0_state_cov_4x4[4][4]=
+double P0_state_cov_4x4[4][4]=
 {/*  x1, x2, x3, x4        */
     {1,  0,  0,  0}, /* x1 */
     {0,  1,  0,  0}, /* x2 */ 
@@ -144,7 +136,7 @@ void Fx0(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,int sigmaIdx)
     int nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
 
     //A[0][:]* X[:][0] - ToDo write function that mutiply specific rowXcol
-    pX_m->val[nCol*sigmaIdx + idxSt0] = (A[0][0] * pX_p->val[nCol*idxSt0 + sigmaIdx]) + (A[0][2] * pX_p->val[nCol*idxSt2 + sigmaIdx]);
+    pX_m->val[nCol*sigmaIdx + 0] = (A[0][0] * pX_p->val[nCol*0 + sigmaIdx]) + (A[0][2] * pX_p->val[nCol*2 + sigmaIdx]);
 
 }
 
@@ -153,7 +145,7 @@ void Fx1(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,int sigmaIdx)
     int nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
    
     //A[1][:]* X[:][1]
-    pX_m->val[nCol*sigmaIdx + idxSt1] = (A[1][1] * pX_p->val[nCol*idxSt1 + sigmaIdx]) + (A[1][3] * pX_p->val[nCol*idxSt3 + sigmaIdx]);
+    pX_m->val[nCol*sigmaIdx + 1] = (A[1][1] * pX_p->val[nCol*1 + sigmaIdx]) + (A[1][3] * pX_p->val[nCol*3 + sigmaIdx]);
 
 
 }
@@ -163,7 +155,7 @@ void Fx2(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,int sigmaIdx)
     int nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
     
     //fx2() = A[2][:]* X[:][2]
-    pX_m->val[nCol*sigmaIdx + idxSt2] = (A[2][2] * pX_p->val[nCol*idxSt2 + sigmaIdx]);
+    pX_m->val[nCol*sigmaIdx + 2] = (A[2][2] * pX_p->val[nCol*2 + sigmaIdx]);
 }
 
 void Fx3(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,int sigmaIdx)
@@ -171,7 +163,7 @@ void Fx3(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,int sigmaIdx)
     int nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
     
     //A[3][:]* X[:][3]
-    pX_m->val[nCol*sigmaIdx + idxSt3] = (A[3][3] * pX_p->val[nCol*idxSt3 + sigmaIdx]);
+    pX_m->val[nCol*sigmaIdx + 3] = (A[3][3] * pX_p->val[nCol*3 + sigmaIdx]);
 }
 
 void Hy1(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,int sigmaIdx)
@@ -182,10 +174,10 @@ void Hy1(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,int sigmaIdx)
     double term2;
     const int nCol = pY_m->ncol;
 
-    term1 = pX_m->val[nCol*sigmaIdx + idxSt0] - N1;
+    term1 = pX_m->val[nCol*sigmaIdx + 0] - N1;
     term1 *= term1;
 
-    term2 = pX_m->val[nCol*sigmaIdx + idxSt1] - E1;
+    term2 = pX_m->val[nCol*sigmaIdx + 1] - E1;
     term2 *= term2;
 
     pY_m->val[nCol*sigmaIdx + 0] = sqrt(term1+term2);
@@ -200,10 +192,10 @@ void Hy2(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,int sigmaIdx)
     double term2;
     const int nCol = pY_m->ncol;
     
-    term1 = pX_m->val[nCol*sigmaIdx + idxSt0] - N2;
+    term1 = pX_m->val[nCol*sigmaIdx + 0] - N2;
     term1 *= term1;
     
-    term2 = pX_m->val[nCol*sigmaIdx + idxSt1] - E2;
+    term2 = pX_m->val[nCol*sigmaIdx + 1] - E2;
     term2 *= term2;
     
     pY_m->val[nCol*sigmaIdx + 0] = sqrt(term1+term2);
