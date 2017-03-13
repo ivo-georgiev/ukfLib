@@ -112,7 +112,7 @@ mtxResultInfo mtx_mul_f64(tMatrix * pA, tMatrix * pB, tMatrix * pC)
     int row,col,k;
     double sum;
 
-    if(ncol == nrow)
+    if(pA->ncol == pB->nrow)//?
     {        
         for(row=0;row<nrow;row++)
         {
@@ -301,8 +301,8 @@ mtxResultInfo mtx_inv_f64(tMatrix * pA, tMatrix * pI)
 mtxResultInfo mtx_add_f64(tMatrix * pA,tMatrix * pB)
 {
     int Result = MTX_OPERATION_OK;
-    double * pDest= (double *)&pA->val;
-    double * pSrc1= (double *)&pB->val;
+    double * pDest= (double *)pA->val;
+    double * pSrc1= (double *)pB->val;
 
     const int nRow = pA->nrow;
     const int nCol = pA->ncol;
@@ -324,8 +324,8 @@ mtxResultInfo mtx_add_f64(tMatrix * pA,tMatrix * pB)
 mtxResultInfo mtx_subtract_f64(tMatrix * pA,tMatrix * pB)
 {
     int Result = MTX_OPERATION_OK;
-    double * pDest= (double *)&pA->val;
-    double * pSrc1= (double *)&pB->val;    
+    double * pDest= (double *)pA->val;
+    double * pSrc1= (double *)pB->val;    
     const int nRow = pA->nrow;
     const int nCol = pA->ncol;
     int col,row;
@@ -437,7 +437,7 @@ mtxResultInfo mtx_cpy_f64(tMatrix * const pDestP,tMatrix const * const pSrcP)
 mtxResultInfo mtx_identity_f64(tMatrix * pI)
 {
     int Result = MTX_OPERATION_OK;
-    double * pDest= (double *)&pI->val;    
+    double * pDest= (double *)pI->val;    
     const int nRow = pI->nrow;
     const int nCol = pI->ncol;
     int col,row;

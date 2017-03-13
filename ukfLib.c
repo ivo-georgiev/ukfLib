@@ -22,6 +22,7 @@ void ukf_init(tUKF * const pUkf,double scaling[scalingLen],int xLen,int yLen, tU
     const int WcLen = pUkfMatrix->Wc_weight_vector.ncol;
     const int expWmLen = 2*xLen+1;
     
+    pPar->Ryy0 = pUkfMatrix->Ryy0_init_out_covariance;
     pPar->Pxx0 = pUkfMatrix->Pxx0_init_error_covariance;
     pPar->Qxx = pUkfMatrix->Qxx_process_noise_cov;
     pPar->Wm =  pUkfMatrix->Wm_weight_vector;
@@ -59,6 +60,7 @@ void ukf_init(tUKF * const pUkf,double scaling[scalingLen],int xLen,int yLen, tU
     }
 
     pUkf->input.u = pUkfMatrix->u_system_input;
+    pUkf->input.y = pUkfMatrix->y_meas;
 
     pPrev->Pxx_p = pUkfMatrix->Pxx_error_covariance;
     mtx_cpy_f64(&pUkf->prev.Pxx_p, &pPar->Pxx0);
@@ -78,10 +80,13 @@ void ukf_init(tUKF * const pUkf,double scaling[scalingLen],int xLen,int yLen, tU
 
     pUkf->update.Ixx = pUkfMatrix->I_identity_matrix;
     pUkf->update.K = pUkfMatrix->K_kalman_gain;
+    pUkf->update.Kt = pUkfMatrix->K_kalman_gain_transp;
     pUkf->update.Pxx = pUkfMatrix->Pxx_error_covariance;
     pUkf->update.Pxy = pUkfMatrix->Pxy_cross_covariance;
     pUkf->update.Pyy = pUkfMatrix->Pyy_out_covariance;
     pUkf->update.x = pUkfMatrix->x_system_states; //&px = &px_m = &px_p
+    pUkf->update.x_corr = pUkfMatrix->x_system_states_correction;
+    pUkf->update.Pxx_corr = pUkfMatrix->Pxx_covariance_correction;
 
    
 }
@@ -152,8 +157,8 @@ void ukf_predict(tUKF * const pUkf)
     double * X_m = pUkf->predict.X_m.val;
     double * pY_m = pUkf->predict.Y_m.val;
     double * pP_m = pUkf->predict.P_m.val;
-    double * pPyy = (double *)&pUkf->update.Pyy;
-    double * Pxy = (double *)&pUkf->update.Pxy;
+    double * pPyy = pUkf->update.Pyy.val;
+    double * Pxy = pUkf->update.Pxy.val;
     double * px_m = pUkf->predict.x_m.val;
     double * py_m = pUkf->predict.y_m.val;
     const int sigmaLen = pPar->sLen;
@@ -178,7 +183,7 @@ void ukf_predict(tUKF * const pUkf)
 
             //Calculate mean of predicted state 
             //x_m[L][1] = sum(Wm(i)*X_m(i))
-            px_m[xIdx] += Wm[sigmaIdx] * X_m[sigmaLen*sigmaIdx + xIdx];
+            px_m[xIdx] += Wm[sigmaIdx] * X_m[sigmaLen*xIdx + sigmaIdx];
         }
     }
 
@@ -223,17 +228,20 @@ void ukf_predict(tUKF * const pUkf)
             }
             //Calculate mean of predicted output 
             //y_m[L] = sum(Wm(i)*Y_m(i))
-            py_m[yIdx] += Wm[sigmaIdx] * pY_m[sigmaLen*sigmaIdx + yIdx];
+            py_m[yIdx] += Wm[sigmaIdx] * pY_m[sigmaLen*yIdx + sigmaIdx];
         }
     }
+
+    //Pyy(k|k-1) = R(k)
+    mtx_cpy_f64(&pUkf->update.Pyy, &pPar->Ryy0);
 
     for(sigmaIdx=0;sigmaIdx<sigmaLen;sigmaIdx++)
     {       
         //Calculate covariance of predicted output
         //loop row of Pyy[:][yL]
+        
         for(yIdx=0;yIdx<yLen;yIdx++)
         {                      
-            //ToDo: Pyy(k|k-1) = R(k) 
             for(yTrIdx=0;yTrIdx<yLen;yTrIdx++)
             {
                 //loop col of COV[L][:] 
@@ -285,8 +293,8 @@ void ukf_meas_update(tUKF * const pUkf)
     // y = y - y_m
     (void)mtx_subtract_f64(&pUkf->input.y,&pUkf->predict.y_m);
 
-    // K*(y - y_m) temporal stored in y
-    (void)mtx_mul_f64(&pUpdate->K, &pUkf->input.y, &pUkf->input.y);
+    // K*(y - y_m) states correction 
+    (void)mtx_mul_f64(&pUpdate->K, &pUkf->input.y, &pUkf->update.x_corr);
 
     // x_m + K*(y - y_m)
     (void)mtx_add_f64(&pUkf->predict.x_m, &pUkf->input.y);
@@ -297,10 +305,10 @@ void ukf_meas_update(tUKF * const pUkf)
     //Pxy = K*Pyy
     (void)mtx_mul_f64(&pUpdate->K,&pUpdate->Pyy,&pUpdate->Pxy);
 
-    //Ixx = K*Pyy*K'
-    (void)mtx_mul_f64(&pUpdate->Pxy, &pUpdate->Kt, &pUpdate->Ixx);
+    //Pxx_corr = K*Pyy*K'
+    (void)mtx_mul_f64(&pUpdate->Pxy, &pUpdate->Kt, &pUpdate->Pxx_corr);
 
-    (void)mtx_subtract_f64(&pUkf->predict.X_m,&pUpdate->Ixx);
+    (void)mtx_subtract_f64(&pUkf->predict.X_m,&pUpdate->Pxx_corr);
 
 }
 

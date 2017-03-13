@@ -11,6 +11,7 @@ typedef struct tUkfMatrix
     tMatrix Wm_weight_vector;
     tMatrix Wc_weight_vector;
     tMatrix x_system_states;
+    tMatrix x_system_states_correction;
     tMatrix u_system_input;
     tMatrix u_prev_system_input;
     tMatrix X_sigma_points;
@@ -18,6 +19,7 @@ typedef struct tUkfMatrix
     tMatrix y_predicted_mean;
     tMatrix y_meas;
     tMatrix Pyy_out_covariance;
+    tMatrix Ryy0_init_out_covariance;
     tMatrix Pxy_cross_covariance;
     tMatrix Pxx_error_covariance;
     tMatrix Pxx0_init_error_covariance;
@@ -25,6 +27,7 @@ typedef struct tUkfMatrix
     tMatrix K_kalman_gain;
     tMatrix K_kalman_gain_transp;
     tMatrix I_identity_matrix;
+    tMatrix Pxx_covariance_correction; 
     tPredictFcn * fcnPredict;
     tObservFcn * fcnObserve;
 
@@ -50,7 +53,7 @@ typedef struct tUKFpar
     tMatrix Wm;
     tMatrix Wc;
     tMatrix Qxx;
-    tMatrix R;
+    tMatrix Ryy0;
     tMatrix Pxx0;
 
 }tUKFpar;
@@ -88,8 +91,10 @@ typedef struct tUKFupdate
     tMatrix Pxy;   //Calculate cross-covariance of state and output
     tMatrix K;     //K(k) Calculate gain
     tMatrix Kt;     //Kt(k) Kalman gain transponce
-    tMatrix x;     //x(k) Update state estimate   
+    tMatrix x;     //x(k) Update state estimate
+    tMatrix x_corr;
     tMatrix Pxx;     //P(k) Update error covariance
+    tMatrix Pxx_corr;
     tMatrix Ixx;     //tmp buffer initialized as identity matrix stor result from inversion and other operation  
 }tUKFupdate;
 
