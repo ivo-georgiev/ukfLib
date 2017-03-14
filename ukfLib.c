@@ -78,12 +78,13 @@ void ukf_init(tUKF * const pUkf,double scaling[scalingLen],int xLen,int yLen, tU
     pUkf->predict.pFcnPredict = pUkfMatrix->fcnPredict;
     pUkf->predict.pFcnObserv = pUkfMatrix->fcnObserve;
 
-    pUkf->update.Ixx = pUkfMatrix->I_identity_matrix;
+    pUkf->update.Iyy = pUkfMatrix->I_identity_matrix;
     pUkf->update.K = pUkfMatrix->K_kalman_gain;
     pUkf->update.Kt = pUkfMatrix->K_kalman_gain_transp;
     pUkf->update.Pxx = pUkfMatrix->Pxx_error_covariance;
     pUkf->update.Pxy = pUkfMatrix->Pxy_cross_covariance;
     pUkf->update.Pyy = pUkfMatrix->Pyy_out_covariance;
+    pUkf->update.Pyy_cpy = pUkfMatrix->Pyy_out_covariance_copy;
     pUkf->update.x = pUkfMatrix->x_system_states; //&px = &px_m = &px_p
     pUkf->update.x_corr = pUkfMatrix->x_system_states_correction;
     pUkf->update.Pxx_corr = pUkfMatrix->Pxx_covariance_correction;
@@ -113,6 +114,8 @@ void ukf_sigmapoint(tUKF * const pUkf)
     
     //1. Calculate error covariance matrix square root: P_p = sqrt(P_p)
     mtxResult = mtx_chol_f64(&pUkf->prev.Pxx_p);
+
+    (void)mtx_transp_square_f64(&pUkf->prev.Pxx_p);
 
     if(MTX_OPERATION_OK == mtxResult)
     {       
@@ -187,9 +190,11 @@ void ukf_predict(tUKF * const pUkf)
         }
     }
 
-    //py_m[yIdx] = 0;
-    memset(py_m,0,sizeof(double)*sigmaLen*yLen);
-    //loop for each sigma point column vector  
+    memset(py_m,0,sizeof(double)*yLen); 
+    
+    //P(k|k-1) = Q(k-1)
+    mtx_cpy_f64(&pUkf->predict.P_m, &pUkf->par.Qxx);
+
     for(sigmaIdx=0;sigmaIdx<sigmaLen;sigmaIdx++)
     {       
         
@@ -197,7 +202,7 @@ void ukf_predict(tUKF * const pUkf)
         //loop row of COV[:][L]
         for(xIdx=0;xIdx<xLen;xIdx++)
         {                      
-            //ToDo: P(k|k-1) = Q(k-1) 
+             
             for(xTrIdx=0;xTrIdx<xLen;xTrIdx++)
             {
                 //loop col of COV[L][:] 
@@ -235,6 +240,8 @@ void ukf_predict(tUKF * const pUkf)
     //Pyy(k|k-1) = R(k)
     mtx_cpy_f64(&pUkf->update.Pyy, &pPar->Ryy0);
 
+    memset(Pxy,0,sizeof(double)*xLen*yLen);
+
     for(sigmaIdx=0;sigmaIdx<sigmaLen;sigmaIdx++)
     {       
         //Calculate covariance of predicted output
@@ -247,7 +254,7 @@ void ukf_predict(tUKF * const pUkf)
                 //loop col of COV[L][:] 
                 
                 double term1 = (pY_m[sigmaLen*yIdx + sigmaIdx] - py_m[yIdx]);
-                double term2 = (pY_m[sigmaLen*yTrIdx + sigmaIdx] - py_m[yIdx]);
+                double term2 = (pY_m[sigmaLen*yTrIdx + sigmaIdx] - py_m[yTrIdx]);
                 
                 //Perform multiplication with accumulation for each covariance matrix index
                 //Pyy(k)[yIdx][yTrIdx]= Wc(sigmaIdx)*(Y_m-y_m)*(Y_m-y_m)'
@@ -262,7 +269,7 @@ void ukf_predict(tUKF * const pUkf)
             for(yTrIdx=0;yTrIdx<yLen;yTrIdx++)
             {
                 double term1 = (X_m[sigmaLen*xIdx + sigmaIdx] - px_m[xIdx]);
-                double term2 = (pY_m[sigmaLen*yTrIdx + sigmaIdx] - py_m[yIdx]);
+                double term2 = (pY_m[sigmaLen*yTrIdx + sigmaIdx] - py_m[yTrIdx]);//py_m[yIdx] or py_m[yTrIdx]???? may be
 
                 
                 Pxy[yLen*xIdx + yTrIdx] += Wc[sigmaIdx]*term1*term2;
@@ -277,13 +284,15 @@ void ukf_meas_update(tUKF * const pUkf)
 
 
     //3.Calculate Kalman gain: 
-    (void)mtx_identity_f64(&pUpdate->Ixx);
+    (void)mtx_identity_f64(&pUpdate->Iyy);
     
-    //inv(Pyy)
-    (void)mtx_inv_f64(&pUpdate->Pyy,&pUpdate->Ixx);
+    (void)mtx_cpy_f64(&pUpdate->Pyy_cpy, &pUpdate->Pyy);
+
+    //inv(Pyy_cpy)
+    (void)mtx_inv_f64(&pUpdate->Pyy_cpy,&pUpdate->Iyy);
 
     //K = Pxy * inv(Pyy)
-    (void)mtx_mul_f64(&pUpdate->Pxy,&pUpdate->Ixx, &pUpdate->K);
+    (void)mtx_mul_f64(&pUpdate->Pxy,&pUpdate->Iyy, &pUpdate->K);
     
     //K'
     (void)mtx_transp_dest_f64(&pUpdate->K, &pUpdate->Kt);
@@ -297,7 +306,7 @@ void ukf_meas_update(tUKF * const pUkf)
     (void)mtx_mul_f64(&pUpdate->K, &pUkf->input.y, &pUkf->update.x_corr);
 
     // x_m + K*(y - y_m)
-    (void)mtx_add_f64(&pUkf->predict.x_m, &pUkf->input.y);
+    (void)mtx_add_f64(&pUkf->predict.x_m, &pUkf->update.x_corr);
 
 
     //5.Update error covariance
@@ -308,7 +317,7 @@ void ukf_meas_update(tUKF * const pUkf)
     //Pxx_corr = K*Pyy*K'
     (void)mtx_mul_f64(&pUpdate->Pxy, &pUpdate->Kt, &pUpdate->Pxx_corr);
 
-    (void)mtx_subtract_f64(&pUkf->predict.X_m,&pUpdate->Pxx_corr);
+    (void)mtx_subtract_f64(&pUkf->predict.P_m,&pUpdate->Pxx_corr);
 
 }
 

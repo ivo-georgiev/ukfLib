@@ -19,6 +19,7 @@ typedef struct tUkfMatrix
     tMatrix y_predicted_mean;
     tMatrix y_meas;
     tMatrix Pyy_out_covariance;
+    tMatrix Pyy_out_covariance_copy;
     tMatrix Ryy0_init_out_covariance;
     tMatrix Pxy_cross_covariance;
     tMatrix Pxx_error_covariance;
@@ -87,7 +88,8 @@ typedef struct tUKFpredict //p(previous)==k-1, m(minus)=(k|k-1)
 
 typedef struct tUKFupdate
 {
-    tMatrix Pyy;   //Calculate covariance of predicted output
+    tMatrix Pyy;    //Calculate covariance of predicted output
+    tMatrix Pyy_cpy; 
     tMatrix Pxy;   //Calculate cross-covariance of state and output
     tMatrix K;     //K(k) Calculate gain
     tMatrix Kt;     //Kt(k) Kalman gain transponce
@@ -95,7 +97,7 @@ typedef struct tUKFupdate
     tMatrix x_corr;
     tMatrix Pxx;     //P(k) Update error covariance
     tMatrix Pxx_corr;
-    tMatrix Ixx;     //tmp buffer initialized as identity matrix stor result from inversion and other operation  
+    tMatrix Iyy;     //tmp buffer initialized as identity matrix stor result from inversion and other operation  
 }tUKFupdate;
 
 

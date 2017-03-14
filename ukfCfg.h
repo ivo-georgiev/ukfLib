@@ -46,6 +46,8 @@ extern double Pxx_covariance_correction_4x4[4][4];
 
 extern double Pyy_out_cov_2x2[2][2];
 
+extern double Pyy_out_cov_copy_2x2[2][2];
+
 extern double Pxy_state_out_cov_4x2[4][2];
 
 extern double K_kalman_gain_4x2[4][2];

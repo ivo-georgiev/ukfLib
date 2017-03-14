@@ -107,23 +107,23 @@ mtxResultInfo mtx_mul_f64(tMatrix * pA, tMatrix * pB, tMatrix * pC)
     double * const pSrc1L = (double *)pA->val;
     double * const pSrc2L = (double *)pB->val;
     double * const pDstL = (double *)pC->val;
-    const int nrow = pA->nrow;
-    const int ncol = pA->ncol;
+    //const int nrow = pA->nrow;
+    //const int ncol = pA->ncol;
     int row,col,k;
     double sum;
 
     if(pA->ncol == pB->nrow)//?
     {        
-        for(row=0;row<nrow;row++)
+        for(row=0;row<pA->nrow;row++)
         {
-            for(col=0;col<ncol;col++)  
+            for(col=0;col<pB->ncol;col++)  
             {
                 sum = 0;
-                for(k=0;k<nrow;k++)
+                for(k=0;k<pA->ncol;k++)
                 {
-                    sum += pSrc1L[ncol*row+k] * pSrc2L[ncol*k+col];
+                    sum += pSrc1L[pA->ncol*row+k] * pSrc2L[pB->ncol*k+col];
                 }
-                pDstL[ncol*row+col] = sum;
+                pDstL[pC->ncol*row+col] = sum;
             }
         }
     }
@@ -159,7 +159,7 @@ mtxResultInfo mtx_chol_f64(tMatrix * pA)
                     sum -= pSrcL[ncol*tmp+row] * pSrcL[ncol*tmp+col];
                 }
                 
-                pSrcL[ncol*row + col] = (row==col) ? sqrt(sum) : (sum / pSrcL[ncol*row+row]);
+                pSrcL[ncol*row + col] = (row==col) ? sqrt(sum) : (row < col) ? (sum / pSrcL[ncol*row+row]) : 0;
                 
                 
                 if((row==col) && (sum<=0))

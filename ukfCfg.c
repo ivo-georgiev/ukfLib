@@ -87,6 +87,12 @@ double Pyy_out_cov_2x2[2][2]=
     {0,  0},  /* y2 */
 };
 
+double Pyy_out_cov_copy_2x2[2][2]=
+{/*  y1, y2         */
+    {0,  0},  /* y1 */
+    {0,  0},  /* y2 */
+};
+
 
 //cross-covariance of state and output
 double Pxy_state_out_cov_4x2[4][2]=
