@@ -136,7 +136,7 @@ void ukf_sigmapoint(tUKF * const pUkf)
             {
                 if(sigmaIdx <= xLen)
                 {
-                    X_p[sLen*xIdx+sigmaIdx] = x_p[xIdx] + Pxx_p[xLen*xIdx + (sigmaIdx-1)];//bug bug
+                    X_p[sLen*xIdx+sigmaIdx] = x_p[xIdx] + Pxx_p[xLen*xIdx + (sigmaIdx-1)];
                 }
                 else
                 {
@@ -208,7 +208,7 @@ void ukf_predict(tUKF * const pUkf)
                 //loop col of COV[L][:] 
                 
                 double term1 = (X_m[sigmaLen*xIdx + sigmaIdx] - px_m[xIdx]);
-                double term2 = (X_m[sigmaLen*xTrIdx + sigmaIdx] - px_m[xIdx]);
+                double term2 = (X_m[sigmaLen*xTrIdx + sigmaIdx] - px_m[xTrIdx]);
                 
                 //Perform multiplication with accumulation for each covariance matrix index
                 //P(k|k-1)[xIdx][xTrIdx]= Wc(sigmaIdx)*(X_m-x_mean)*(X_m-x_mean)'
@@ -269,7 +269,7 @@ void ukf_predict(tUKF * const pUkf)
             for(yTrIdx=0;yTrIdx<yLen;yTrIdx++)
             {
                 double term1 = (X_m[sigmaLen*xIdx + sigmaIdx] - px_m[xIdx]);
-                double term2 = (pY_m[sigmaLen*yTrIdx + sigmaIdx] - py_m[yTrIdx]);//py_m[yIdx] or py_m[yTrIdx]???? may be
+                double term2 = (pY_m[sigmaLen*yTrIdx + sigmaIdx] - py_m[yTrIdx]);
 
                 
                 Pxy[yLen*xIdx + yTrIdx] += Wc[sigmaIdx]*term1*term2;
