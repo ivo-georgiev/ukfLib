@@ -140,7 +140,7 @@ void ukf_sigmapoint(tUKF * const pUkf)
                 }
                 else
                 {
-                    X_p[sLen*xIdx+sigmaIdx] = x_p[xIdx] - Pxx_p[xLen*xIdx + (sigmaIdx-5)];
+                    X_p[sLen*xIdx+sigmaIdx] = x_p[xIdx] - Pxx_p[xLen*xIdx + (sigmaIdx-xLen-1)];
                 }            
             }
         } 
