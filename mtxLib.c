@@ -459,3 +459,22 @@ mtxResultInfo mtx_identity_f64(tMatrix * pI)
 
     return Result;
 }
+
+mtxResultInfo mtx_zeros_f64(tMatrix * pZ)
+{
+    int Result = MTX_OPERATION_OK;
+    double * pDest= (double *)pZ->val;    
+    const int nRow = pZ->nrow;
+    const int nCol = pZ->ncol;
+    int col,row;    
+    
+    for(row=0;row<nRow;row++)
+    {
+        for(col=0;col<nCol;col++)
+        {
+            pDest[nCol*row+col] = 0;             
+        }
+    }
+    
+    return Result;
+}

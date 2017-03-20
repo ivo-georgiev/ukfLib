@@ -56,6 +56,13 @@ double Px_state_cov_4x4[4][4]=
 };
 
 //State covariance initial values
+/*Matthew B Rhudy : initial error covariance matrix should be defined based on your initialization error.
+ I.e., if you think your initial state is not very close, the P0 value should be large,
+ whereas if the initialization is very good (high confidence that your states are close to the correct values) you can assume a smaller P0 value.
+  I would not recommend setting P0 to zero, as this assumes there is no initialization error and your initial states are perfect.  
+  This is almost never the case.  Many times the P0 matrix is diagonal, with the diagonal components corresponding to the expected variance
+  in the corresponding state, i.e. how much deviation you might expect in the initialization of that state.  If you have no idea where to start, 
+ I recommend using an identity matrix rather than the zero matrix. */
 double P0_state_cov_4x4[4][4]=
 {/*  x1, x2, x3, x4        */
     {1,  0,  0,  0}, /* x1 */
@@ -65,6 +72,11 @@ double P0_state_cov_4x4[4][4]=
 };
 
 //Process noise covariance Q : initial noise assumptions
+/* Matthew B Rhudy : Q matrix corresponds to the uncertainty that you expect in your state equations.
+  This could include modeling errors or other uncertainties in the equations themselves.
+  Some formulations consider input measurements in the state equations which introduces process noise.
+  If you are very confident in your equations, you could set Q to zero. If you do that the filter will use
+  the noise free model to predict the state vector and will ignore any measurement data since your model is assumed perfect. */
 double Qxx_process_noise_cov_4x4[4][4]=
 {/*  x1, x2, x3, x4        */
     {0,  0,  0,  0}, /* x1 */
