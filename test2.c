@@ -224,6 +224,8 @@ void ukf_test(void)
 
     mtx_init_f64(&UkfMat.x_system_states, &x_system_states_4x1[0],4,1);
 
+    mtx_init_f64(&UkfMat.x_system_states_ic, &x_system_states_ic_4x1[0],4,1);
+
     mtx_init_f64(&UkfMat.x_system_states_correction, &x_system_states_correction_4x1[0],4,1);
 
     mtx_init_f64(&UkfMat.X_sigma_points, &X_sigma_points_4x9[0][0],4,9);

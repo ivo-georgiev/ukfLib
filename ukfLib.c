@@ -22,6 +22,7 @@ void ukf_init(tUKF * const pUkf,double scaling[scalingLen],int xLen,int yLen, tU
     const int WcLen = pUkfMatrix->Wc_weight_vector.ncol;
     const int expWmLen = 2*xLen+1;
     
+    pPar->x0 = pUkfMatrix->x_system_states_ic;
     pPar->Ryy0 = pUkfMatrix->Ryy0_init_out_covariance;
     pPar->Pxx0 = pUkfMatrix->Pxx0_init_error_covariance;
     pPar->Qxx = pUkfMatrix->Qxx_process_noise_cov;
@@ -63,9 +64,6 @@ void ukf_init(tUKF * const pUkf,double scaling[scalingLen],int xLen,int yLen, tU
     pUkf->input.y = pUkfMatrix->y_meas;
 
     pPrev->Pxx_p = pUkfMatrix->Pxx_error_covariance;
-    mtx_cpy_f64(&pUkf->prev.Pxx_p, &pPar->Pxx0);
-    //mtx_cpy_f64(pUkf->prev.pP_p, pPar->pR);
-
     pPrev->X_p = pUkfMatrix->X_sigma_points; //share same memory with X_m
     pPrev->u_p = pUkfMatrix->u_system_input;
     pPrev->x_p = pUkfMatrix->x_system_states;
@@ -89,6 +87,25 @@ void ukf_init(tUKF * const pUkf,double scaling[scalingLen],int xLen,int yLen, tU
     pUkf->update.x_corr = pUkfMatrix->x_system_states_correction;
     pUkf->update.Pxx_corr = pUkfMatrix->Pxx_covariance_correction;
 
+    mtx_cpy_f64(&pUkf->prev.Pxx_p, &pPar->Pxx0);//init also P_m, Pxx   
+//     mtx_cpy_f64(&pUkf->prev.x_p, &pPar->x0);//init also x_m
+//     mtx_zeros_f64(&pUkf->prev.X_p);//inti also X_m
+//     mtx_zeros_f64(&pUkf->prev.u_p);
+// 
+//     mtx_zeros_f64(&pUkf->predict.y_m);
+//     mtx_zeros_f64(&pUkf->predict.Y_m);
+// 
+//     mtx_zeros_f64(&pUkf->update.Iyy);
+//     mtx_zeros_f64(&pUkf->update.K);
+//     mtx_zeros_f64(&pUkf->update.Kt);
+//     mtx_zeros_f64(&pUkf->update.Pxy);
+//     mtx_cpy_f64(&pUkf->update.Pyy, &pPar->Ryy0);
+//     mtx_zeros_f64(&pUkf->update.Pyy_cpy);
+//     mtx_zeros_f64(&pUkf->update.x_corr);
+//     mtx_zeros_f64(&pUkf->update.Pxx_corr);
+//     
+//     mtx_zeros_f64(&pUkf->input.u);
+//     mtx_zeros_f64(&pUkf->input.y);
    
 }
 

@@ -28,15 +28,17 @@ double y_mean_system_predict_2x1[2] = {0,0};
 //System states: x(k), x(k-1), x(k|k-1) common array for all 
 double x_system_states_4x1[4] = {0,0,50,50};
 
+double x_system_states_ic_4x1[4] = {0,0,50,50};
+
 double x_system_states_correction_4x1[4] = {0,0,0,0};
 
 //Sigma points X(k), X(k|k-1):
 double X_sigma_points_4x9[4][9]=
 {/*  s1  s2  s3  s4  s5  s6  s7  s8  s9        */
-    {1,  2,  3,  4,  5,  6,  7,  8,  9}, /* x1 */
-    {10,  11,  12,  13,  14,  15,  16,  17,  18}, /* x2 */
-    {19,  20,  21,  22,  23,  24,  25,  26,  27}, /* x3 */
-    {28,  29,  30,  31,  32,  33,  34,  35,  36}, /* x4 */
+    {0,  0,  0,  0,  0,  0,  0,  0,  0}, /* x1 */
+    {0,  0,  0,  0,  0,  0,  0,  0,  0}, /* x2 */
+    {0,  0,  0,  0,  0,  0,  0,  0,  0}, /* x3 */
+    {0,  0,  0,  0,  0,  0,  0,  0,  0}, /* x4 */
 };
 
 //Sigma points Y(k|k-1) = y_m

@@ -11,6 +11,7 @@ typedef struct tUkfMatrix
     tMatrix Wm_weight_vector;
     tMatrix Wc_weight_vector;
     tMatrix x_system_states;
+    tMatrix x_system_states_ic;
     tMatrix x_system_states_correction;
     tMatrix u_system_input;
     tMatrix u_prev_system_input;
@@ -56,6 +57,7 @@ typedef struct tUKFpar
     tMatrix Qxx;
     tMatrix Ryy0;
     tMatrix Pxx0;
+    tMatrix x0;
 
 }tUKFpar;
 

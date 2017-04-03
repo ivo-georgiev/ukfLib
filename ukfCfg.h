@@ -34,6 +34,8 @@ extern double y_mean_system_predict_2x1[2];
 //System states: x(k), x(k-1), x(k|k-1) common array for all 
 extern double x_system_states_4x1[4];
 
+extern double x_system_states_ic_4x1[4];
+
 extern double x_system_states_correction_4x1[4];
 
 extern double X_sigma_points_4x9[4][9];
