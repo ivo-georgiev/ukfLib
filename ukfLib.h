@@ -115,5 +115,5 @@ typedef struct tUKF
 
 #endif
 
-extern void ukf_init(tUKF * const pUkf,double scaling[scalingLen],int xLen,int yLen, tUkfMatrix * pUkfMatrix);
+extern int ukf_init(tUKF * const pUkf,double scaling[scalingLen],int xLen,int yLen, tUkfMatrix * pUkfMatrix);
 extern void ukf_step(tUKF * const pUkf);

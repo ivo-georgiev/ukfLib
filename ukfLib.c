@@ -1,21 +1,115 @@
 #include "ukfLib.h"
-#include "stdio.h" //?ok or not ok
+#include "stdio.h" //?
 #include "math.h"
 #include "memory.h"
 
-
-void ukf_init(tUKF * const pUkf,double scaling[scalingLen],int xLen,int yLen, tUkfMatrix * pUkfMatrix);
-
-
+int ukf_dimension_check(tUKF * const pUkf);
+int ukf_init(tUKF * const pUkf,double scaling[scalingLen],int xLen,int yLen, tUkfMatrix * pUkfMatrix);
 void ukf_step(tUKF * const pUkf);
 void ukf_predict(tUKF * const pUkf);
 void ukf_meas_update(tUKF * const pUkf);
 void ukf_sigmapoint(tUKF * const pUkf);
 
 
-
-void ukf_init(tUKF * const pUkf,double scaling[scalingLen],int xLen,int yLen, tUkfMatrix * pUkfMatrix)
+int ukf_dimension_check(tUKF * const pUkf)
 {
+    int Result = 0;
+    
+    //check measurement vector size: (yLen x 1)
+    if(pUkf->input.y.nrow != pUkf->par.yLen || pUkf->input.y.ncol != 1)
+    {
+        Result |= 1;
+    }
+    
+    //check initial covariance matrix size: (xLen x xLen)
+    if(pUkf->par.Pxx0.nrow != pUkf->par.xLen || pUkf->par.Pxx0.ncol != pUkf->par.xLen)
+    {
+        Result |= 1;
+    }
+
+    //check Process noise covariance Q: (xLen x xLen)
+    if(pUkf->par.Qxx.nrow != pUkf->par.xLen || pUkf->par.Qxx.ncol != pUkf->par.xLen)
+    {
+        Result |= 1;
+    }
+
+    //check Output noise covariance matrix size: (yLen x yLen)
+    if(pUkf->par.Ryy0.nrow != pUkf->par.yLen || pUkf->par.Ryy0.ncol != pUkf->par.yLen)
+    {
+        Result |= 1;
+    }
+
+    //check X sigma point matrix size: (xLen x 2*xLen+1)
+    if(pUkf->predict.X_m.nrow != pUkf->par.xLen || pUkf->predict.X_m.ncol != pUkf->par.sLen)
+    {
+        Result |= 1;
+    }
+
+    //check Y sigma point matrix size: (yLen x 2*xLen+1) , Y(k|k-1) = y_m
+    if(pUkf->predict.Y_m.nrow != pUkf->par.yLen || pUkf->predict.Y_m.ncol != pUkf->par.sLen)
+    {
+        Result |= 1;
+    }
+
+    //check state/error covariance matrix size: (xLen x xLen) , Pxx_p == P_m == Pxx
+    if(pUkf->predict.P_m.nrow != pUkf->par.xLen || pUkf->predict.P_m.ncol != pUkf->par.xLen)
+    {
+        Result |= 1;
+    }
+
+    //check Output covariance and it's copy size 
+    if((pUkf->update.Pyy.nrow != pUkf->par.yLen || pUkf->update.Pyy.ncol != pUkf->par.yLen) &&
+       (pUkf->update.Pyy_cpy.nrow != pUkf->par.yLen || pUkf->update.Pyy_cpy.ncol != pUkf->par.yLen))
+    {
+        Result |= 1;
+    }
+
+    //check cross-covariance matrix of state and output size: (xLen x yLen)
+    if(pUkf->update.Pxy.nrow != pUkf->par.xLen || pUkf->update.Pxy.ncol != pUkf->par.yLen)
+    {
+        Result |= 1;
+    }
+
+    //check Pxx covariance correction: (xLen x xLen)
+    if(pUkf->update.Pxx_corr.nrow != pUkf->par.xLen || pUkf->update.Pxx_corr.ncol != pUkf->par.xLen)
+    {
+        Result |= 1;
+    }
+
+    //check Kalman gain matrix and it's transp: (xLen x yLen)
+    if((pUkf->update.K.nrow != pUkf->par.xLen || pUkf->update.K.ncol != pUkf->par.yLen) &&
+       (pUkf->update.Kt.nrow != pUkf->par.yLen || pUkf->update.Kt.ncol != pUkf->par.xLen))
+    {
+        Result |= 1;
+    }
+
+
+    return Result;
+}
+/******************************************************************************************************************************************************************************************************\
+ ***  FUNCTION:
+ ***      ukf_init
+ *** 
+ ***  DESCRIPTION:
+ ***      Unscented Kalman filter initialization. Calculate some filter parameter and initialize matrix pointers with real working arrays. Check matrix/array size consistency  
+ *** 
+ ***  PARAMETERS:
+ ***      Type               Name                         Description
+ ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ***      tUKF * const       pUkf                         UKF - Working structure with all in,out,par
+ ***      double             scaling[scalingLen]          UKF - array with parameters alpha,betha,kappa
+ ***      int                xLen                         UKF - State vector length
+ ***      int                yLen                         UKF - Measurements vector length
+ ***      tUkfMatrix *       pUkfMatrix                   UKF - Structure with all filter matrix
+ ***  RETURNS:
+ ***      bool
+ ***
+ ***  SETTINGS:
+ ***
+\******************************************************************************************************************************************************************************************************/
+int ukf_init(tUKF * const pUkf,double scaling[scalingLen],int xLen,int yLen, tUkfMatrix * pUkfMatrix)
+{
+    int bReturn = 0;
     tUKFpar * pPar = (tUKFpar *)&pUkf->par;
     tUKFprev * pPrev = (tUKFprev *)&pUkf->prev;
     const int WmLen = pUkfMatrix->Wm_weight_vector.ncol;
@@ -106,6 +200,9 @@ void ukf_init(tUKF * const pUkf,double scaling[scalingLen],int xLen,int yLen, tU
 //     
 //     mtx_zeros_f64(&pUkf->input.u);
 //     mtx_zeros_f64(&pUkf->input.y);
+    bReturn = ukf_dimension_check(pUkf);
+
+    return bReturn;
    
 }
 
