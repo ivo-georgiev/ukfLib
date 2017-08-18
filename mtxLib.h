@@ -1,3 +1,5 @@
+#include "System_Types.h"
+
 /*---------------------------------------------*/
 /*         Macros definiton                    */
 /*---------------------------------------------*/
@@ -6,7 +8,7 @@
 //#define rowxcol(arr) sizeof(arr)/sizeof(arr[0][0])
 
 
-int mtx_chol1_f64(double* mtxA, double* mtxL,int mtxSize);
+int mtx_chol1_f64(double* mtxA, double* mtxL,uint8 mtxSize);
 
 typedef int mtxResultInfo;
 #define MTX_OPERATION_OK (mtxResultInfo)0
@@ -21,13 +23,13 @@ typedef int mtxResultInfo;
 #define MTXLIB_FILE
 typedef struct tMatrix
 {
-    int nrow;
-    int ncol;
+    uint8 nrow;
+    uint8 ncol;
     double* val;
 }tMatrix;
 #endif
 
-mtxResultInfo mtx_init_f64(tMatrix* A, double * M, int nrow, int ncol);
+mtxResultInfo mtx_init_f64(tMatrix* A, double * M, uint8 nrow, uint8 ncol);
 mtxResultInfo mtx_mul_f64(tMatrix * pA, tMatrix * pB, tMatrix * pC);
 mtxResultInfo mtx_transp_square_f64(tMatrix * pA);
 mtxResultInfo mtx_transp_dest_f64(tMatrix * pA,tMatrix * pB);

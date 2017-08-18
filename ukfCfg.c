@@ -10,30 +10,30 @@ tObservFcn  ObservFcn[measVectorLen] = {&Hy1,&Hy2};
 //-----------------------
 //UKF Processing matrix
 //-----------------------
-double Wm_sigma_weight_1x9[9] = {3,3,3,3,3,3,3,3,3};
-double Wc_sigma_weight_1x9[9] = {0,0,0,0,0,0,0,0,0};
+float64 Wm_sigma_weight_1x9[9] = {3,3,3,3,3,3,3,3,3};
+float64 Wc_sigma_weight_1x9[9] = {0,0,0,0,0,0,0,0,0};
 
 //System input current u(k)
-double u_curr_system_input_4x1[4] = {0,0,0,0}; 
+float64 u_curr_system_input_4x1[4] = {0,0,0,0}; 
 
-//System input previous u(k)
-double u_prev_system_input_4x1[4] = {0,0,0,0};
+//System input previous u(k-1)
+float64 u_prev_system_input_4x1[4] = {0,0,0,0};
 
 //System output measurement y(k)
-double y_curr_system_meas_2x1[2] = {0,0};
+float64 y_curr_system_meas_2x1[2] = {0,0};
 
 //System output predicted y_m(k|k-1)
-double y_mean_system_predict_2x1[2] = {0,0};
+float64 y_mean_system_predict_2x1[2] = {0,0};
 
 //System states: x(k), x(k-1), x(k|k-1) common array for all 
 double x_system_states_4x1[4] = {0,0,50,50};
 
-double x_system_states_ic_4x1[4] = {0,0,50,50};
+float64 x_system_states_ic_4x1[4] = {0,0,50,50};
 
-double x_system_states_correction_4x1[4] = {0,0,0,0};
+float64 x_system_states_correction_4x1[4] = {0,0,0,0};
 
 //Sigma points X(k), X(k|k-1):
-double X_sigma_points_4x9[4][9]=
+float64 X_sigma_points_4x9[4][9]=
 {/*  s1  s2  s3  s4  s5  s6  s7  s8  s9        */
     {0,  0,  0,  0,  0,  0,  0,  0,  0}, /* x1 */
     {0,  0,  0,  0,  0,  0,  0,  0,  0}, /* x2 */
@@ -42,14 +42,14 @@ double X_sigma_points_4x9[4][9]=
 };
 
 //Sigma points Y(k|k-1) = y_m
-double Y_sigma_points_2x9[2][9]=
+float64 Y_sigma_points_2x9[2][9]=
 {/*  s1  s2  s3  s4  s5  s6  s7  s8  s9        */
     {0,  0,  0,  0,  0,  0,  0,  0,  0}, /* y1 */
     {0,  0,  0,  0,  0,  0,  0,  0,  0}, /* y2 */
 };
 
 //State covariance  P(k|k-1) = P_m, P(k)= P  
-double Px_state_cov_4x4[4][4]=
+float64 Px_state_cov_4x4[4][4]=
 {/*  x1, x2, x3, x4        */
     {0,  0,  0,  0}, /* x1 */
     {0,  0,  0,  0}, /* x2 */ 
@@ -65,7 +65,7 @@ double Px_state_cov_4x4[4][4]=
   This is almost never the case.  Many times the P0 matrix is diagonal, with the diagonal components corresponding to the expected variance
   in the corresponding state, i.e. how much deviation you might expect in the initialization of that state.  If you have no idea where to start, 
  I recommend using an identity matrix rather than the zero matrix. */
-double P0_state_cov_4x4[4][4]=
+float64 P0_state_cov_4x4[4][4]=
 {/*  x1, x2, x3, x4        */
     {1,  0,  0,  0}, /* x1 */
     {0,  1,  0,  0}, /* x2 */ 
@@ -79,7 +79,7 @@ double P0_state_cov_4x4[4][4]=
   Some formulations consider input measurements in the state equations which introduces process noise.
   If you are very confident in your equations, you could set Q to zero. If you do that the filter will use
   the noise free model to predict the state vector and will ignore any measurement data since your model is assumed perfect. */
-double Qxx_process_noise_cov_4x4[4][4]=
+float64 Qxx_process_noise_cov_4x4[4][4]=
 {/*  x1, x2, x3, x4        */
     {0,  0,  0,  0}, /* x1 */
     {0,  0,  0,  0}, /* x2 */ 
@@ -88,20 +88,20 @@ double Qxx_process_noise_cov_4x4[4][4]=
 };
 
 //Output noise covariance: initial noise assumptions
-double Ryy_out_cov_noise_2x2[2][2]=
+float64 Ryy_out_cov_noise_2x2[2][2]=
 {/*  y1, y2         */
     {1,  0},  /* y1 */
     {0,  1},  /* y2 */
 };
 
 //Output covariance Pyy = R (initial assumption)
-double Pyy_out_cov_2x2[2][2]=
+float64 Pyy_out_cov_2x2[2][2]=
 {/*  y1, y2         */
     {0,  0},  /* y1 */
     {0,  0},  /* y2 */
 };
 
-double Pyy_out_cov_copy_2x2[2][2]=
+float64 Pyy_out_cov_copy_2x2[2][2]=
 {/*  y1, y2         */
     {0,  0},  /* y1 */
     {0,  0},  /* y2 */
@@ -109,7 +109,7 @@ double Pyy_out_cov_copy_2x2[2][2]=
 
 
 //cross-covariance of state and output
-double Pxy_state_out_cov_4x2[4][2]=
+float64 Pxy_state_out_cov_4x2[4][2]=
 {/*  y1, y2         */
     {0,  0},  /* x1 */
     {0,  0},  /* x2 */
@@ -118,7 +118,7 @@ double Pxy_state_out_cov_4x2[4][2]=
 };
 
 //Kalman gain matrix
-double K_kalman_gain_4x2[4][2]=
+float64 K_kalman_gain_4x2[4][2]=
 {  
     {0, 0},
     {0, 0},
@@ -127,13 +127,13 @@ double K_kalman_gain_4x2[4][2]=
 };
 
 //Kalman gain transponce matrix
-double K_kalman_transp_gain_2x4[2][4]=
+float64 K_kalman_transp_gain_2x4[2][4]=
 {  
     {0, 0, 0, 0},
     {0, 0, 0, 0}
 };
 
-double Pxx_covariance_correction_4x4[4][4]=
+float64 Pxx_covariance_correction_4x4[4][4]=
 {/*  x1, x2, x3, x4        */
     {0,  0,  0,  0}, /* x1 */
     {0,  0,  0,  0}, /* x2 */ 
@@ -141,14 +141,14 @@ double Pxx_covariance_correction_4x4[4][4]=
     {0,  0,  0,  0}, /* x4 */
 };
 
-double temporal_2x2[2][2]=
+float64 temporal_2x2[2][2]=
 {
     {0,  0},
     {0,  0},
 };
 
 //State transition matrix
-static const double A[stateVectorLen][stateVectorLen] =
+static const float64 A[stateVectorLen][stateVectorLen] =
 {
     {1,   0, dT0,   0},
     {0,   1,   0, dT0},
@@ -158,18 +158,18 @@ static const double A[stateVectorLen][stateVectorLen] =
 
 
 
-void Fx0(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,int sigmaIdx)
+void Fx0(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx)
 {
-    int nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
+    const uint8 nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
 
     //A[0][:]* X[:][0] - ToDo write function that mutiply specific rowXcol
     pX_m->val[nCol*0 + sigmaIdx] = (A[0][0] * pX_p->val[nCol*0 + sigmaIdx]) + (A[0][2] * pX_p->val[nCol*2 + sigmaIdx]);
 
 }
 
-void Fx1(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,int sigmaIdx)
+void Fx1(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx)
 {
-    int nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
+    const uint8 nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
    
     //A[1][:]* X[:][1]
     pX_m->val[nCol*1 + sigmaIdx] = (A[1][1] * pX_p->val[nCol*1 + sigmaIdx]) + (A[1][3] * pX_p->val[nCol*3 + sigmaIdx]);
@@ -177,29 +177,29 @@ void Fx1(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,int sigmaIdx)
 
 }
 
-void Fx2(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,int sigmaIdx)
+void Fx2(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx)
 {
-    int nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
+    const uint8 nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
     
     //fx2() = A[2][:]* X[:][2]
     pX_m->val[nCol*2 + sigmaIdx] = (A[2][2] * pX_p->val[nCol*2 + sigmaIdx]);
 }
 
-void Fx3(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,int sigmaIdx)
+void Fx3(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx)
 {
-    int nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
+    const uint8 nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
     
     //A[3][:]* X[:][3]
     pX_m->val[nCol*3 + sigmaIdx] = (A[3][3] * pX_p->val[nCol*3 + sigmaIdx]);
 }
 
-void Hy1(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,int sigmaIdx)
+void Hy1(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx)
 {
-    static const N1 = 20;
-    static const E1 = 0;
-    double term1;
-    double term2;
-    const int nCol = pY_m->ncol;
+    static const float64 N1 = 20;
+    static const float64 E1 = 0;
+    float64 term1;
+    float64 term2;
+    const uint8 nCol = pY_m->ncol;
 
     term1 = pX_m->val[nCol*0 + sigmaIdx] - N1;
     term1 *= term1;
@@ -211,13 +211,13 @@ void Hy1(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,int sigmaIdx)
     
 }
 
-void Hy2(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,int sigmaIdx)
+void Hy2(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx)
 {
-    static const N2 = 0;
-    static const E2 = 20;
-    double term1;
-    double term2;
-    const int nCol = pY_m->ncol;
+    static const float64 N2 = 0;
+    static const float64 E2 = 20;
+    float64 term1;
+    float64 term2;
+    const uint8 nCol = pY_m->ncol;
     
     term1 = pX_m->val[nCol*0 + sigmaIdx] - N2;
     term1 *= term1;

@@ -1,10 +1,11 @@
+#include "System_Types.h"
 #include "mtxLib.h"
 
 #ifndef UKFLIB_FILE
 #define UKFLIB_FILE
 
-typedef void (* tPredictFcn) (tMatrix * pu_p, tMatrix * px_p, tMatrix * pX_m,int sigmaIdx);
-typedef void (* tObservFcn) (tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,int sigmaIdx);
+typedef void (* tPredictFcn) (tMatrix * pu_p, tMatrix * px_p, tMatrix * pX_m,uint8 sigmaIdx);
+typedef void (* tObservFcn) (tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx);
 
 typedef struct tUkfMatrix
 {
@@ -37,21 +38,21 @@ typedef struct tUkfMatrix
 
 
 
-#define alphaIdx   (int)0
-#define bethaIdx   (int)1
-#define kappaIdx   (int)2
-#define scalingLen  (int)3
+#define alphaIdx   (uint8)0
+#define bethaIdx   (uint8)1
+#define kappaIdx   (uint8)2
+#define scalingLen (uint8)3
 
 
 typedef struct tUKFpar
 {
-    int xLen;//length of state vector
-    int yLen;//length of measurement vector
-    int sLen;//length of sigma point
-    double alpha;//Range:[10e-4 : 1].Smaller alpha leads to a tighter (closer) selection of sigma-points,
-    double betha;//Contain information about the prior distribution (for Gaussian, beta = 2 is optimal).
-    double kappa; //tertiary scaling parameter, usual value 0.
-    double lambda;
+    uint8 xLen;//length of state vector
+    uint8 yLen;//length of measurement vector
+    uint8 sLen;//length of sigma point
+    float64 alpha;//Range:[10e-4 : 1].Smaller alpha leads to a tighter (closer) selection of sigma-points,
+    float64 betha;//Contain information about the prior distribution (for Gaussian, beta = 2 is optimal).
+    float64 kappa; //tertiary scaling parameter, usual value 0.
+    float64 lambda;
     tMatrix Wm;
     tMatrix Wc;
     tMatrix Qxx;
@@ -115,5 +116,5 @@ typedef struct tUKF
 
 #endif
 
-extern int ukf_init(tUKF * const pUkf,double scaling[scalingLen],int xLen,int yLen, tUkfMatrix * pUkfMatrix);
+extern boolean ukf_init(tUKF * const pUkf,float64 scaling[scalingLen],uint8 xLen,uint8 yLen, tUkfMatrix * pUkfMatrix);
 extern void ukf_step(tUKF * const pUkf);
