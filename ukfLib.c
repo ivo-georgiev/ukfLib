@@ -10,7 +10,24 @@ void ukf_predict(tUKF * const pUkf);
 void ukf_meas_update(tUKF * const pUkf);
 void ukf_sigmapoint(tUKF * const pUkf);
 
-
+/******************************************************************************************************************************************************************************************************\
+ ***  FUNCTION:
+ ***      boolean ukf_dimension_check(tUKF * const pUkf)
+ *** 
+ ***  DESCRIPTION:
+ ***      Check if working matrix size defined in ukfCfg.c match to defined system expectation(number of states xLen, number of measurements yLen)     
+ ***            
+ ***  PARAMETERS:
+ ***      Type               Name              Range              Description
+ ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ***      tUKF * const       pUkf                                 UKF - Working structure with reference to all in,out,states,par
+ ***  RETURNS:
+ ***      boolean
+ ***      0 - OK , 
+ ***      1 - NOK
+ ***  SETTINGS:
+ ***
+\******************************************************************************************************************************************************************************************************/
 boolean ukf_dimension_check(tUKF * const pUkf)
 {
     const uint8  stateLen = pUkf->par.xLen;
@@ -130,7 +147,6 @@ boolean ukf_init(tUKF * const pUkf,float64 scaling[scalingLen],uint8 xLen,uint8 
     tUKFprev * pPrev = (tUKFprev *)&pUkf->prev;
     const uint8 WmLen = pUkfMatrix->Wm_weight_vector.ncol;
     const uint8 WcLen = pUkfMatrix->Wc_weight_vector.ncol;
-    const uint8 expWmLen = 2*xLen+1;
     
     pPar->x0 = pUkfMatrix->x_system_states_ic;
     pPar->Ryy0 = pUkfMatrix->Ryy0_init_out_covariance;
@@ -145,13 +161,12 @@ boolean ukf_init(tUKF * const pUkf,float64 scaling[scalingLen],uint8 xLen,uint8 
     pPar->yLen = yLen;//check length of output matrix to compare
     pPar->sLen = 2*xLen+1;
     
-
     //calculate UKF lambda parameter
     pPar->lambda = pPar->alpha * pPar->alpha;
     pPar->lambda *= (float64)(xLen + pPar->kappa);
     pPar->lambda -= (float64)xLen;
     
-    if(WmLen == expWmLen && WcLen == WmLen)
+    if(WmLen == pPar->sLen && WcLen == WmLen)
     {
         uint8 col;
         const float64 Wm0 = pPar->lambda/(pPar->xLen + pPar->lambda);
@@ -216,7 +231,25 @@ boolean ukf_init(tUKF * const pUkf,float64 scaling[scalingLen],uint8 xLen,uint8 
 
     return ukf_dimension_check(pUkf);  
 }
-
+/******************************************************************************************************************************************************************************************************\
+ ***  FUNCTION:
+ ***      ukf_step(tUKF * const pUkf)
+ *** 
+ ***  DESCRIPTION:
+ ***      Unscented Kalman filter periodic task. All new inputs(measurements, system inputs) should be updated periodicaly before execution of ukf_step().
+ ***      UKF processing is separated on two sub-steps
+ ***      - Predict
+ ***      - Measurement update
+ ***  PARAMETERS:
+ ***      Type               Name              Range              Description
+ ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ***      tUKF * const       pUkf                                 UKF - Working structure with reference to all in,out,states,par
+ ***  RETURNS:
+ ***      void
+ ***
+ ***  SETTINGS:
+ ***
+\******************************************************************************************************************************************************************************************************/
 void ukf_step(tUKF * const pUkf)
 {
     float64 * pu_p = pUkf->prev.u_p.val;
@@ -234,12 +267,28 @@ void ukf_step(tUKF * const pUkf)
     }
 }
 
-//Step 1: Generate the Sigma-Points
+/******************************************************************************************************************************************************************************************************\
+ ***  FUNCTION:
+ ***      void ukf_sigmapoint(tUKF * const pUkf)
+ *** 
+ ***  DESCRIPTION:
+ ***      Sigma points matrix X_p is calculated periodically on every step      
+ ***      X_p[L][2L+1] == X(k-1) ,wher L is number of system states xLen      
+ ***  PARAMETERS:
+ ***      Type               Name              Range              Description
+ ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ***      tUKF * const       pUkf                                 UKF - Working structure with reference to all in,out,states,par
+ ***  RETURNS:
+ ***      void
+ ***
+ ***  SETTINGS:
+ ***
+\******************************************************************************************************************************************************************************************************/
 void ukf_sigmapoint(tUKF * const pUkf)
 {
-    float64 * Pxx_p = pUkf->prev.Pxx_p.val;
-    float64 * X_p = pUkf->prev.X_p.val;
-    float64 * x_p = pUkf->prev.x_p.val;
+    float64 * pPxx_p = pUkf->prev.Pxx_p.val;
+    float64 * pX_p = pUkf->prev.X_p.val;
+    float64 * px_p = pUkf->prev.x_p.val;
     float64 scalarMultiplier;
     const float64 lambda = pUkf->par.lambda;
     const uint8 sLen = pUkf->par.sLen;
@@ -259,7 +308,7 @@ void ukf_sigmapoint(tUKF * const pUkf)
         for(xIdx=0;xIdx<xLen;xIdx++)
         {
             //first column of sigma point matrix is equal of previous state value
-            X_p[sLen*xIdx+sigmaIdx] = x_p[xIdx];
+            pX_p[sLen*xIdx+sigmaIdx] = px_p[xIdx];
         }
         
         scalarMultiplier = sqrt(xLen + lambda);
@@ -272,18 +321,17 @@ void ukf_sigmapoint(tUKF * const pUkf)
             {
                 if(sigmaIdx <= xLen)
                 {
-                    X_p[sLen*xIdx+sigmaIdx] = x_p[xIdx] + Pxx_p[xLen*xIdx + (sigmaIdx-1)];
+                    pX_p[sLen*xIdx+sigmaIdx] = px_p[xIdx] + pPxx_p[xLen*xIdx + (sigmaIdx-1)];
                 }
                 else
                 {
-                    X_p[sLen*xIdx+sigmaIdx] = x_p[xIdx] - Pxx_p[xLen*xIdx + (sigmaIdx-xLen-1)];
+                    pX_p[sLen*xIdx+sigmaIdx] = px_p[xIdx] - pPxx_p[xLen*xIdx + (sigmaIdx-xLen-1)];
                 }            
             }
         } 
     }
     else
     {
-
     }
 }
 
