@@ -2,7 +2,7 @@ clear all
 %% Before filter execution
 % System properties
 T = 0.1; % Sampling time
-N = 1700; % Number of time steps for filter
+N = 3000; % Number of time steps for filter
 N1 = 20; % Station 1 North coordinate
 E1 = 0; % Station 1 East coordinate
 N2 = 0; % Station 2 North coordinate
@@ -37,6 +37,7 @@ for k = 2:N
         sqrt((xt(1,k)-N2)^2 + (xt(2,k)-E2)^2)] + v(:,k);
 end
 time=0:0.1:length(yt)*0.1-0.2;
+time=round(1000*time)*0.001
 exp =[time' xt(:,2:end)'] ;
 meas=[time' yt(:,2:end)'];
 %load('simdata.mat')
@@ -116,7 +117,8 @@ exp_ukf =[time' x(:,2:end)'] ;
 exp_y_m =[time' y_mean(:,2:end)'];
 
 %still not ready for simulink import
-exp_K.time = time';
+exp_K.time = time'
+
 exp_K.signals.values = Kgain(:,:,2:end);
 exp_K.signals.dimensions=[4 2]
 
