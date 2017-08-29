@@ -118,6 +118,6 @@ exp_y_m =[time' y_mean(:,2:end)'];
 %still not ready for simulink import
 exp_K.time = time';
 exp_K.signals.values = Kgain(:,:,2:end);
-exp_K.signals.dimensions=[3 2]
+exp_K.signals.dimensions=[4 2]
 
 
