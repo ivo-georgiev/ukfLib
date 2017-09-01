@@ -2,7 +2,7 @@ clear all
 %% Before filter execution
 % System properties
 T = 0.1; % Sampling time
-N = 3000; % Number of time steps for filter
+N = 600; % Number of time steps for filter
 N1 = 20; % Station 1 North coordinate
 E1 = 0; % Station 1 East coordinate
 N2 = 0; % Station 2 North coordinate

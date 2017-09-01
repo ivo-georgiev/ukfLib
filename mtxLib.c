@@ -1,4 +1,3 @@
-#include<math.h>
 #include "mtxLib.h"
 
 mtxResultInfo mtx_init_f64(tMatrix * A, float64 * pValue, uint8 nrow, uint8 ncol)

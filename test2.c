@@ -1,9 +1,3 @@
-#include "System_Types.h"
-#include<stdio.h>
-#include<math.h>
-#include <stdlib.h>
-#include "mtxLib.h"
-#include "ukfLib.h"
 #include "ukfCfg.h"
 
 /*---------------------------------------------*/
@@ -86,7 +80,6 @@ void main(void)
     //show_matrix(&TestMatrix_1_2x3[0][0],2,3);
     //show_matrix_obj(myTestMatx);
 
-
     (void)mtx_init_f64(&myFactMatrix,&symMtx[0][0],NROWS(symMtx),NCOL(symMtx));
     //show_matrix(&symMtx[0][0],5,5);
 
@@ -107,7 +100,7 @@ void main(void)
     mtx_transp_dest_f64(&myTestMatx,&oTestMatrixDest_3x2);
     show_matrix_obj(oTestMatrixDest_3x2);
 
-
+    //UKF test start here
     ukf_test();
 
 }
@@ -141,7 +134,24 @@ void show_matrix(float64 * A, int n,int m)
     }
     printf("\n");
 }
-
+/******************************************************************************************************************************************************************************************************\
+ ***  FUNCTION:
+ ***      void ukf_test(void)
+ *** 
+ ***  DESCRIPTION:
+ ***      Initialize and test UKF C implementation against expected result. Filter is tested in the loop from 15 steps. 
+ ***      Total root square error is accumulated in the same loop for each state in order to show deviation from reference matlab solution.      
+ ***            
+ ***  PARAMETERS:
+ ***      Type               Name              Range              Description
+ ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ***      void
+ ***  RETURNS:
+ ***      void
+ ***
+ ***  SETTINGS:
+ ***
+\******************************************************************************************************************************************************************************************************/
 void ukf_test(void)
 {
     boolean tfInitFail = 0;

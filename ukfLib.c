@@ -28,9 +28,6 @@
 \******************************************************************************************************************************************************************************************************/
 
 #include "ukfLib.h"
-#include "stdio.h"
-#include "math.h"
-#include "memory.h"
 
 boolean ukf_dimension_check(tUKF * const pUkf);
 boolean ukf_init(tUKF * const pUkf,float64 scaling[scalingLen],uint8 xLen,uint8 yLen, tUkfMatrix * pUkfMatrix);
@@ -172,8 +169,8 @@ boolean ukf_dimension_check(tUKF * const pUkf)
 \******************************************************************************************************************************************************************************************************/
 boolean ukf_init(tUKF * const pUkf,float64 scaling[scalingLen],uint8 xLen,uint8 yLen, tUkfMatrix * pUkfMatrix)
 {
-    tUKFpar * pPar = (tUKFpar *)&pUkf->par;
-    tUKFprev * pPrev = (tUKFprev *)&pUkf->prev;
+    tUKFpar * const pPar = (tUKFpar *)&pUkf->par;
+    tUKFprev * const pPrev = (tUKFprev *)&pUkf->prev;
     const uint8 WmLen = pUkfMatrix->Wm_weight_vector.ncol;
     const uint8 WcLen = pUkfMatrix->Wc_weight_vector.ncol;
     
@@ -284,8 +281,8 @@ boolean ukf_init(tUKF * const pUkf,float64 scaling[scalingLen],uint8 xLen,uint8 
 \******************************************************************************************************************************************************************************************************/
 void ukf_step(tUKF * const pUkf)
 {
-    float64 * pu_p = pUkf->prev.u_p.val;
-    float64 * pu = pUkf->input.u.val;
+    float64 * const pu_p = pUkf->prev.u_p.val;
+    const float64 * const pu = pUkf->input.u.val;
     const uint8 uLen = pUkf->prev.u_p.nrow;//input length
     uint8 u8Idx;
 
@@ -321,10 +318,10 @@ void ukf_step(tUKF * const pUkf)
 \******************************************************************************************************************************************************************************************************/
 void ukf_sigmapoint(tUKF * const pUkf)
 {
-    float64 * pPxx_p = pUkf->prev.Pxx_p.val;
-    float64 * pX_p = pUkf->prev.X_p.val;
-    float64 * px_p = pUkf->prev.x_p.val;
-    float64 scalarMultiplier;
+    float64 * const pPxx_p = pUkf->prev.Pxx_p.val;
+    float64 * const pX_p = pUkf->prev.X_p.val;
+    float64 * const px_p = pUkf->prev.x_p.val;
+    float64 f64Scalar;
     const float64 lambda = pUkf->par.lambda;
     const uint8 sLen = pUkf->par.sLen;
     const uint8 xLen = pUkf->par.xLen;
@@ -347,9 +344,9 @@ void ukf_sigmapoint(tUKF * const pUkf)
             pX_p[sLen*xIdx+sigmaIdx] = px_p[xIdx];
         }
                
-        scalarMultiplier = sqrt(xLen + lambda);
+        f64Scalar = sqrt(xLen + lambda);
         
-        (void)mtx_mul_scalar_f64(&pUkf->prev.Pxx_p,scalarMultiplier);
+        (void)mtx_mul_scalar_f64(&pUkf->prev.Pxx_p,f64Scalar);
         
         for(sigmaIdx=1;sigmaIdx < sLen;sigmaIdx++)
         {
@@ -396,15 +393,15 @@ void ukf_sigmapoint(tUKF * const pUkf)
 \******************************************************************************************************************************************************************************************************/ 
 void ukf_predict(tUKF * const pUkf)
 {
-    tUKFpar * pPar = (tUKFpar *)&pUkf->par;
-    float64 * pWm = pPar->Wm.val;
-    float64 * pWc = pPar->Wc.val;
-    float64 * pX_m = pUkf->predict.X_m.val;
-    float64 * pY_m = pUkf->predict.Y_m.val;
-    float64 * pP_m = pUkf->predict.P_m.val;
-    float64 * pPyy = pUkf->update.Pyy.val;
-    float64 * Pxy = pUkf->update.Pxy.val;
-    float64 * px_m = pUkf->predict.x_m.val;
+    tUKFpar const * const pPar = (tUKFpar *)&pUkf->par;
+    float64 const * const pWm = pPar->Wm.val;
+    float64 const * const pWc = pPar->Wc.val;
+    float64 const * const pX_m = pUkf->predict.X_m.val;
+    float64 * const pY_m = pUkf->predict.Y_m.val;
+    float64 * const pP_m = pUkf->predict.P_m.val;
+    float64 * const pPyy = pUkf->update.Pyy.val;
+    float64 * const Pxy = pUkf->update.Pxy.val;
+    float64 * const px_m = pUkf->predict.x_m.val;
     float64 * py_m = pUkf->predict.y_m.val;
     const uint8 sigmaLen = pPar->sLen;
     const uint8 xLen = pPar->xLen;
@@ -442,8 +439,7 @@ void ukf_predict(tUKF * const pUkf)
     for(sigmaIdx=0;sigmaIdx<sigmaLen;sigmaIdx++)
     {             
         for(xIdx=0;xIdx<xLen;xIdx++)
-        {                      
-             
+        {                                 
             for(xTrIdx=0;xTrIdx<xLen;xTrIdx++)
             { 
                 float64 term1 = (pX_m[sigmaLen*xIdx + sigmaIdx] - px_m[xIdx]);
@@ -533,7 +529,7 @@ void ukf_predict(tUKF * const pUkf)
 \******************************************************************************************************************************************************************************************************/
 void ukf_meas_update(tUKF * const pUkf)
 {
-    tUKFupdate * pUpdate = (tUKFupdate*)&pUkf->update;
+    tUKFupdate * const pUpdate = (tUKFupdate*)&pUkf->update;
 
     //#4.1(begin) Calculate Kalman gain:
     (void)mtx_identity_f64(&pUpdate->Iyy);

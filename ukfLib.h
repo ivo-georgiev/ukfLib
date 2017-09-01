@@ -1,4 +1,7 @@
 #include "System_Types.h"
+#include "stdio.h"
+#include "math.h"
+#include "memory.h"
 #include "mtxLib.h"
 
 #ifndef UKFLIB_FILE

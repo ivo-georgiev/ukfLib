@@ -8,11 +8,6 @@ extern void Fx3(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx);
 extern void Hy1(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx);
 extern void Hy2(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx);
 
-#define idxSt0 (uint8)0
-#define idxSt1 (uint8)1
-#define idxSt2 (uint8)2
-#define idxSt3 (uint8)3
-
 #define stateVectorLen (uint8)4
 #define measVectorLen (uint8)2
 
