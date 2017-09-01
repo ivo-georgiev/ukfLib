@@ -1,5 +1,5 @@
 clear all
-%% Before filter execution
+% Before filter execution
 % System properties
 T = 0.1; % Sampling time
 N = 600; % Number of time steps for filter
@@ -37,35 +37,10 @@ for k = 2:N
         sqrt((xt(1,k)-N2)^2 + (xt(2,k)-E2)^2)] + v(:,k);
 end
 time=0:0.1:length(yt)*0.1-0.2;
-time=round(1000*time)*0.001
+time=round(1000*time)*0.001; % fix github issue #2
 exp =[time' xt(:,2:end)'] ;
 meas=[time' yt(:,2:end)'];
-%load('simdata.mat')
 
-%% Initialize and run EKF for comparison
-xe = zeros(4,N);
-xe(:,1) = x(:,1);
-P = P0;
-F = [1 0 T 0; 0 1 0 T; 0 0 1 0; 0 0 0 1]; % Linear prediction
-for k = 2:N
-    % Prediction
-    x_m = F*xe(:,k-1);
-    P_m = F*P*F' + Q;
-    % Observation
-    y_m = [sqrt((x_m(1)-N1).^2 + (x_m(2)-E1).^2); ...
-        sqrt((x_m(1)-N2).^2 + (x_m(2)-E2).^2)];
-    
-    H = [(x_m(1)-N1)/sqrt((x_m(1)-N1)^2 + (x_m(2)-E1)^2), ...
-        (x_m(2)-E1)/sqrt((x_m(1)-N1)^2 + (x_m(2)-E1)^2), 0, 0; ...
-        (x_m(1)-N2)/sqrt((x_m(1)-N2)^2 + (x_m(2)-E2)^2), ...
-        (x_m(2)-E2)/sqrt((x_m(1)-N2)^2 + (x_m(2)-E2)^2), 0, 0];
-    % Measurement Update
-    K = P_m*H'/(H*P_m*H' + R); % Calculate Kalman gain
-    xe(:,k) = x_m + K*(yt(:,k) - y_m); % Update state estimate
-    P = (eye(4)-K*H)*P_m; % Update covariance estimate
-end
-clc
-%% Execute Unscented Kalman Filter
 P = P0; % Set first value of P to the initial P0
 for k = 2:N
     % Step 1: Generate the sigma-points
@@ -104,21 +79,12 @@ for k = 2:N
     x(:,k);
     P = P_m - K*Pyy*K'; % Update covariance estimate
 end
-%% Display results
-% figure(1);
-% t = T*(1:N);
-% for i = 1:4
-% subplot(4,2,2*i-1); plot(t,x(i,:),'b-', t,xe(i,:),'g-.', t,xt(i,:),'r--', 'LineWidth', 2);
-% xlabel('Time (s)'); ylabel(['x_',num2str(i)]); grid on; legend('UKF','EKF','True');
-% subplot(4,2,2*i); plot(t,x(i,:)-xt(i,:),'b-', t,xe(i,:)-xt(i,:),'g-.', 'LineWidth', 2);
-% xlabel('Time (s)'); ylabel(['\Deltax_',num2str(i)]); grid on; legend('UKF','EKF');
-% end
+
 exp_ukf =[time' x(:,2:end)'] ;
 exp_y_m =[time' y_mean(:,2:end)'];
 
-%still not ready for simulink import
+% prepare expected kalman gain in suitable format for Simulink
 exp_K.time = time'
-
 exp_K.signals.values = Kgain(:,:,2:end);
 exp_K.signals.dimensions=[4 2]
 
