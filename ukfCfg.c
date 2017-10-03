@@ -41,27 +41,27 @@ tObservFcn  ObservFcn[measVectorLen] = {&Hy1,&Hy2};
 //-----------------------
 //UKF Processing matrix
 //-----------------------
-float64 Wm_sigma_weight_1x9[9] = {3,3,3,3,3,3,3,3,3};
-float64 Wc_sigma_weight_1x9[9] = {0,0,0,0,0,0,0,0,0};
+float64 Wm_sigma_weight_1x9[1][9] = {3,3,3,3,3,3,3,3,3};
+float64 Wc_sigma_weight_1x9[1][9] = {0,0,0,0,0,0,0,0,0};
 
 //System input current u(k)
-float64 u_curr_system_input_4x1[4] = {0,0,0,0}; 
+float64 u_curr_system_input_4x1[4][1] = {0,0,0,0}; 
 
 //System input previous u(k-1)
-float64 u_prev_system_input_4x1[4] = {0,0,0,0};
+float64 u_prev_system_input_4x1[4][1] = {0,0,0,0};
 
 //System output measurement y(k)
-float64 y_curr_system_meas_2x1[2] = {0,0};
+float64 y_curr_system_meas_2x1[2][1] = {0,0};
 
 //System output predicted y_m(k|k-1)
-float64 y_mean_system_predict_2x1[2] = {0,0};
+float64 y_mean_system_predict_2x1[2][1] = {0,0};
 
 //System states: x(k), x(k-1), x(k|k-1) common array for all 
-float64 x_system_states_4x1[4] = {0,0,50,50};
+float64 x_system_states_4x1[4][1] = {0,0,50,50};
 
-float64 x_system_states_ic_4x1[4] = {0,0,50,50};
+float64 x_system_states_ic_4x1[4][1] = {0,0,50,50};
 
-float64 x_system_states_correction_4x1[4] = {0,0,0,0};
+float64 x_system_states_correction_4x1[4][1] = {0,0,0,0};
 
 //Sigma points X(k), X(k|k-1):
 float64 X_sigma_points_4x9[4][9]=
