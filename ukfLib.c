@@ -35,6 +35,9 @@ void ukf_step(tUKF * const pUkf);
 void ukf_predict(tUKF * const pUkf);
 void ukf_meas_update(tUKF * const pUkf);
 void ukf_sigmapoint(tUKF * const pUkf);
+void ukf_mean_pred_state(tUKF * const pUkf);
+void ukf_mean_pred_output(tUKF * const pUkf);
+void ukf_calc_covariances(tUKF * const pUkf);
 
 /******************************************************************************************************************************************************************************************************\
  ***  FUNCTION:
@@ -374,13 +377,6 @@ void ukf_sigmapoint(tUKF * const pUkf)
  *** 
  ***  DESCRIPTION:
  ***      Step 2/3: Prediction Transformation/Observation Transformation (APPENDIX A:IMPLEMENTATION OF THE ADDITIVE NOISE UKF)
- ***      # 2.1 Propagate each sigma-point through prediction  : X_m = f(X_p, u_p)
- ***      # 2.2 Calculate mean of predicted state              : x_m = sum(Wm(i)*X_m(i)) , i=0,..2L
- ***      # 2.3 Calculate covariance of predicted state        : P_m = Wc(sigmaIdx)*(X_m-x_m)*(X_m-x_m)'    P(k|k-1)
- ***      # 3.1 Propagate each sigma-point through observation : Y_m = h(X_m, u)
- ***      # 3.2 Calculate mean of predicted output             : y_m = sum(Wm(i)*Y_m(i))
- ***      # 3.3 Calculate covariance of predicted output       : Pyy = Wc(sigmaIdx)*(Y_m-y_m)*(Y_m-y_m)'
- ***      # 3.4 Calculate cross-covariance of state and output : Pxy = Q + sum(Wc*()*()')
  ***            
  ***  PARAMETERS:
  ***      Type               Name              Range              Description
@@ -393,27 +389,42 @@ void ukf_sigmapoint(tUKF * const pUkf)
 \******************************************************************************************************************************************************************************************************/ 
 void ukf_predict(tUKF * const pUkf)
 {
+    ukf_mean_pred_state(pUkf);
+    ukf_mean_pred_output(pUkf);
+    ukf_calc_covariances(pUkf);
+}
+/******************************************************************************************************************************************************************************************************\
+ ***  FUNCTION:
+ ***      void ukf_mean_pred_state(tUKF * const pUkf)
+ *** 
+ ***  DESCRIPTION:
+ ***      Step 2: Prediction Transformation (APPENDIX A:IMPLEMENTATION OF THE ADDITIVE NOISE UKF)
+ ***      # 2.1 Propagate each sigma-point through prediction  : X_m = f(X_p, u_p)
+ ***      # 2.2 Calculate mean of predicted state              : x_m = sum(Wm(i)*X_m(i)) , i=0,..2L
+ ***            
+ ***  PARAMETERS:
+ ***      Type               Name              Range              Description
+ ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ***      tUKF * const       pUkf                                 UKF - Working structure with reference to all in,out,states,par
+ ***  RETURNS:
+ ***      void
+ ***  SETTINGS:
+ ***
+\******************************************************************************************************************************************************************************************************/ 
+void ukf_mean_pred_state(tUKF * const pUkf)
+{
     tUKFpar const * const pPar = (tUKFpar *)&pUkf->par;
-    float64 const * const pWm = pPar->Wm.val;
-    float64 const * const pWc = pPar->Wc.val;
-    float64 const * const pX_m = pUkf->predict.X_m.val;
-    float64 * const pY_m = pUkf->predict.Y_m.val;
-    float64 * const pP_m = pUkf->predict.P_m.val;
-    float64 * const pPyy = pUkf->update.Pyy.val;
-    float64 * const Pxy = pUkf->update.Pxy.val;
-    float64 * const px_m = pUkf->predict.x_m.val;
-    float64 * py_m = pUkf->predict.y_m.val;
-    const uint8 sigmaLen = pPar->sLen;
     const uint8 xLen = pPar->xLen;
-    const uint8 yLen= pPar->yLen;
-    uint8 sigmaIdx,xIdx,xTrIdx,yIdx,yTrIdx;
+    const uint8 sigmaLen = pPar->sLen;
+    float64 * const px_m = pUkf->predict.x_m.val;
+    float64 const * const pX_m = pUkf->predict.X_m.val;
+    float64 const * const pWm = pPar->Wm.val;
+    uint8 sigmaIdx,xIdx;
 
-    //#2.1(begin) Propagate each sigma-point through prediction
-    //#2.2(begin) Calculate mean of predicted state
     for(xIdx=0;xIdx<xLen;xIdx++)
     {
         px_m[xIdx] = 0;
-               
+        
         for(sigmaIdx=0;sigmaIdx<sigmaLen;sigmaIdx++)
         {                     
             if(pUkf->predict.pFcnPredict[xIdx] != NULL)
@@ -425,17 +436,46 @@ void ukf_predict(tUKF * const pUkf)
             px_m[xIdx] += pWm[sigmaIdx] * pX_m[sigmaLen*xIdx + sigmaIdx];
         }
     }
-    //#2.1(end) Propagate each sigma-point through prediction
-    //#2.2(end) Calculate mean of predicted state
-    
-    //#2.3(begin) Calculate covariance of predicted state
-    //#3.1(begin) Propagate each sigma-point through observation
-    //#3.2(begin) Calculate mean of predicted output   
+}
+/******************************************************************************************************************************************************************************************************\
+ ***  FUNCTION:
+ ***      void ukf_mean_pred_output(tUKF * const pUkf)
+ *** 
+ ***  DESCRIPTION:
+ ***      Step 3: Observation Transformation (APPENDIX A:IMPLEMENTATION OF THE ADDITIVE NOISE UKF)
+ ***      # 2.3 Calculate covariance of predicted state        : P_m = Wc(sigmaIdx)*(X_m-x_m)*(X_m-x_m)'    P(k|k-1)
+ ***      # 3.1 Propagate each sigma-point through observation : Y_m = h(X_m, u)
+ ***      # 3.2 Calculate mean of predicted output             : y_m = sum(Wm(i)*Y_m(i))
+ ***            
+ ***  PARAMETERS:
+ ***      Type               Name              Range              Description
+ ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ***      tUKF * const       pUkf                                 UKF - Working structure with reference to all in,out,states,par
+ ***  RETURNS:
+ ***      void
+ ***  SETTINGS:
+ ***
+\******************************************************************************************************************************************************************************************************/
+void ukf_mean_pred_output(tUKF * const pUkf)
+{
+    tUKFpar const * const pPar = (tUKFpar *)&pUkf->par;
+    float64 const * const pWm = pPar->Wm.val;
+    float64 const * const pWc = pPar->Wc.val;
+    float64 const * const pX_m = pUkf->predict.X_m.val;
+    float64 * const pY_m = pUkf->predict.Y_m.val;
+    float64 * const pP_m = pUkf->predict.P_m.val;
+    float64 * const px_m = pUkf->predict.x_m.val;
+    float64 * py_m = pUkf->predict.y_m.val;
+    const uint8 sigmaLen = pPar->sLen;
+    const uint8 xLen = pPar->xLen;
+    const uint8 yLen= pPar->yLen;
+    uint8 sigmaIdx,xIdx,xTrIdx,yIdx;
+ 
     memset(py_m,0,sizeof(float64)*yLen); 
     
     //P(k|k-1) = Q(k-1)
     mtx_cpy_f64(&pUkf->predict.P_m, &pUkf->par.Qxx);
-
+    
     for(sigmaIdx=0;sigmaIdx<sigmaLen;sigmaIdx++)
     {             
         for(xIdx=0;xIdx<xLen;xIdx++)
@@ -450,7 +490,7 @@ void ukf_predict(tUKF * const pUkf)
                 pP_m[xLen*xIdx + xTrIdx] += pWc[sigmaIdx]*term1*term2;
             }           
         } 
-              
+        
         for(yIdx=0;yIdx<yLen;yIdx++)
         {
             if(pUkf->predict.pFcnObserv[yIdx] != NULL)
@@ -467,16 +507,43 @@ void ukf_predict(tUKF * const pUkf)
             py_m[yIdx] += pWm[sigmaIdx] * pY_m[sigmaLen*yIdx + sigmaIdx];
         }
     }
-    //#2.3(end) Calculate covariance of predicted state
-    //#3.1(end) Propagate each sigma-point through observation
-    //#3.2(end) Calculate mean of predicted output
+}
+/******************************************************************************************************************************************************************************************************\
+ ***  FUNCTION:
+ ***      void ukf_calc_covariances(tUKF * const pUkf)
+ *** 
+ ***  DESCRIPTION:
+ ***      # 3.3 Calculate covariance of predicted output       : Pyy = Wc(sigmaIdx)*(Y_m-y_m)*(Y_m-y_m)'
+ ***      # 3.4 Calculate cross-covariance of state and output : Pxy = Q + sum(Wc*()*()')
+ ***            
+ ***  PARAMETERS:
+ ***      Type               Name              Range              Description
+ ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ***      tUKF * const       pUkf                                 UKF - Working structure with reference to all in,out,states,par
+ ***  RETURNS:
+ ***      void
+ ***  SETTINGS:
+ ***
+\******************************************************************************************************************************************************************************************************/ 
+void ukf_calc_covariances(tUKF * const pUkf)
+{
+    tUKFpar const * const pPar = (tUKFpar *)&pUkf->par;
+    float64 const * const pWc = pPar->Wc.val;
+    float64 const * const pX_m = pUkf->predict.X_m.val;
+    float64 * const pY_m = pUkf->predict.Y_m.val;
+    float64 * const pPyy = pUkf->update.Pyy.val;
+    float64 * const pPxy = pUkf->update.Pxy.val;
+    float64 * const px_m = pUkf->predict.x_m.val;
+    float64 * py_m = pUkf->predict.y_m.val;
+    const uint8 sigmaLen = pPar->sLen;
+    const uint8 xLen = pPar->xLen;
+    const uint8 yLen= pPar->yLen;
+    uint8 sigmaIdx,xIdx,yIdx,yTrIdx;
 
-    //#3.3(begin) Calculate covariance of predicted output
-    //#3.4(begin) Calculate cross-covariance of state and output   
     mtx_cpy_f64(&pUkf->update.Pyy, &pPar->Ryy0);//Pyy(k|k-1) = R(k)
-
-    memset(Pxy,0,sizeof(float64)*xLen*yLen);
-
+    
+    memset(pPxy,0,sizeof(float64)*xLen*yLen);
+    
     for(sigmaIdx=0;sigmaIdx<sigmaLen;sigmaIdx++)
     {              
         for(yIdx=0;yIdx<yLen;yIdx++)
@@ -499,14 +566,12 @@ void ukf_predict(tUKF * const pUkf)
             {
                 float64 term1 = (pX_m[sigmaLen*xIdx + sigmaIdx] - px_m[xIdx]);
                 float64 term2 = (pY_m[sigmaLen*yTrIdx + sigmaIdx] - py_m[yTrIdx]);
-
+                
                 //#3.4 Calculate cross-covariance of state and output
-                Pxy[yLen*xIdx + yTrIdx] += pWc[sigmaIdx]*term1*term2;
+                pPxy[yLen*xIdx + yTrIdx] += pWc[sigmaIdx]*term1*term2;
             }
         }
     }
-    //#3.3(end) Calculate covariance of predicted output
-    //#3.4(end) Calculate cross-covariance of state and output
 }
 /******************************************************************************************************************************************************************************************************\
  ***  FUNCTION:
