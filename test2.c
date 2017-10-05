@@ -155,10 +155,8 @@ void show_matrix(float64 * A, int n,int m)
 void ukf_test(void)
 {
     boolean tfInitFail = 0;
-    float64 param[3]={1,2,0};
     tUkfMatrix UkfMat;
     tUKF ukfIo;
-    tMatrix myTestMatx;
     uint8 simLoop;
 
     static const float64 yt[2][15]=
@@ -200,9 +198,7 @@ void ukf_test(void)
     float64 rootSquareErr_X2 = 0;
     float64 rootSquareErr_X3 = 0;
 
-
-
-    mtx_init_f64(&myTestMatx,&TestMatrix_1_2x3[0][0],NROWS(TestMatrix_1_2x3),NCOL(TestMatrix_1_2x3));
+    mtx_init_f64(&UkfMat.Sc_vector,&Sc_vector_1x3[0][0],NROWS(Sc_vector_1x3),NCOL(Sc_vector_1x3));
 
     mtx_init_f64(&UkfMat.Wm_weight_vector, &Wm_sigma_weight_1x9[0][0],NROWS(Wm_sigma_weight_1x9),NCOL(Wm_sigma_weight_1x9));
 
@@ -251,7 +247,7 @@ void ukf_test(void)
     UkfMat.fcnPredict = &PredictFcn[0];
     UkfMat.fcnObserve = &ObservFcn[0];
 
-    tfInitFail = ukf_init(&ukfIo,param,4,2, &UkfMat);
+    tfInitFail = ukf_init(&ukfIo, &UkfMat);
 
     if(tfInitFail == 0)
     {             
