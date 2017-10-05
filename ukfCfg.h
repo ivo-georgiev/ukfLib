@@ -11,8 +11,11 @@ extern void Hy2(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx);
 #define stateVectorLen (uint8)4
 #define measVectorLen (uint8)2
 
+#define scLen (uint8)3
+
 #define dT0 (float64)0.1 // [sec] 
 
+extern float64 Sc_vector_1x3[1][scLen];
 extern float64 Wm_sigma_weight_1x9[1][9];
 extern float64 Wc_sigma_weight_1x9[1][9];
 extern float64 u_curr_system_input_4x1[4][1]; 

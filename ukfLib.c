@@ -30,7 +30,7 @@
 #include "ukfLib.h"
 
 boolean ukf_dimension_check(tUKF * const pUkf);
-boolean ukf_init(tUKF * const pUkf,float64 scaling[scalingLen],uint8 xLen,uint8 yLen, tUkfMatrix * pUkfMatrix);
+boolean ukf_init(tUKF * const pUkf, tUkfMatrix * pUkfMatrix);
 void ukf_step(tUKF * const pUkf);
 void ukf_predict(tUKF * const pUkf);
 void ukf_meas_update(tUKF * const pUkf);
@@ -160,7 +160,6 @@ boolean ukf_dimension_check(tUKF * const pUkf)
  ***      Type               Name                     Lim       Description
  ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  ***      tUKF * const       pUkf                               UKF - Working structure with all in,out,par
- ***      float64            scaling[scalingLen]                UKF - array with parameters alpha,betha,kappa
  ***      uint8              xLen                     1-127     UKF - State vector length
  ***      uint8              yLen                               UKF - Measurements vector length
  ***      tUkfMatrix *       pUkfMatrix                         UKF - Structure with all filter matrix
@@ -170,7 +169,7 @@ boolean ukf_dimension_check(tUKF * const pUkf)
  ***  SETTINGS:
  ***
 \******************************************************************************************************************************************************************************************************/
-boolean ukf_init(tUKF * const pUkf,float64 scaling[scalingLen],uint8 xLen,uint8 yLen, tUkfMatrix * pUkfMatrix)
+boolean ukf_init(tUKF * const pUkf, tUkfMatrix * pUkfMatrix)
 {
     tUKFpar * const pPar = (tUKFpar *)&pUkf->par;
     tUKFprev * const pPrev = (tUKFprev *)&pUkf->prev;
@@ -183,17 +182,17 @@ boolean ukf_init(tUKF * const pUkf,float64 scaling[scalingLen],uint8 xLen,uint8 
     pPar->Qxx = pUkfMatrix->Qxx_process_noise_cov;
     pPar->Wm =  pUkfMatrix->Wm_weight_vector;
     pPar->Wc =  pUkfMatrix->Wc_weight_vector;
-    pPar->alpha = scaling[alphaIdx];
-    pPar->betha = scaling[bethaIdx];
-    pPar->kappa = scaling[kappaIdx];
-    pPar->xLen = xLen;
-    pPar->yLen = yLen;//check length of output matrix to compare
-    pPar->sLen = 2*xLen+1;
+    pPar->alpha = pUkfMatrix->Sc_vector.val[alphaIdx];//scaling[alphaIdx];
+    pPar->betha = pUkfMatrix->Sc_vector.val[bethaIdx];;//scaling[bethaIdx];
+    pPar->kappa = pUkfMatrix->Sc_vector.val[kappaIdx];;//scaling[kappaIdx];
+    pPar->xLen = pUkfMatrix->x_system_states.nrow; 
+    pPar->yLen = pUkfMatrix->y_predicted_mean.nrow;
+    pPar->sLen = 2*pPar->xLen+1;
     
     //#1.3'(begin) Calculate scaling parameter
     pPar->lambda = pPar->alpha * pPar->alpha;
-    pPar->lambda *= (float64)(xLen + pPar->kappa);
-    pPar->lambda -= (float64)xLen;
+    pPar->lambda *= (float64)(pPar->xLen + pPar->kappa);
+    pPar->lambda -= (float64)pPar->xLen;
     //#1.3'(end) Calculate scaling parameter
     
     //#1.2'(begin) Calculate weight vectors

@@ -7,11 +7,16 @@
 #ifndef UKFLIB_FILE
 #define UKFLIB_FILE
 
+#define alphaIdx   (uint8)0
+#define bethaIdx   (uint8)1
+#define kappaIdx   (uint8)2
+
 typedef void (* tPredictFcn) (tMatrix * pu_p, tMatrix * px_p, tMatrix * pX_m,uint8 sigmaIdx);
 typedef void (* tObservFcn) (tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx);
 
 typedef struct tUkfMatrix
 {
+    tMatrix Sc_vector;
     tMatrix Wm_weight_vector;
     tMatrix Wc_weight_vector;
     tMatrix x_system_states;
@@ -38,14 +43,6 @@ typedef struct tUkfMatrix
     tObservFcn * fcnObserve;
 
 }tUkfMatrix;
-
-
-
-#define alphaIdx   (uint8)0
-#define bethaIdx   (uint8)1
-#define kappaIdx   (uint8)2
-#define scalingLen (uint8)3
-
 
 typedef struct tUKFpar
 {
@@ -90,8 +87,6 @@ typedef struct tUKFpredict //p(previous)==k-1, m(minus)=(k|k-1)
     tObservFcn * pFcnObserv;
 }tUKFpredict;
 
-
-
 typedef struct tUKFupdate
 {
     tMatrix Pyy;    //Calculate covariance of predicted output
@@ -106,7 +101,6 @@ typedef struct tUKFupdate
     tMatrix Iyy;     //tmp buffer initialized as identity matrix stor result from inversion and other operation  
 }tUKFupdate;
 
-
 typedef struct tUKF
 {
     tUKFpar     par;
@@ -119,5 +113,5 @@ typedef struct tUKF
 
 #endif
 
-extern boolean ukf_init(tUKF * const pUkf,float64 scaling[scalingLen],uint8 xLen,uint8 yLen, tUkfMatrix * pUkfMatrix);
+extern boolean ukf_init(tUKF * const pUkf, tUkfMatrix * pUkfMatrix);
 extern void ukf_step(tUKF * const pUkf);

@@ -41,6 +41,7 @@ tObservFcn  ObservFcn[measVectorLen] = {&Hy1,&Hy2};
 //-----------------------
 //UKF Processing matrix
 //-----------------------
+float64 Sc_vector_1x3[1][scLen] = {1,2,0};
 float64 Wm_sigma_weight_1x9[1][9] = {3,3,3,3,3,3,3,3,3};
 float64 Wc_sigma_weight_1x9[1][9] = {0,0,0,0,0,0,0,0,0};
 
