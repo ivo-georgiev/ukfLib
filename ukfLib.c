@@ -32,7 +32,6 @@
 boolean ukf_dimension_check(tUKF * const pUkf);
 boolean ukf_init(tUKF * const pUkf, tUkfMatrix * pUkfMatrix);
 void ukf_step(tUKF * const pUkf);
-void ukf_predict(tUKF * const pUkf);
 void ukf_meas_update(tUKF * const pUkf);
 void ukf_sigmapoint(tUKF * const pUkf);
 void ukf_mean_pred_state(tUKF * const pUkf);
@@ -44,7 +43,7 @@ void ukf_calc_covariances(tUKF * const pUkf);
  ***      boolean ukf_dimension_check(tUKF * const pUkf)
  *** 
  ***  DESCRIPTION:
- ***      Check if working matrix size defined in ukfCfg.c match to defined system expectation(number of states xLen, number of measurements yLen)     
+ ***      Check if working matrix size defined in ukfCfg.c match to defined system expectation(verification of all matrix is vs number of states xLen and number of measurements yLen)     
  ***            
  ***  PARAMETERS:
  ***      Type               Name              Range              Description
@@ -69,83 +68,70 @@ boolean ukf_dimension_check(tUKF * const pUkf)
        (pUkf->prev.u_p.nrow != stateLen || pUkf->prev.u_p.ncol != 1))
     {
         Result |= 1;
-    }
-    
+    } 
     //check measurement vector size: (yLen x 1)
     if(pUkf->input.y.nrow != pUkf->par.yLen || pUkf->input.y.ncol != 1)
     {
         Result |= 1;
-    }
-    
+    }  
     //check Wm,Wc sigma weight matrix size: (1 x sLen)
     if((pUkf->par.Wm.nrow != 1 || pUkf->par.Wm.ncol != sigmaLen) &&
        (pUkf->par.Wc.nrow != 1 || pUkf->par.Wc.ncol != sigmaLen))
     {
         Result |= 1;
-    }
-    
+    }  
     //check initial covariance matrix size: (xLen x xLen)
     if(pUkf->par.Pxx0.nrow != stateLen || pUkf->par.Pxx0.ncol != stateLen)
     {
         Result |= 1;
     }
-
     //check Process noise covariance Q: (xLen x xLen)
     if(pUkf->par.Qxx.nrow != stateLen || pUkf->par.Qxx.ncol != stateLen)
     {
         Result |= 1;
     }
-
     //check Output noise covariance matrix size: (yLen x yLen)
     if(pUkf->par.Ryy0.nrow != pUkf->par.yLen || pUkf->par.Ryy0.ncol != pUkf->par.yLen)
     {
         Result |= 1;
     }
-
     //check X sigma point matrix size: (xLen x 2*xLen+1)
     if(pUkf->predict.X_m.nrow != stateLen || pUkf->predict.X_m.ncol != pUkf->par.sLen)
     {
         Result |= 1;
     }
-
     //check Y sigma point matrix size: (yLen x 2*xLen+1) , Y(k|k-1) = y_m
     if(pUkf->predict.Y_m.nrow != pUkf->par.yLen || pUkf->predict.Y_m.ncol != pUkf->par.sLen)
     {
         Result |= 1;
     }
-
     //check state/error covariance matrix size: (xLen x xLen) , Pxx_p == P_m == Pxx
     if(pUkf->predict.P_m.nrow != stateLen || pUkf->predict.P_m.ncol != stateLen)
     {
         Result |= 1;
     }
-
     //check Output covariance and it's copy size 
     if((pUkf->update.Pyy.nrow != pUkf->par.yLen || pUkf->update.Pyy.ncol != pUkf->par.yLen) &&
        (pUkf->update.Pyy_cpy.nrow != pUkf->par.yLen || pUkf->update.Pyy_cpy.ncol != pUkf->par.yLen))
     {
         Result |= 1;
     }
-
     //check cross-covariance matrix of state and output size: (xLen x yLen)
     if(pUkf->update.Pxy.nrow != stateLen || pUkf->update.Pxy.ncol != pUkf->par.yLen)
     {
         Result |= 1;
     }
-
     //check Pxx covariance correction: (xLen x xLen)
     if(pUkf->update.Pxx_corr.nrow != stateLen || pUkf->update.Pxx_corr.ncol != stateLen)
     {
         Result |= 1;
     }
-
     //check Kalman gain matrix and it's transp: (xLen x yLen)
     if((pUkf->update.K.nrow != stateLen || pUkf->update.K.ncol != pUkf->par.yLen) &&
        (pUkf->update.Kt.nrow != pUkf->par.yLen || pUkf->update.Kt.ncol != stateLen))
     {
         Result |= 1;
     }
-
 
     return Result;
 }
@@ -289,7 +275,9 @@ void ukf_step(tUKF * const pUkf)
     uint8 u8Idx;
 
     ukf_sigmapoint(pUkf);
-    ukf_predict(pUkf);
+    ukf_mean_pred_state(pUkf);
+    ukf_mean_pred_output(pUkf);
+    ukf_calc_covariances(pUkf);
     ukf_meas_update(pUkf);
     
     for(u8Idx=0;u8Idx<uLen;u8Idx++)
@@ -332,7 +320,7 @@ void ukf_sigmapoint(tUKF * const pUkf)
     mtxResultInfo mtxResult;
     
     //#1.1(begin) Calculate error covariance matrix square root
-    mtxResult = mtx_chol_f64(&pUkf->prev.Pxx_p); //note:upper cholesky decomposition
+    mtxResult = mtx_chol_f64(&pUkf->prev.Pxx_p); //note:upper cholesky decomposition. ToDo: create lower chol decomposition to avoid transp. operation at next step
 
     (void)mtx_transp_square_f64(&pUkf->prev.Pxx_p); // transp to achieve lower cholesky matrix 
     //#1.1(end) Calculate error covariance matrix square root
@@ -369,28 +357,6 @@ void ukf_sigmapoint(tUKF * const pUkf)
     else
     {
     }
-}
-/******************************************************************************************************************************************************************************************************\
- ***  FUNCTION:
- ***      void ukf_predict(tUKF * const pUkf)
- *** 
- ***  DESCRIPTION:
- ***      Step 2/3: Prediction Transformation/Observation Transformation (APPENDIX A:IMPLEMENTATION OF THE ADDITIVE NOISE UKF)
- ***            
- ***  PARAMETERS:
- ***      Type               Name              Range              Description
- ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ***      tUKF * const       pUkf                                 UKF - Working structure with reference to all in,out,states,par
- ***  RETURNS:
- ***      void
- ***  SETTINGS:
- ***
-\******************************************************************************************************************************************************************************************************/ 
-void ukf_predict(tUKF * const pUkf)
-{
-    ukf_mean_pred_state(pUkf);
-    ukf_mean_pred_output(pUkf);
-    ukf_calc_covariances(pUkf);
 }
 /******************************************************************************************************************************************************************************************************\
  ***  FUNCTION:
