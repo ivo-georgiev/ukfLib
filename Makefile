@@ -6,3 +6,9 @@ all:
 .PHONY: clean
 clean:
 	rm -r build
+
+.PHONY: test
+test:
+	cd build; make test
+
+
