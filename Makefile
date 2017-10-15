@@ -8,7 +8,8 @@ clean:
 	rm -r build
 
 .PHONY: test
-test:
+test: 
 	cd build; make test
 
-
+.PHONY: dry
+dry: clean all test
