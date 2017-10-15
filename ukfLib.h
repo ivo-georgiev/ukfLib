@@ -14,7 +14,7 @@
 typedef void (* tPredictFcn) (tMatrix * pu_p, tMatrix * px_p, tMatrix * pX_m,uint8 sigmaIdx);
 typedef void (* tObservFcn) (tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx);
 
-typedef struct tUkfMatrix
+typedef struct ukfMatrix
 {
     tMatrix Sc_vector;
     tMatrix Wm_weight_vector;
@@ -44,7 +44,7 @@ typedef struct tUkfMatrix
 
 }tUkfMatrix;
 
-typedef struct tUKFpar
+typedef struct uKFpar
 {
     uint8 xLen;//length of state vector
     uint8 yLen;//length of measurement vector
@@ -62,13 +62,13 @@ typedef struct tUKFpar
 
 }tUKFpar;
 
-typedef struct tUKFin
+typedef struct uKFin
 {
     tMatrix u;    // u(k)   Current inputs
     tMatrix y;    // y(k)   Current measurement
 }tUKFin;
 
-typedef struct tUKFprev
+typedef struct uKFprev
 {
     tMatrix u_p;    // u(k-1)   Previous inputs
     tMatrix x_p;    // x(k-1)   Previous states
@@ -76,7 +76,7 @@ typedef struct tUKFprev
     tMatrix Pxx_p;    // P(k-1)    Previous error covariance 
 }tUKFprev;
 
-typedef struct tUKFpredict //p(previous)==k-1, m(minus)=(k|k-1)
+typedef struct uKFpredict //p(previous)==k-1, m(minus)=(k|k-1)
 {
     tMatrix X_m;    //X(k|k-1) Propagate each sigma-point through prediction f(Chi)
     tMatrix x_m;    //x(k|k-1) Calculate mean of predicted state
@@ -87,7 +87,7 @@ typedef struct tUKFpredict //p(previous)==k-1, m(minus)=(k|k-1)
     tObservFcn * pFcnObserv;
 }tUKFpredict;
 
-typedef struct tUKFupdate
+typedef struct uKFupdate
 {
     tMatrix Pyy;    //Calculate covariance of predicted output
     tMatrix Pyy_cpy; 
@@ -101,7 +101,7 @@ typedef struct tUKFupdate
     tMatrix Iyy;     //tmp buffer initialized as identity matrix stor result from inversion and other operation  
 }tUKFupdate;
 
-typedef struct tUKF
+typedef struct uKF
 {
     tUKFpar     par;
     tUKFprev    prev;
