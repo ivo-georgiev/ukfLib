@@ -287,6 +287,8 @@ void mtxlib_test(void)
     (void)mtx_chol_f64(&myFactMatrix);
     //show_matrix_obj(myFactMatrix);
     
+    //TBD: define lower cholesky decomposition test
+    
     show_matrix_obj(myChol);
     mtx_transp_square_f64(&myChol);
     show_matrix_obj(myChol);
