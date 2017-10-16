@@ -133,10 +133,51 @@ mtxResultInfo mtx_mul_f64(tMatrix * pA, tMatrix * pB, tMatrix * pC)
     
     return ResultL;
 }
+//A=chol_lower(A)
+mtxResultInfo mtx_chol_lower_f64(tMatrix * pA)
+{
+    mtxResultInfo ResultL = MTX_OPERATION_OK;
+    float64 * const pSrcL = pA->val;
+    const uint8 nrow = pA->nrow;
+    const uint8 ncol = pA->ncol;
+    uint8 col,row;
+    sint8 tmp;// 
+    float64 sum=0;
+    
+    if(ncol == nrow)
+    {   
+        const uint8 mtxSize = nrow;
 
-//A=chol(A)
-//http://rosettacode.org/wiki/Cholesky_decomposition
-mtxResultInfo mtx_chol_f64(tMatrix * pA)
+        for(col=0;col<mtxSize;col++)
+        {
+            for(row=0;row<mtxSize;row++)
+            {
+                sum = pSrcL[mtxSize*col+row];
+                
+                for(tmp = col-1;tmp>=0;tmp--)
+                {
+                    sum -= pSrcL[mtxSize*row+tmp] * pSrcL[mtxSize*col+tmp];
+                }
+                
+                pSrcL[ncol*row + col] = (row==col) ? sqrt(sum) : (row > col) ? (sum / pSrcL[ncol*col+col]) : 0;
+                
+                
+                if((row==col) && (sum<=0))
+                {
+                    ResultL = MTX_NOT_POS_DEFINED;
+                }            
+            }
+        }
+    }
+    else
+    {
+        ResultL = MTX_NOT_SQUARE;
+    }
+    
+    return ResultL;
+}
+//A=chol_upper(A)
+mtxResultInfo mtx_chol_upper_f64(tMatrix * pA)
 {
     mtxResultInfo ResultL = MTX_OPERATION_OK;
     float64 * const pSrcL = pA->val;
