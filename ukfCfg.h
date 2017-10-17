@@ -1,12 +1,7 @@
+#ifndef UKFCFG_H
+#define UKFCFG_H
+
 #include "ukfLib.h"
-
-extern void Fx0(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx);
-extern void Fx1(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx);
-extern void Fx2(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx);
-extern void Fx3(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx);
-
-extern void Hy1(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx);
-extern void Hy2(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx);
 
 #define stateVectorLen (uint8)4
 #define measVectorLen (uint8)2
@@ -65,3 +60,5 @@ extern float64 Ryy_out_cov_noise_2x2[2][2];
 extern tPredictFcn PredictFcn[stateVectorLen];
 
 extern tObservFcn  ObservFcn[measVectorLen];
+#endif /* UKFCFG_H */
+
