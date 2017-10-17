@@ -284,12 +284,12 @@ void mtxlib_test(void)
     (void)mtx_init_f64(&myFactMatrix,&symMtx[0][0],NROWS(symMtx),NCOL(symMtx));
     //show_matrix(&symMtx[0][0],5,5);
     
-    (void)mtx_chol_f64(&myFactMatrix);
-    //show_matrix_obj(myFactMatrix);
+    (void)mtx_chol_lower_f64(&myFactMatrix);
+    show_matrix_obj(myFactMatrix);
     
     //TBD: define lower cholesky decomposition test
     
-    show_matrix_obj(myChol);
+    /*show_matrix_obj(myChol);
     mtx_transp_square_f64(&myChol);
     show_matrix_obj(myChol);
     
@@ -301,7 +301,7 @@ void mtxlib_test(void)
     
     show_matrix_obj(myTestMatx);
     mtx_transp_dest_f64(&myTestMatx,&oTestMatrixDest_3x2);
-    show_matrix_obj(oTestMatrixDest_3x2);
+    show_matrix_obj(oTestMatrixDest_3x2);*/
 }
 //
 
