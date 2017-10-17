@@ -1,4 +1,5 @@
 #include "ukfCfg.h"
+#include "ukfCfg1.h"
 
 /*---------------------------------------------*/
 /*           Function Prototype                */
@@ -69,8 +70,8 @@ void show_matrix(float64 * A, int n,int m)
 void ukf_test(void)
 {
     boolean tfInitFail = 0;
-    tUkfMatrix UkfMat;
-    tUKF ukfIo;
+    tUkfMatrix UkfMat[2];
+    tUKF ukfIo[2];
     uint8 simLoop;
 
     //UKF filter measurement input(data log is generated in matlab and used for UKF simulation for 15 iteration) 
@@ -107,59 +108,70 @@ void ukf_test(void)
 
     //UKF initialization: begin
 
-    mtx_init_f64(&UkfMat.Sc_vector,&Sc_vector_1x3[0][0],NROWS(Sc_vector_1x3),NCOL(Sc_vector_1x3));
+    mtx_init_f64(&UkfMat[0].Sc_vector,&Sc_vector_1x3[0][0],NROWS(Sc_vector_1x3),NCOL(Sc_vector_1x3));
+    mtx_init_f64(&UkfMat[0].Wm_weight_vector, &Wm_sigma_weight_1x9[0][0],NROWS(Wm_sigma_weight_1x9),NCOL(Wm_sigma_weight_1x9));
+    mtx_init_f64(&UkfMat[0].Wc_weight_vector, &Wc_sigma_weight_1x9[0][0],NROWS(Wc_sigma_weight_1x9),NCOL(Wc_sigma_weight_1x9));
+    mtx_init_f64(&UkfMat[0].u_system_input, &u_curr_system_input_4x1[0][0],NROWS(u_curr_system_input_4x1),NCOL(u_curr_system_input_4x1));
+    mtx_init_f64(&UkfMat[0].u_prev_system_input, &u_prev_system_input_4x1[0][0],NROWS(u_prev_system_input_4x1),NCOL(u_prev_system_input_4x1));
+    mtx_init_f64(&UkfMat[0].y_meas, &y_curr_system_meas_2x1[0][0],NROWS(y_curr_system_meas_2x1),NCOL(y_curr_system_meas_2x1));
+    mtx_init_f64(&UkfMat[0].y_predicted_mean, &y_mean_system_predict_2x1[0][0],NROWS(y_mean_system_predict_2x1),NCOL(y_mean_system_predict_2x1));
+    mtx_init_f64(&UkfMat[0].x_system_states, &x_system_states_4x1[0][0],NROWS(x_system_states_4x1),NCOL(x_system_states_4x1));
+    mtx_init_f64(&UkfMat[0].x_system_states_ic, &x_system_states_ic_4x1[0][0],NROWS(x_system_states_ic_4x1),NCOL(x_system_states_ic_4x1));
+    mtx_init_f64(&UkfMat[0].x_system_states_correction, &x_system_states_correction_4x1[0][0],NROWS(x_system_states_correction_4x1),NCOL(x_system_states_correction_4x1));
+    mtx_init_f64(&UkfMat[0].X_sigma_points, &X_sigma_points_4x9[0][0],NROWS(X_sigma_points_4x9),NCOL(X_sigma_points_4x9));
+    mtx_init_f64(&UkfMat[0].Y_sigma_points, &Y_sigma_points_2x9[0][0],NROWS(Y_sigma_points_2x9),NCOL(Y_sigma_points_2x9));
+    mtx_init_f64(&UkfMat[0].Pxx_error_covariance, &Px_state_cov_4x4[0][0],NROWS(Px_state_cov_4x4),NCOL(Px_state_cov_4x4));
+    mtx_init_f64(&UkfMat[0].Pxx_covariance_correction, &Pxx_covariance_correction_4x4[0][0],NROWS(Pxx_covariance_correction_4x4),NCOL(Pxx_covariance_correction_4x4));
+    mtx_init_f64(&UkfMat[0].Pyy_out_covariance, &Pyy_out_cov_2x2[0][0],NROWS(Pyy_out_cov_2x2),NCOL(Pyy_out_cov_2x2));
+    mtx_init_f64(&UkfMat[0].Pyy_out_covariance_copy, &Pyy_out_cov_copy_2x2[0][0],NROWS(Pyy_out_cov_copy_2x2),NCOL(Pyy_out_cov_copy_2x2));
+    mtx_init_f64(&UkfMat[0].Ryy0_init_out_covariance, &Ryy_out_cov_noise_2x2[0][0],NROWS(Ryy_out_cov_noise_2x2),NCOL(Ryy_out_cov_noise_2x2));
+    mtx_init_f64(&UkfMat[0].Pxy_cross_covariance, &Pxy_state_out_cov_4x2[0][0],NROWS(Pxy_state_out_cov_4x2),NCOL(Pxy_state_out_cov_4x2));
+    mtx_init_f64(&UkfMat[0].K_kalman_gain, &K_kalman_gain_4x2[0][0],NROWS(K_kalman_gain_4x2),NCOL(K_kalman_gain_4x2));
+    mtx_init_f64(&UkfMat[0].K_kalman_gain_transp, &K_kalman_transp_gain_2x4[0][0],NROWS(K_kalman_transp_gain_2x4),NCOL(K_kalman_transp_gain_2x4));
+    mtx_init_f64(&UkfMat[0].I_identity_matrix, &temporal_2x2[0][0],NROWS(temporal_2x2),NCOL(temporal_2x2));
+    mtx_init_f64(&UkfMat[0].Qxx_process_noise_cov, &Qxx_process_noise_cov_4x4[0][0],NROWS(Qxx_process_noise_cov_4x4),NCOL(Qxx_process_noise_cov_4x4));
+    mtx_init_f64(&UkfMat[0].Pxx0_init_error_covariance, &P0_state_cov_4x4[0][0],NROWS(P0_state_cov_4x4),NCOL(P0_state_cov_4x4));//
 
-    mtx_init_f64(&UkfMat.Wm_weight_vector, &Wm_sigma_weight_1x9[0][0],NROWS(Wm_sigma_weight_1x9),NCOL(Wm_sigma_weight_1x9));
+    UkfMat[0].fcnPredict = &PredictFcn[0];
+    UkfMat[0].fcnObserve = &ObservFcn[0];
 
-    mtx_init_f64(&UkfMat.Wc_weight_vector, &Wc_sigma_weight_1x9[0][0],NROWS(Wc_sigma_weight_1x9),NCOL(Wc_sigma_weight_1x9));
-
-    mtx_init_f64(&UkfMat.u_system_input, &u_curr_system_input_4x1[0][0],NROWS(u_curr_system_input_4x1),NCOL(u_curr_system_input_4x1));
-
-    mtx_init_f64(&UkfMat.u_prev_system_input, &u_prev_system_input_4x1[0][0],NROWS(u_prev_system_input_4x1),NCOL(u_prev_system_input_4x1));
-
-    mtx_init_f64(&UkfMat.y_meas, &y_curr_system_meas_2x1[0][0],NROWS(y_curr_system_meas_2x1),NCOL(y_curr_system_meas_2x1));
-
-    mtx_init_f64(&UkfMat.y_predicted_mean, &y_mean_system_predict_2x1[0][0],NROWS(y_mean_system_predict_2x1),NCOL(y_mean_system_predict_2x1));
-
-    mtx_init_f64(&UkfMat.x_system_states, &x_system_states_4x1[0][0],NROWS(x_system_states_4x1),NCOL(x_system_states_4x1));
-
-    mtx_init_f64(&UkfMat.x_system_states_ic, &x_system_states_ic_4x1[0][0],NROWS(x_system_states_ic_4x1),NCOL(x_system_states_ic_4x1));
-
-    mtx_init_f64(&UkfMat.x_system_states_correction, &x_system_states_correction_4x1[0][0],NROWS(x_system_states_correction_4x1),NCOL(x_system_states_correction_4x1));
-
-    mtx_init_f64(&UkfMat.X_sigma_points, &X_sigma_points_4x9[0][0],NROWS(X_sigma_points_4x9),NCOL(X_sigma_points_4x9));
-
-    mtx_init_f64(&UkfMat.Y_sigma_points, &Y_sigma_points_2x9[0][0],NROWS(Y_sigma_points_2x9),NCOL(Y_sigma_points_2x9));
-
-    mtx_init_f64(&UkfMat.Pxx_error_covariance, &Px_state_cov_4x4[0][0],NROWS(Px_state_cov_4x4),NCOL(Px_state_cov_4x4));
-
-    mtx_init_f64(&UkfMat.Pxx_covariance_correction, &Pxx_covariance_correction_4x4[0][0],NROWS(Pxx_covariance_correction_4x4),NCOL(Pxx_covariance_correction_4x4));
-
-    mtx_init_f64(&UkfMat.Pyy_out_covariance, &Pyy_out_cov_2x2[0][0],NROWS(Pyy_out_cov_2x2),NCOL(Pyy_out_cov_2x2));
-
-    mtx_init_f64(&UkfMat.Pyy_out_covariance_copy, &Pyy_out_cov_copy_2x2[0][0],NROWS(Pyy_out_cov_copy_2x2),NCOL(Pyy_out_cov_copy_2x2));
-
-    mtx_init_f64(&UkfMat.Ryy0_init_out_covariance, &Ryy_out_cov_noise_2x2[0][0],NROWS(Ryy_out_cov_noise_2x2),NCOL(Ryy_out_cov_noise_2x2));
-
-    mtx_init_f64(&UkfMat.Pxy_cross_covariance, &Pxy_state_out_cov_4x2[0][0],NROWS(Pxy_state_out_cov_4x2),NCOL(Pxy_state_out_cov_4x2));
-
-    mtx_init_f64(&UkfMat.K_kalman_gain, &K_kalman_gain_4x2[0][0],NROWS(K_kalman_gain_4x2),NCOL(K_kalman_gain_4x2));
-
-    mtx_init_f64(&UkfMat.K_kalman_gain_transp, &K_kalman_transp_gain_2x4[0][0],NROWS(K_kalman_transp_gain_2x4),NCOL(K_kalman_transp_gain_2x4));
-
-    mtx_init_f64(&UkfMat.I_identity_matrix, &temporal_2x2[0][0],NROWS(temporal_2x2),NCOL(temporal_2x2));
-
-    mtx_init_f64(&UkfMat.Qxx_process_noise_cov, &Qxx_process_noise_cov_4x4[0][0],NROWS(Qxx_process_noise_cov_4x4),NCOL(Qxx_process_noise_cov_4x4));
-
-    mtx_init_f64(&UkfMat.Pxx0_init_error_covariance, &P0_state_cov_4x4[0][0],NROWS(P0_state_cov_4x4),NCOL(P0_state_cov_4x4));//
-
-    UkfMat.fcnPredict = &PredictFcn[0];
-    UkfMat.fcnObserve = &ObservFcn[0];
-
-    tfInitFail = ukf_init(&ukfIo, &UkfMat);
+    tfInitFail = ukf_init(&ukfIo[0], &UkfMat[0]);
 
     //UKF initialization: end
 
+	
+	//UKF Cfg1 initialization: begin
+
+    mtx_init_f64(&UkfMat[1].Sc_vector,&_Sc_vector_1x3[0][0],NROWS(Sc_vector_1x3),NCOL(Sc_vector_1x3));
+    mtx_init_f64(&UkfMat[1].Wm_weight_vector, &_Wm_sigma_weight_1x9[0][0],NROWS(Wm_sigma_weight_1x9),NCOL(Wm_sigma_weight_1x9));
+    mtx_init_f64(&UkfMat[1].Wc_weight_vector, &_Wc_sigma_weight_1x9[0][0],NROWS(Wc_sigma_weight_1x9),NCOL(Wc_sigma_weight_1x9));
+    mtx_init_f64(&UkfMat[1].u_system_input, &_u_curr_system_input_4x1[0][0],NROWS(u_curr_system_input_4x1),NCOL(u_curr_system_input_4x1));
+    mtx_init_f64(&UkfMat[1].u_prev_system_input, &_u_prev_system_input_4x1[0][0],NROWS(u_prev_system_input_4x1),NCOL(u_prev_system_input_4x1));
+    mtx_init_f64(&UkfMat[1].y_meas, &_y_curr_system_meas_2x1[0][0],NROWS(y_curr_system_meas_2x1),NCOL(y_curr_system_meas_2x1));
+    mtx_init_f64(&UkfMat[1].y_predicted_mean, &_y_mean_system_predict_2x1[0][0],NROWS(y_mean_system_predict_2x1),NCOL(y_mean_system_predict_2x1));
+    mtx_init_f64(&UkfMat[1].x_system_states, &_x_system_states_4x1[0][0],NROWS(x_system_states_4x1),NCOL(x_system_states_4x1));
+    mtx_init_f64(&UkfMat[1].x_system_states_ic, &_x_system_states_ic_4x1[0][0],NROWS(x_system_states_ic_4x1),NCOL(x_system_states_ic_4x1));
+    mtx_init_f64(&UkfMat[1].x_system_states_correction, &_x_system_states_correction_4x1[0][0],NROWS(x_system_states_correction_4x1),NCOL(x_system_states_correction_4x1));
+    mtx_init_f64(&UkfMat[1].X_sigma_points, &_X_sigma_points_4x9[0][0],NROWS(X_sigma_points_4x9),NCOL(X_sigma_points_4x9));
+    mtx_init_f64(&UkfMat[1].Y_sigma_points, &_Y_sigma_points_2x9[0][0],NROWS(Y_sigma_points_2x9),NCOL(Y_sigma_points_2x9));
+    mtx_init_f64(&UkfMat[1].Pxx_error_covariance, &_Px_state_cov_4x4[0][0],NROWS(Px_state_cov_4x4),NCOL(Px_state_cov_4x4));
+    mtx_init_f64(&UkfMat[1].Pxx_covariance_correction, &_Pxx_covariance_correction_4x4[0][0],NROWS(Pxx_covariance_correction_4x4),NCOL(Pxx_covariance_correction_4x4));
+    mtx_init_f64(&UkfMat[1].Pyy_out_covariance, &_Pyy_out_cov_2x2[0][0],NROWS(Pyy_out_cov_2x2),NCOL(Pyy_out_cov_2x2));
+    mtx_init_f64(&UkfMat[1].Pyy_out_covariance_copy, &_Pyy_out_cov_copy_2x2[0][0],NROWS(Pyy_out_cov_copy_2x2),NCOL(Pyy_out_cov_copy_2x2));
+    mtx_init_f64(&UkfMat[1].Ryy0_init_out_covariance, &_Ryy_out_cov_noise_2x2[0][0],NROWS(Ryy_out_cov_noise_2x2),NCOL(Ryy_out_cov_noise_2x2));
+    mtx_init_f64(&UkfMat[1].Pxy_cross_covariance, &_Pxy_state_out_cov_4x2[0][0],NROWS(Pxy_state_out_cov_4x2),NCOL(Pxy_state_out_cov_4x2));
+    mtx_init_f64(&UkfMat[1].K_kalman_gain, &_K_kalman_gain_4x2[0][0],NROWS(K_kalman_gain_4x2),NCOL(K_kalman_gain_4x2));
+    mtx_init_f64(&UkfMat[1].K_kalman_gain_transp, &_K_kalman_transp_gain_2x4[0][0],NROWS(K_kalman_transp_gain_2x4),NCOL(K_kalman_transp_gain_2x4));
+    mtx_init_f64(&UkfMat[1].I_identity_matrix, &_temporal_2x2[0][0],NROWS(temporal_2x2),NCOL(temporal_2x2));
+    mtx_init_f64(&UkfMat[1].Qxx_process_noise_cov, &_Qxx_process_noise_cov_4x4[0][0],NROWS(Qxx_process_noise_cov_4x4),NCOL(Qxx_process_noise_cov_4x4));
+    mtx_init_f64(&UkfMat[1].Pxx0_init_error_covariance, &_P0_state_cov_4x4[0][0],NROWS(P0_state_cov_4x4),NCOL(P0_state_cov_4x4));//
+
+    UkfMat[1].fcnPredict = &_PredictFcn[0];
+    UkfMat[1].fcnObserve = &_ObservFcn[0];
+
+    tfInitFail = ukf_init(&ukfIo[1], &UkfMat[1]);
+
+    //UKF initialization: end
     if(tfInitFail == 0)
     {         
         //UKF simulation: BEGIN
@@ -168,9 +180,15 @@ void ukf_test(void)
             //UKF apply/load system measurements in working array for current iteration.
             y_curr_system_meas_2x1[0][0] = yt[0][simLoop];
             y_curr_system_meas_2x1[1][0] = yt[1][simLoop];
+			
+			_y_curr_system_meas_2x1[0][0] = yt[0][simLoop];
+            _y_curr_system_meas_2x1[1][0] = yt[1][simLoop];
             
-            //UKF periodic task call
-            (void)ukf_step(&ukfIo);
+            //UKF cfg periodic task call
+            (void)ukf_step(&ukfIo[0]);
+			  
+            //UKF cfg1 periodic task call
+            (void)ukf_step(&ukfIo[1]);
             
             //printf("system states \n");
             printf("%2.14f  %2.14f  %2.14f  %2.14f ", x_system_states_4x1[0][0], x_system_states_4x1[1][0], x_system_states_4x1[2][0], x_system_states_4x1[3][0]);
