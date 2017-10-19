@@ -33,7 +33,7 @@
  *** OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *** SOFTWARE.
 \******************************************************************************************************************************************************************************************************/
-#include "ukfCfg.h"
+#include "ukfCfg1.h"
 
 static void Fx0(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx);
 static void Fx1(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx);
