@@ -44,36 +44,23 @@ static void Hy1(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx);
 static void Hy2(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx);
 
 
-tPredictFcn PredictFcn[stateVectorLen] = {&Fx0,&Fx1,&Fx2,&Fx3};
+static tPredictFcn PredictFcn[4] = {&Fx0,&Fx1,&Fx2,&Fx3};
+static tObservFcn  ObservFcn[2] = {&Hy1,&Hy2};
 
 //-----------------------
 //UKF Processing matrix
 //-----------------------
-float64 Sc_vector_1x3[1][scLen] = {1,2,0};
-float64 Wm_sigma_weight_1x9[1][9] = {3,3,3,3,3,3,3,3,3};
-float64 Wc_sigma_weight_1x9[1][9] = {0,0,0,0,0,0,0,0,0};
-
-//System input current u(k)
-float64 u_curr_system_input_4x1[4][1] = {0,0,0,0}; 
-
-//System input previous u(k-1)
-float64 u_prev_system_input_4x1[4][1] = {0,0,0,0};
-
-//System output measurement y(k)
-float64 y_curr_system_meas_2x1[2][1] = {0,0};
-
-//System output predicted y_m(k|k-1)
-float64 y_mean_system_predict_2x1[2][1] = {0,0};
-
-//System states: x(k), x(k-1), x(k|k-1) common array for all 
-float64 x_system_states_4x1[4][1] = {0,0,50,50};
-
-float64 x_system_states_ic_4x1[4][1] = {0,0,50,50};
-
-float64 x_system_states_correction_4x1[4][1] = {0,0,0,0};
-{/*  s1  s2  s3  s4  s5  s6  s7  s8  s9        */
-//Sigma points X(k), X(k|k-1):
-float64 X_sigma_points_4x9[4][9]=
+static float64 Sc_vector[1][3] = {1,2,0};
+static float64 Wm_weight_vector[1][9] = {3,3,3,3,3,3,3,3,3};
+static float64 Wc_weight_vector[1][9] = {0,0,0,0,0,0,0,0,0};
+static float64 u_system_input[4][1] = {0,0,0,0}; 
+static float64 u_prev_system_input[4][1] = {0,0,0,0};
+static float64 y_meas[2][1] = {0,0};
+static float64 y_predicted_mean[2][1] = {0,0};
+static float64 x_system_states[4][1] = {0,0,50,50};
+static float64 x_system_states_ic[4][1] = {0,0,50,50};
+static float64 x_system_states_correction[4][1] = {0,0,0,0};
+static float64 X_sigma_points[4][9]=
 {/*  s1  s2  s3  s4  s5  s6  s7  s8  s9        */
     {0,  0,  0,  0,  0,  0,  0,  0,  0}, /* x1 */
     {0,  0,  0,  0,  0,  0,  0,  0,  0}, /* x2 */
@@ -82,21 +69,14 @@ float64 X_sigma_points_4x9[4][9]=
 };
 
 //Sigma points Y(k|k-1) = y_m
-float64 Y_sigma_points_2x9[2][9]=
-{/*  s1  s2  s3  s4  s5  s6  s7  s8  s9        */
-    {0,  0,  0,  0,  0,  0,  0,  0,  0}, /* x3 */
-    {0,  0,  0,  0,  0,  0,  0,  0,  0}, /* x4 */
-};
-
-//Sigma points Y(k|k-1) = y_m
-float64 Y_sigma_points_2x9[2][9]=
+static float64 Y_sigma_points[2][9]=
 {/*  s1  s2  s3  s4  s5  s6  s7  s8  s9        */
     {0,  0,  0,  0,  0,  0,  0,  0,  0}, /* y1 */
     {0,  0,  0,  0,  0,  0,  0,  0,  0}, /* y2 */
 };
 
 //State covariance  P(k|k-1) = P_m, P(k)= P  
-float64 Px_state_cov_4x4[4][4]=
+static float64 Pxx_error_covariance[4][4]=
 {/*  x1, x2, x3, x4        */
     {0,  0,  0,  0}, /* x1 */
     {0,  0,  0,  0}, /* x2 */ 
@@ -112,7 +92,7 @@ float64 Px_state_cov_4x4[4][4]=
   This is almost never the case.  Many times the P0 matrix is diagonal, with the diagonal components corresponding to the expected variance
   in the corresponding state, i.e. how much deviation you might expect in the initialization of that state.  If you have no idea where to start, 
  I recommend using an identity matrix rather than the zero matrix. */
-float64 P0_state_cov_4x4[4][4]=
+static float64 Pxx0_init_error_covariance[4][4]=
 {/*  x1, x2, x3, x4        */
     {1,  0,  0,  0}, /* x1 */
     {0,  1,  0,  0}, /* x2 */ 
@@ -126,7 +106,7 @@ float64 P0_state_cov_4x4[4][4]=
   Some formulations consider input measurements in the state equations which introduces process noise.
   If you are very confident in your equations, you could set Q to zero. If you do that the filter will use
   the noise free model to predict the state vector and will ignore any measurement data since your model is assumed perfect. */
-float64 Qxx_process_noise_cov_4x4[4][4]=
+static float64 Qxx_process_noise_cov[4][4]=
 {/*  x1, x2, x3, x4        */
     {0,  0,  0,  0}, /* x1 */
     {0,  0,  0,  0}, /* x2 */ 
@@ -135,20 +115,20 @@ float64 Qxx_process_noise_cov_4x4[4][4]=
 };
 
 //Output noise covariance: initial noise assumptions
-float64 Ryy_out_cov_noise_2x2[2][2]=
+static float64 Ryy0_init_out_covariance[2][2]=
 {/*  y1, y2         */
     {1,  0},  /* y1 */
     {0,  1},  /* y2 */
 };
 
 //Output covariance Pyy = R (initial assumption)
-float64 Pyy_out_cov_2x2[2][2]=
+static float64 Pyy_out_covariance[2][2]=
 {/*  y1, y2         */
     {0,  0},  /* y1 */
     {0,  0},  /* y2 */
 };
 
-float64 Pyy_out_cov_copy_2x2[2][2]=
+static float64 Pyy_out_covariance_copy[2][2]=
 {/*  y1, y2         */
     {0,  0},  /* y1 */
     {0,  0},  /* y2 */
@@ -156,7 +136,7 @@ float64 Pyy_out_cov_copy_2x2[2][2]=
 
 
 //cross-covariance of state and output
-float64 Pxy_state_out_cov_4x2[4][2]=
+static float64 Pxy_cross_covariance[4][2]=
 {/*  y1, y2         */
     {0,  0},  /* x1 */
     {0,  0},  /* x2 */
@@ -165,7 +145,7 @@ float64 Pxy_state_out_cov_4x2[4][2]=
 };
 
 //Kalman gain matrix
-float64 K_kalman_gain_4x2[4][2]=
+static float64 K_kalman_gain[4][2]=
 {  
     {0, 0},
     {0, 0},
@@ -174,13 +154,13 @@ float64 K_kalman_gain_4x2[4][2]=
 };
 
 //Kalman gain transponce matrix
-float64 K_kalman_transp_gain_2x4[2][4]=
+static float64 K_kalman_gain_transp[2][4]=
 {  
     {0, 0, 0, 0},
     {0, 0, 0, 0}
 };
 
-float64 Pxx_covariance_correction_4x4[4][4]=
+static float64 _Pxx_covariance_correction_4x4[4][4]=
 {/*  x1, x2, x3, x4        */
     {0,  0,  0,  0}, /* x1 */
     {0,  0,  0,  0}, /* x2 */ 
@@ -188,14 +168,14 @@ float64 Pxx_covariance_correction_4x4[4][4]=
     {0,  0,  0,  0}, /* x4 */
 };
 
-float64 temporal_2x2[2][2]=
+static float64 I_identity_matrix[2][2]=
 {
     {0,  0},
     {0,  0},
 };
 
 //State transition matrix
-static const float64 A[stateVectorLen][stateVectorLen] =
+static const float64 A[4][4] =
 {
     {1,   0, dT0,   0},
     {0,   1,   0, dT0},
@@ -203,7 +183,34 @@ static const float64 A[stateVectorLen][stateVectorLen] =
     {0,   0,   0,   1}
 };
 
-
+tUkfMatrix UkfMatrixCfg1 = 
+{
+    {NROWS(Sc_vector),NCOL(Sc_vector),&Sc_vector[0][0]},
+    {NROWS(Wm_weight_vector),NCOL(Wm_weight_vector),&Wm_weight_vector[0][0]},
+    {NROWS(Wc_weight_vector),NCOL(Wc_weight_vector),&Wc_weight_vector[0][0]},
+    {NROWS(x_system_states),NCOL(x_system_states),&x_system_states[0][0]},
+    {NROWS(x_system_states_ic),NCOL(x_system_states_ic),&x_system_states_ic[0][0]},
+    {NROWS(x_system_states_correction),NCOL(x_system_states_correction),&x_system_states_correction[0][0]},
+    {NROWS(u_system_input),NCOL(u_system_input),&u_system_input[0][0]},
+    {NROWS(u_prev_system_input),NCOL(u_prev_system_input),&u_prev_system_input[0][0]},
+    {NROWS(X_sigma_points),NCOL(X_sigma_points),&X_sigma_points[0][0]},
+    {NROWS(Y_sigma_points),NCOL(Y_sigma_points),&Y_sigma_points[0][0]},
+    {NROWS(y_predicted_mean),NCOL(y_predicted_mean),&y_predicted_mean[0][0]},   
+    {NROWS(y_meas),NCOL(y_meas),&y_meas[0][0]},
+    {NROWS(Pyy_out_covariance),NCOL(Pyy_out_covariance),&Pyy_out_covariance[0][0]},
+    {NROWS(Pyy_out_covariance_copy),NCOL(Pyy_out_covariance_copy),&Pyy_out_covariance_copy[0][0]},
+    {NROWS(Ryy0_init_out_covariance),NCOL(Ryy0_init_out_covariance),&Ryy0_init_out_covariance[0][0]},
+    {NROWS(Pxy_cross_covariance),NCOL(Pxy_cross_covariance),&Pxy_cross_covariance[0][0]},
+    {NROWS(Pxx_error_covariance),NCOL(Pxx_error_covariance),&Pxx_error_covariance[0][0]},
+    {NROWS(Pxx0_init_error_covariance),NCOL(Pxx0_init_error_covariance),&Pxx0_init_error_covariance[0][0]},
+    {NROWS(Qxx_process_noise_cov),NCOL(Qxx_process_noise_cov),&Qxx_process_noise_cov[0][0]},
+    {NROWS(K_kalman_gain),NCOL(K_kalman_gain),&K_kalman_gain[0][0]},
+    {NROWS(K_kalman_gain_transp),NCOL(K_kalman_gain_transp),&K_kalman_gain_transp[0][0]},
+    {NROWS(I_identity_matrix),NCOL(I_identity_matrix),&I_identity_matrix[0][0]},  
+    {NROWS(_Pxx_covariance_correction_4x4),NCOL(_Pxx_covariance_correction_4x4),&_Pxx_covariance_correction_4x4[0][0]},   
+    &PredictFcn[0],
+    &ObservFcn[0]  
+};
 /******************************************************************************************************************************************************************************************************\
  ***  FUNCTION:
  ***      void Fx0(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx)

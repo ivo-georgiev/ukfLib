@@ -320,9 +320,8 @@ void ukf_sigmapoint(tUKF * const pUkf)
     mtxResultInfo mtxResult;
     
     //#1.1(begin) Calculate error covariance matrix square root
-    mtxResult = mtx_chol_f64(&pUkf->prev.Pxx_p); //note:upper cholesky decomposition. ToDo: create lower chol decomposition to avoid transp. operation at next step
+    mtxResult = mtx_chol_lower_f64(&pUkf->prev.Pxx_p);
 
-    (void)mtx_transp_square_f64(&pUkf->prev.Pxx_p); // transp to achieve lower cholesky matrix 
     //#1.1(end) Calculate error covariance matrix square root
 
     if(MTX_OPERATION_OK == mtxResult)
