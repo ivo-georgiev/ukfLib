@@ -5,7 +5,7 @@ all:
 
 .PHONY: clean
 clean:
-	rm -r build
+	-rm -r build
 
 .PHONY: test
 test: 
