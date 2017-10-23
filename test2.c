@@ -9,7 +9,7 @@ void show_matrix(float64 * A, int n,int m);
 void ukf_test(void);
 void mtxlib_test(void);
 
-void main(void)
+int main(void)
 {
 
     //generic matrix operation test
@@ -18,6 +18,7 @@ void main(void)
     //UKF test start here
     ukf_test();
 
+	return 0;
 }
 
 void show_matrix_obj(tMatrix A)
@@ -223,16 +224,17 @@ void mtxlib_test(void)
     {-2.0,  6.0,  0,     0.3}};
     
     
+#if 0
     static float64 TestMatrix_1_3x3[3][3] = 
     {{10.5, 2.17, 3.03},
     { 0.44, 0.59, 6.89},
     { 7.56, 8.17, 9.21}};
-    
+
     static float64 TestMatrix_2_3x3[3][3] = 
     { {1.11, 29.3, 31.2},
     {45.3, 5.17, 6.11},
     {7.61, 88.0, 9.34}};
-    
+#endif
     
     static float64 TestMatrix_1_2x3[2][3] = 
     { {1.11, 29.3, 31.2},   //size 3x3

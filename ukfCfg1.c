@@ -50,16 +50,16 @@ static tObservFcn  ObservFcn[2] = {&Hy1,&Hy2};
 //-----------------------
 //UKF Processing matrix
 //-----------------------
-static float64 Sc_vector[1][3] = {1,2,0};
-static float64 Wm_weight_vector[1][9] = {3,3,3,3,3,3,3,3,3};
-static float64 Wc_weight_vector[1][9] = {0,0,0,0,0,0,0,0,0};
-static float64 u_system_input[4][1] = {0,0,0,0}; 
-static float64 u_prev_system_input[4][1] = {0,0,0,0};
-static float64 y_meas[2][1] = {0,0};
-static float64 y_predicted_mean[2][1] = {0,0};
-static float64 x_system_states[4][1] = {0,0,50,50};
-static float64 x_system_states_ic[4][1] = {0,0,50,50};
-static float64 x_system_states_correction[4][1] = {0,0,0,0};
+static float64 Sc_vector[1][3] = {{1,2,0}};
+static float64 Wm_weight_vector[1][9] = {{3,3,3,3,3,3,3,3,3}};
+static float64 Wc_weight_vector[1][9] = {{0,0,0,0,0,0,0,0,0}};
+static float64 u_system_input[4][1] = {{0}, {0}, {0}, {0}}; 
+static float64 u_prev_system_input[4][1] = {{0}, {0}, {0}, {0}};
+static float64 y_meas[2][1] = {{0}, {0}};
+static float64 y_predicted_mean[2][1] = {{0}, {0}};
+static float64 x_system_states[4][1] = {{0}, {0}, {50}, {50}};
+static float64 x_system_states_ic[4][1] = {{0}, {0}, {50}, {50}};
+static float64 x_system_states_correction[4][1] = {{0}, {0}, {0}, {0}};
 static float64 X_sigma_points[4][9]=
 {/*  s1  s2  s3  s4  s5  s6  s7  s8  s9        */
     {0,  0,  0,  0,  0,  0,  0,  0,  0}, /* x1 */
@@ -237,6 +237,7 @@ void Fx0(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx)
 
     pX_m->val[nCol*0 + sigmaIdx] = (A[0][0] * pX_p->val[nCol*0 + sigmaIdx]) + (A[0][2] * pX_p->val[nCol*2 + sigmaIdx]);
 
+	pu_p = pu_p; // todo:  fix it
 }
 /******************************************************************************************************************************************************************************************************\
  ***  FUNCTION:
@@ -264,7 +265,7 @@ void Fx1(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx)
    
     pX_m->val[nCol*1 + sigmaIdx] = (A[1][1] * pX_p->val[nCol*1 + sigmaIdx]) + (A[1][3] * pX_p->val[nCol*3 + sigmaIdx]);
 
-
+	pu_p = pu_p; // todo:  fix it
 }
 /******************************************************************************************************************************************************************************************************\
  ***  FUNCTION:
@@ -291,6 +292,7 @@ void Fx2(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx)
     const uint8 nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
     
     pX_m->val[nCol*2 + sigmaIdx] = (A[2][2] * pX_p->val[nCol*2 + sigmaIdx]);
+	pu_p = pu_p; // todo:  fix it
 }
 /******************************************************************************************************************************************************************************************************\
  ***  FUNCTION:
@@ -317,6 +319,7 @@ void Fx3(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx)
     const uint8 nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
     
     pX_m->val[nCol*3 + sigmaIdx] = (A[3][3] * pX_p->val[nCol*3 + sigmaIdx]);
+	pu_p = pu_p; // todo:  fix it
 }
 /******************************************************************************************************************************************************************************************************\
  ***  FUNCTION:
@@ -354,6 +357,7 @@ void Hy1(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx)
 
     pY_m->val[sigmaIdx] = sqrt(term1+term2);
     
+	pu = pu; // todo:  fix it
 }
 /******************************************************************************************************************************************************************************************************\
  ***  FUNCTION:
@@ -390,5 +394,5 @@ void Hy2(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx)
     term2 *= term2;
     
     pY_m->val[nCol*1 + sigmaIdx] = sqrt(term1+term2);
-    
+	pu = pu; // todo:  fix it 
 }
