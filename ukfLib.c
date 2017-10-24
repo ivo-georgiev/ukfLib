@@ -59,7 +59,7 @@ void ukf_calc_covariances(tUKF * const pUkf);
 boolean ukf_dimension_check(tUKF * const pUkf)
 {
     const uint8  stateLen = pUkf->par.xLen;
-    const uint8  measLen = pUkf->par.yLen;
+    //const uint8  measLen = pUkf->par.yLen;
     const uint8  sigmaLen = pUkf->par.sLen;
     boolean Result = 0;
 
