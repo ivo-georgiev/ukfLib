@@ -9,7 +9,14 @@
  *** state 1 = x[1] = e(k)
  *** state 2 = x[2] = ndot(k)
  *** state 3 = x[2] = edot(k)
- ***
+ *** 
+ *** 
+ *** //State transition matrix
+ *** {1,   0, dT0,   0},
+ *** {0,   1,   0, dT0},
+ *** {0,   0,   1,   0},
+ *** {0,   0,   0,   1}
+ *** 
  ***
  *** MIT License
  ***
@@ -35,16 +42,16 @@
 \******************************************************************************************************************************************************************************************************/
 #include "ukfCfg.h"
 
-static void Fx0(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx);
-static void Fx1(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx);
-static void Fx2(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx);
-static void Fx3(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx);
+static void Fx1(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 dT);
+static void Fx2(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 dT);
+static void Fx3(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 dT);
+static void Fx4(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 dT);
 
 static void Hy1(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx);
 static void Hy2(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx);
 
 
-static tPredictFcn PredictFcn[4] = {&Fx0,&Fx1,&Fx2,&Fx3};
+static tPredictFcn PredictFcn[4] = {&Fx1,&Fx2,&Fx3,&Fx4};
 static tObservFcn  ObservFcn[2] = {&Hy1,&Hy2};
 
 //-----------------------
@@ -174,15 +181,6 @@ static float64 I_identity_matrix[2][2]=
     {0,  0},
 };
 
-//State transition matrix
-static const float64 A[4][4] =
-{
-    {1,   0, dT0,   0},
-    {0,   1,   0, dT0},
-    {0,   0,   1,   0},
-    {0,   0,   0,   1}
-};
-
 tUkfMatrix UkfMatrixCfg0 = 
 {
     {NROWS(Sc_vector),NCOL(Sc_vector),&Sc_vector[0][0]},
@@ -209,11 +207,12 @@ tUkfMatrix UkfMatrixCfg0 =
     {NROWS(I_identity_matrix),NCOL(I_identity_matrix),&I_identity_matrix[0][0]},  
     {NROWS(_Pxx_covariance_correction_4x4),NCOL(_Pxx_covariance_correction_4x4),&_Pxx_covariance_correction_4x4[0][0]},   
     &PredictFcn[0],
-    &ObservFcn[0]  
+    &ObservFcn[0],
+    0.1
 };
 /******************************************************************************************************************************************************************************************************\
  ***  FUNCTION:
- ***      void Fx0(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx)
+ ***      void Fx1(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx)
  *** 
  ***  DESCRIPTION:
  ***       Calculate predicted state 0 for each sigma point. Note  that  this  problem  has  a  linear  prediction stage 
@@ -231,17 +230,17 @@ tUkfMatrix UkfMatrixCfg0 =
  ***  SETTINGS:
  ***
 \******************************************************************************************************************************************************************************************************/
-void Fx0(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx)
+void Fx1(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 dT)
 {
     const uint8 nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
 
-    pX_m->val[nCol*0 + sigmaIdx] = (A[0][0] * pX_p->val[nCol*0 + sigmaIdx]) + (A[0][2] * pX_p->val[nCol*2 + sigmaIdx]);
+    pX_m->val[nCol*0 + sigmaIdx] = pX_p->val[nCol*0 + sigmaIdx] + dT * pX_p->val[nCol*2 + sigmaIdx];
 
 	pu_p = pu_p; // todo: fix up
 }
 /******************************************************************************************************************************************************************************************************\
  ***  FUNCTION:
- ***      void Fx1(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx)
+ ***      void Fx2(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx)
  *** 
  ***  DESCRIPTION:
  ***       Calculate predicted state 1 for each sigma point. Note  that  this  problem  has  a  linear  prediction stage 
@@ -259,17 +258,17 @@ void Fx0(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx)
  ***  SETTINGS:
  ***
 \******************************************************************************************************************************************************************************************************/
-void Fx1(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx)
+void Fx2(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 dT)
 {
     const uint8 nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
    
-    pX_m->val[nCol*1 + sigmaIdx] = (A[1][1] * pX_p->val[nCol*1 + sigmaIdx]) + (A[1][3] * pX_p->val[nCol*3 + sigmaIdx]);
+    pX_m->val[nCol*1 + sigmaIdx] = pX_p->val[nCol*1 + sigmaIdx] + dT * pX_p->val[nCol*3 + sigmaIdx];
 
 	pu_p = pu_p; // todo: fix up
 }
 /******************************************************************************************************************************************************************************************************\
  ***  FUNCTION:
- ***      void Fx2(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx)
+ ***      void Fx3(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx)
  *** 
  ***  DESCRIPTION:
  ***       Calculate predicted state 2 for each sigma point. Note  that  this  problem  has  a  linear  prediction stage 
@@ -287,16 +286,16 @@ void Fx1(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx)
  ***  SETTINGS:
  ***
 \******************************************************************************************************************************************************************************************************/
-void Fx2(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx)
+void Fx3(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 dT)
 {
     const uint8 nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
     
-    pX_m->val[nCol*2 + sigmaIdx] = (A[2][2] * pX_p->val[nCol*2 + sigmaIdx]);
+    pX_m->val[nCol*2 + sigmaIdx] = pX_p->val[nCol*2 + sigmaIdx];
 	pu_p = pu_p; // todo: fix up
 }
 /******************************************************************************************************************************************************************************************************\
  ***  FUNCTION:
- ***      void Fx3(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx)
+ ***      void Fx4(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx)
  *** 
  ***  DESCRIPTION:
  ***       Calculate predicted state 3 for each sigma point. Note  that  this  problem  has  a  linear  prediction stage 
@@ -314,11 +313,11 @@ void Fx2(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx)
  ***  SETTINGS:
  ***
 \******************************************************************************************************************************************************************************************************/
-void Fx3(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx)
+void Fx4(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 dT)
 {
     const uint8 nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
     
-    pX_m->val[nCol*3 + sigmaIdx] = (A[3][3] * pX_p->val[nCol*3 + sigmaIdx]);
+    pX_m->val[nCol*3 + sigmaIdx] = pX_p->val[nCol*3 + sigmaIdx];
 	pu_p = pu_p; // todo: fix up
 }
 /******************************************************************************************************************************************************************************************************\
@@ -361,7 +360,7 @@ void Hy1(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx)
 }
 /******************************************************************************************************************************************************************************************************\
  ***  FUNCTION:
- ***      void Hy1(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx)
+ ***      void Hy2(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx)
  *** 
  ***  DESCRIPTION:
  ***       Calculate predicted state 3 for each sigma point. This problem has a nonlinear observation 

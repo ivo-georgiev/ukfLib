@@ -1,6 +1,9 @@
 #include "ukfCfg.h"
 #include "ukfCfg1.h"
 
+#define cfg0 (uint8)0
+#define cfg1 (uint8)1
+
 /*---------------------------------------------*/
 /*           Function Prototype                */
 /*---------------------------------------------*/
@@ -73,7 +76,7 @@ void ukf_test(void)
     boolean tfInitCfg0 = 0;
     boolean tfInitCfg1 = 0;
     tUKF ukfIo[2];
-    uint8 simLoop;
+    uint32 simLoop;
 
     //UKF filter measurement input(data log is generated in matlab and used for UKF simulation for 15 iteration) 
     static const float64 yt[2][15]=
@@ -102,71 +105,90 @@ void ukf_test(void)
         {80.489525793047093,  66.908477563332085,  58.973616985147245,  42.638148924845950}
     };
 
-    float64 rootSquareErr_X0[2] = {0,0};
-    float64 rootSquareErr_X1[2] = {0,0};
-    float64 rootSquareErr_X2[2] = {0,0};
-    float64 rootSquareErr_X3[2] = {0,0};
+    //UKF initialization: CFG0
+    tfInitCfg0 = ukf_init(&ukfIo[cfg0], &UkfMatrixCfg0);
 
-    //UKF initialization: CFG1
-    tfInitCfg0 = ukf_init(&ukfIo[0], &UkfMatrixCfg0);
-	
-	//UKF initialization: CFG2
-    tfInitCfg1 = ukf_init(&ukfIo[1], &UkfMatrixCfg1);
+    if(tfInitCfg0 == 0 )
+    {   
+        float64 err[4]={0,0,0,0};
+        float64 absErrAccum[4] = {0,0,0,0};
 
-
-    if(tfInitCfg0 == 0 && tfInitCfg1 == 0)
-    {         
-        //UKF simulation: BEGIN
+        //UKF simulation CFG0: BEGIN
         for(simLoop=1;simLoop<15;simLoop++)
         {
-            float64 * const py_cfg1 = ukfIo[1].input.y.val;
-            float64 * const py_cfg0 = ukfIo[0].input.y.val;
-
-            printf("Filter iteration: %d \n",simLoop);
+            float64 * const py_cfg0 = ukfIo[cfg0].input.y.val;
 
             //UKF:CFG0 apply/load system measurements in working array for current iteration.
             py_cfg0[0] = yt[0][simLoop];
             py_cfg0[1] = yt[1][simLoop];
-
-			//UKF:CFG1 apply/load system measurements in working array for current iteration.
-			py_cfg1[0] = yt[0][simLoop];
-            py_cfg1[1] = yt[1][simLoop];
             
             //UKF:CFG0 periodic task call
-            (void)ukf_step(&ukfIo[0]);
-			  
-            //UKF:CFG1 periodic task call
-            (void)ukf_step(&ukfIo[1]);
+            (void)ukf_step(&ukfIo[cfg0]);
             
-            printf("system states:cfg0 \n");
-            show_matrix_obj(ukfIo[0].update.x);
+            err[0] = fabs(ukfIo[cfg0].update.x.val[0] - x_exp[simLoop-1][0]);
+            err[1] = fabs(ukfIo[cfg0].update.x.val[1] - x_exp[simLoop-1][1]);
+            err[2] = fabs(ukfIo[cfg0].update.x.val[2] - x_exp[simLoop-1][2]);
+            err[3] = fabs(ukfIo[cfg0].update.x.val[3] - x_exp[simLoop-1][3]);
             
-            printf("system states:cfg1 \n");
-            show_matrix_obj(ukfIo[1].update.x);
-
-            printf("system states:expected \n");
-            printf("%2.14f \n%2.14f \n%2.14f \n%2.14f\n \n", x_exp[simLoop-1][0], x_exp[simLoop-1][1], x_exp[simLoop-1][2], x_exp[simLoop-1][3]);
-
-            //printf("%2.14f  %2.14f  %2.14f  %2.14f ", px_cfg1[0], px_cfg1[1], px_cfg1[2], px_cfg1[3]);
-            //printf("%2.14f  %2.14f  %2.14f  %2.14f ", px_cfg1[0]-x_exp[simLoop-1][0], px_cfg1[1]-x_exp[simLoop-1][1],px_cfg1[2]-x_exp[simLoop-1][2], px_cfg1[3]-x_exp[simLoop-1][3]            
+            printf("Loop: %d |system states : ukf.m | system states : est | system states : impl. diff \n",simLoop);
+            printf("          %2.14f        %2.14f       %2.14f\n", x_exp[simLoop-1][0], ukfIo[cfg0].update.x.val[0], err[0]);
+            printf("          %2.14f        %2.14f       %2.14f\n", x_exp[simLoop-1][1], ukfIo[cfg0].update.x.val[1], err[1]);
+            printf("          %2.14f        %2.14f       %2.14f\n", x_exp[simLoop-1][2], ukfIo[cfg0].update.x.val[2], err[2]);
+            printf("          %2.14f        %2.14f       %2.14f\n", x_exp[simLoop-1][3], ukfIo[cfg0].update.x.val[3], err[3]);           
             
             //accumulate the differennce between reference matlab implementation and results from C code execution 
-            rootSquareErr_X0[0] += fabs(ukfIo[0].update.x.val[0] - x_exp[simLoop-1][0]);
-            rootSquareErr_X1[0] += fabs(ukfIo[0].update.x.val[1] - x_exp[simLoop-1][1]);
-            rootSquareErr_X2[0] += fabs(ukfIo[0].update.x.val[2] - x_exp[simLoop-1][2]);
-            rootSquareErr_X3[0] += fabs(ukfIo[0].update.x.val[3] - x_exp[simLoop-1][3]);
-
-            rootSquareErr_X0[1] += fabs(ukfIo[1].update.x.val[0] - x_exp[simLoop-1][0]);
-            rootSquareErr_X1[1] += fabs(ukfIo[1].update.x.val[1] - x_exp[simLoop-1][1]);
-            rootSquareErr_X2[1] += fabs(ukfIo[1].update.x.val[2] - x_exp[simLoop-1][2]);
-            rootSquareErr_X3[1] += fabs(ukfIo[1].update.x.val[3] - x_exp[simLoop-1][3]);
+            absErrAccum[0] += err[0];
+            absErrAccum[1] += err[1];
+            absErrAccum[2] += err[2];
+            absErrAccum[3] += err[3];
         }
         printf("Accumulated error: CFG0 \n");
-        printf("%2.16f  \n%2.16f  \n%2.16f  \n%2.16f \n",rootSquareErr_X0[0], rootSquareErr_X1[0],rootSquareErr_X2[0],rootSquareErr_X3[0]);
+        printf("%2.16f  \n%2.16f  \n%2.16f  \n%2.16f \n",absErrAccum[0], absErrAccum[1],absErrAccum[2],absErrAccum[3]);
 
-        printf("Accumulated error: CFG1 \n");
-        printf("%2.16f  \n%2.16f  \n%2.16f  \n%2.16f ",rootSquareErr_X0[1], rootSquareErr_X1[1],rootSquareErr_X2[1],rootSquareErr_X3[1]);
+        //UKF simulation CFG0: END
+    }
+    else
+    {
+        //initialization fail
+    }
 
+    //UKF initialization: CFG1(free pendulum)
+    tfInitCfg1 = ukf_init(&ukfIo[cfg1], &UkfMatrixCfg1);
+
+    if(tfInitCfg1 == 0 )
+    {        
+        static float64 tetha = 0.5;  //initial conditions for angle
+        static float64 tetha_dot = 0;//initial conditions for angle speed
+        const float64 B = 0.05; //kg*s/m 
+        const float64 l = 0.613;
+        const float64 m = 0.5;
+        const float64 g = 9.81;
+        static const float64 T0 = 0.0001;
+
+        //UKF simulation: BEGIN
+        for(simLoop=0;simLoop<70;simLoop++)
+        {
+            float64 * const py_cfg1 = ukfIo[cfg1].input.y.val;
+            float64 err[2]={0,0};
+            
+            //UKF:CFG1 apply/load system measurements in working array for current iteration
+                 
+            tetha = tetha + T0*tetha_dot;
+            tetha_dot = tetha_dot - ((T0*B*tetha_dot)/m) - ((T0*g)/l)*sin(tetha);
+
+            py_cfg1[0] = tetha;
+            
+            //UKF:CFG0 periodic task call
+            (void)ukf_step(&ukfIo[cfg1]);			  
+            
+            err[0] = fabs(ukfIo[cfg1].update.x.val[0] - tetha);
+            err[1] = fabs(ukfIo[cfg1].update.x.val[1] - tetha_dot);         
+            
+            printf("Loop: %d |system states : real | system states : est | system states : err \n",simLoop);
+            printf("          %2.14f       %2.14f      %2.14f\n", tetha, ukfIo[1].update.x.val[0], err[0]);
+            printf("          %2.14f      %2.14f     %2.14f\n", tetha_dot, ukfIo[1].update.x.val[1], err[1]);
+            
+        }           
         //UKF simulation: END
     }
     else
@@ -229,7 +251,7 @@ void mtxlib_test(void)
     {{10.5, 2.17, 3.03},
     { 0.44, 0.59, 6.89},
     { 7.56, 8.17, 9.21}};
-
+    
     static float64 TestMatrix_2_3x3[3][3] = 
     { {1.11, 29.3, 31.2},
     {45.3, 5.17, 6.11},

@@ -174,6 +174,7 @@ boolean ukf_init(tUKF * const pUkf, tUkfMatrix * pUkfMatrix)
     pPar->xLen = pUkfMatrix->x_system_states.nrow; 
     pPar->yLen = pUkfMatrix->y_predicted_mean.nrow;
     pPar->sLen = 2*pPar->xLen+1;
+    pPar->dT = pUkfMatrix->dT;
     
     //#1.3'(begin) Calculate scaling parameter
     pPar->lambda = pPar->alpha * pPar->alpha;
@@ -394,7 +395,7 @@ void ukf_mean_pred_state(tUKF * const pUkf)
             if(pUkf->predict.pFcnPredict[xIdx] != NULL)
             {
                 //#2.1 Propagate each sigma-point through prediction
-                pUkf->predict.pFcnPredict[xIdx](&pUkf->prev.u_p, &pUkf->prev.X_p, &pUkf->predict.X_m,sigmaIdx);
+                pUkf->predict.pFcnPredict[xIdx](&pUkf->prev.u_p, &pUkf->prev.X_p, &pUkf->predict.X_m,sigmaIdx, pUkf->par.dT);
             }
             //#2.2 Calculate mean of predicted state 
             px_m[xIdx] += pWm[sigmaIdx] * pX_m[sigmaLen*xIdx + sigmaIdx];

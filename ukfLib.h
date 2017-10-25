@@ -11,7 +11,7 @@
 #define bethaIdx   (uint8)1
 #define kappaIdx   (uint8)2
 
-typedef void (* tPredictFcn) (tMatrix * pu_p, tMatrix * px_p, tMatrix * pX_m,uint8 sigmaIdx);
+typedef void (* tPredictFcn) (tMatrix * pu_p, tMatrix * px_p, tMatrix * pX_m,uint8 sigmaIdx, float64 dT);
 typedef void (* tObservFcn) (tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx);
 
 typedef struct ukfMatrix
@@ -41,6 +41,7 @@ typedef struct ukfMatrix
     tMatrix Pxx_covariance_correction; 
     tPredictFcn * fcnPredict;
     tObservFcn * fcnObserve;
+    float64 dT;
 
 }tUkfMatrix;
 
@@ -59,6 +60,7 @@ typedef struct uKFpar
     tMatrix Ryy0;
     tMatrix Pxx0;
     tMatrix x0;
+    float64 dT;
 
 }tUKFpar;
 
