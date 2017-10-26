@@ -1,4 +1,8 @@
 #include "ukfCfg.h"
+#include "ukfCfg1.h"
+
+#define cfg0 (uint8)0
+#define cfg1 (uint8)1
 
 /*---------------------------------------------*/
 /*           Function Prototype                */
@@ -8,7 +12,7 @@ void show_matrix(float64 * A, int n,int m);
 void ukf_test(void);
 void mtxlib_test(void);
 
-void main(void)
+int main(void)
 {
 
     //generic matrix operation test
@@ -17,6 +21,7 @@ void main(void)
     //UKF test start here
     ukf_test();
 
+	return 0;
 }
 
 void show_matrix_obj(tMatrix A)
@@ -27,7 +32,7 @@ void show_matrix_obj(tMatrix A)
     {
         for (j = 0; j < A.ncol; j++)
         {
-            printf("%2.5f ", A.val[A.ncol*i + j]);
+            printf("%2.14f ", A.val[A.ncol*i + j]);
         }
         printf("\n");
     }
@@ -42,7 +47,7 @@ void show_matrix(float64 * A, int n,int m)
     {
         for (j = 0; j < m; j++)
         {
-            printf("%2.5f ", A[m*i + j]);
+            printf("%2.14f ", A[m*i + j]);
         }
         printf("\n");
     }
@@ -68,10 +73,10 @@ void show_matrix(float64 * A, int n,int m)
 \******************************************************************************************************************************************************************************************************/
 void ukf_test(void)
 {
-    boolean tfInitFail = 0;
-    tUkfMatrix UkfMat;
-    tUKF ukfIo;
-    uint8 simLoop;
+    boolean tfInitCfg0 = 0;
+    boolean tfInitCfg1 = 0;
+    tUKF ukfIo[2];
+    uint32 simLoop;
 
     //UKF filter measurement input(data log is generated in matlab and used for UKF simulation for 15 iteration) 
     static const float64 yt[2][15]=
@@ -100,94 +105,90 @@ void ukf_test(void)
         {80.489525793047093,  66.908477563332085,  58.973616985147245,  42.638148924845950}
     };
 
-    float64 rootSquareErr_X0 = 0;
-    float64 rootSquareErr_X1 = 0;
-    float64 rootSquareErr_X2 = 0;
-    float64 rootSquareErr_X3 = 0;
+    //UKF initialization: CFG0
+    tfInitCfg0 = ukf_init(&ukfIo[cfg0], &UkfMatrixCfg0);
 
-    //UKF initialization: begin
+    if(tfInitCfg0 == 0 )
+    {   
+        float64 err[4]={0,0,0,0};
+        float64 absErrAccum[4] = {0,0,0,0};
 
-    mtx_init_f64(&UkfMat.Sc_vector,&Sc_vector_1x3[0][0],NROWS(Sc_vector_1x3),NCOL(Sc_vector_1x3));
-
-    mtx_init_f64(&UkfMat.Wm_weight_vector, &Wm_sigma_weight_1x9[0][0],NROWS(Wm_sigma_weight_1x9),NCOL(Wm_sigma_weight_1x9));
-
-    mtx_init_f64(&UkfMat.Wc_weight_vector, &Wc_sigma_weight_1x9[0][0],NROWS(Wc_sigma_weight_1x9),NCOL(Wc_sigma_weight_1x9));
-
-    mtx_init_f64(&UkfMat.u_system_input, &u_curr_system_input_4x1[0][0],NROWS(u_curr_system_input_4x1),NCOL(u_curr_system_input_4x1));
-
-    mtx_init_f64(&UkfMat.u_prev_system_input, &u_prev_system_input_4x1[0][0],NROWS(u_prev_system_input_4x1),NCOL(u_prev_system_input_4x1));
-
-    mtx_init_f64(&UkfMat.y_meas, &y_curr_system_meas_2x1[0][0],NROWS(y_curr_system_meas_2x1),NCOL(y_curr_system_meas_2x1));
-
-    mtx_init_f64(&UkfMat.y_predicted_mean, &y_mean_system_predict_2x1[0][0],NROWS(y_mean_system_predict_2x1),NCOL(y_mean_system_predict_2x1));
-
-    mtx_init_f64(&UkfMat.x_system_states, &x_system_states_4x1[0][0],NROWS(x_system_states_4x1),NCOL(x_system_states_4x1));
-
-    mtx_init_f64(&UkfMat.x_system_states_ic, &x_system_states_ic_4x1[0][0],NROWS(x_system_states_ic_4x1),NCOL(x_system_states_ic_4x1));
-
-    mtx_init_f64(&UkfMat.x_system_states_correction, &x_system_states_correction_4x1[0][0],NROWS(x_system_states_correction_4x1),NCOL(x_system_states_correction_4x1));
-
-    mtx_init_f64(&UkfMat.X_sigma_points, &X_sigma_points_4x9[0][0],NROWS(X_sigma_points_4x9),NCOL(X_sigma_points_4x9));
-
-    mtx_init_f64(&UkfMat.Y_sigma_points, &Y_sigma_points_2x9[0][0],NROWS(Y_sigma_points_2x9),NCOL(Y_sigma_points_2x9));
-
-    mtx_init_f64(&UkfMat.Pxx_error_covariance, &Px_state_cov_4x4[0][0],NROWS(Px_state_cov_4x4),NCOL(Px_state_cov_4x4));
-
-    mtx_init_f64(&UkfMat.Pxx_covariance_correction, &Pxx_covariance_correction_4x4[0][0],NROWS(Pxx_covariance_correction_4x4),NCOL(Pxx_covariance_correction_4x4));
-
-    mtx_init_f64(&UkfMat.Pyy_out_covariance, &Pyy_out_cov_2x2[0][0],NROWS(Pyy_out_cov_2x2),NCOL(Pyy_out_cov_2x2));
-
-    mtx_init_f64(&UkfMat.Pyy_out_covariance_copy, &Pyy_out_cov_copy_2x2[0][0],NROWS(Pyy_out_cov_copy_2x2),NCOL(Pyy_out_cov_copy_2x2));
-
-    mtx_init_f64(&UkfMat.Ryy0_init_out_covariance, &Ryy_out_cov_noise_2x2[0][0],NROWS(Ryy_out_cov_noise_2x2),NCOL(Ryy_out_cov_noise_2x2));
-
-    mtx_init_f64(&UkfMat.Pxy_cross_covariance, &Pxy_state_out_cov_4x2[0][0],NROWS(Pxy_state_out_cov_4x2),NCOL(Pxy_state_out_cov_4x2));
-
-    mtx_init_f64(&UkfMat.K_kalman_gain, &K_kalman_gain_4x2[0][0],NROWS(K_kalman_gain_4x2),NCOL(K_kalman_gain_4x2));
-
-    mtx_init_f64(&UkfMat.K_kalman_gain_transp, &K_kalman_transp_gain_2x4[0][0],NROWS(K_kalman_transp_gain_2x4),NCOL(K_kalman_transp_gain_2x4));
-
-    mtx_init_f64(&UkfMat.I_identity_matrix, &temporal_2x2[0][0],NROWS(temporal_2x2),NCOL(temporal_2x2));
-
-    mtx_init_f64(&UkfMat.Qxx_process_noise_cov, &Qxx_process_noise_cov_4x4[0][0],NROWS(Qxx_process_noise_cov_4x4),NCOL(Qxx_process_noise_cov_4x4));
-
-    mtx_init_f64(&UkfMat.Pxx0_init_error_covariance, &P0_state_cov_4x4[0][0],NROWS(P0_state_cov_4x4),NCOL(P0_state_cov_4x4));//
-
-    UkfMat.fcnPredict = &PredictFcn[0];
-    UkfMat.fcnObserve = &ObservFcn[0];
-
-    tfInitFail = ukf_init(&ukfIo, &UkfMat);
-
-    //UKF initialization: end
-
-    if(tfInitFail == 0)
-    {         
-        //UKF simulation: BEGIN
+        //UKF simulation CFG0: BEGIN
         for(simLoop=1;simLoop<15;simLoop++)
         {
-            //UKF apply/load system measurements in working array for current iteration.
-            y_curr_system_meas_2x1[0][0] = yt[0][simLoop];
-            y_curr_system_meas_2x1[1][0] = yt[1][simLoop];
+            float64 * const py_cfg0 = ukfIo[cfg0].input.y.val;
+
+            //UKF:CFG0 apply/load system measurements in working array for current iteration.
+            py_cfg0[0] = yt[0][simLoop];
+            py_cfg0[1] = yt[1][simLoop];
             
-            //UKF periodic task call
-            (void)ukf_step(&ukfIo);
+            //UKF:CFG0 periodic task call
+            (void)ukf_step(&ukfIo[cfg0]);
             
-            //printf("system states \n");
-            printf("%2.14f  %2.14f  %2.14f  %2.14f ", x_system_states_4x1[0][0], x_system_states_4x1[1][0], x_system_states_4x1[2][0], x_system_states_4x1[3][0]);
-            //show_matrix_obj(UkfMat.x_system_states);
-            printf("\n");
-            printf("%2.14f  %2.14f  %2.14f  %2.14f ", x_system_states_4x1[0][0]-x_exp[simLoop-1][0], x_system_states_4x1[1][0]-x_exp[simLoop-1][1],x_system_states_4x1[2][0]-x_exp[simLoop-1][2], x_system_states_4x1[3][0]-x_exp[simLoop-1][3]);
-            printf("\n");
+            err[0] = fabs(ukfIo[cfg0].update.x.val[0] - x_exp[simLoop-1][0]);
+            err[1] = fabs(ukfIo[cfg0].update.x.val[1] - x_exp[simLoop-1][1]);
+            err[2] = fabs(ukfIo[cfg0].update.x.val[2] - x_exp[simLoop-1][2]);
+            err[3] = fabs(ukfIo[cfg0].update.x.val[3] - x_exp[simLoop-1][3]);
+            
+            printf("Loop: %d |system states : ukf.m | system states : est | system states : impl. diff \n",simLoop);
+            printf("          %2.14f        %2.14f       %2.14f\n", x_exp[simLoop-1][0], ukfIo[cfg0].update.x.val[0], err[0]);
+            printf("          %2.14f        %2.14f       %2.14f\n", x_exp[simLoop-1][1], ukfIo[cfg0].update.x.val[1], err[1]);
+            printf("          %2.14f        %2.14f       %2.14f\n", x_exp[simLoop-1][2], ukfIo[cfg0].update.x.val[2], err[2]);
+            printf("          %2.14f        %2.14f       %2.14f\n", x_exp[simLoop-1][3], ukfIo[cfg0].update.x.val[3], err[3]);           
             
             //accumulate the differennce between reference matlab implementation and results from C code execution 
-            rootSquareErr_X0 += fabs(x_system_states_4x1[0][0]-x_exp[simLoop-1][0]);
-            rootSquareErr_X1 += fabs(x_system_states_4x1[1][0]-x_exp[simLoop-1][1]);
-            rootSquareErr_X2 += fabs(x_system_states_4x1[2][0]-x_exp[simLoop-1][2]);
-            rootSquareErr_X3 += fabs(x_system_states_4x1[3][0]-x_exp[simLoop-1][3]);
+            absErrAccum[0] += err[0];
+            absErrAccum[1] += err[1];
+            absErrAccum[2] += err[2];
+            absErrAccum[3] += err[3];
         }
-        printf("\n");
-        printf("%2.16f  %2.16f  %2.16f  %2.16f ",rootSquareErr_X0, rootSquareErr_X1,rootSquareErr_X2,rootSquareErr_X3);
+        printf("Accumulated error: CFG0 \n");
+        printf("%2.16f  \n%2.16f  \n%2.16f  \n%2.16f \n",absErrAccum[0], absErrAccum[1],absErrAccum[2],absErrAccum[3]);
 
+        //UKF simulation CFG0: END
+    }
+    else
+    {
+        //initialization fail
+    }
+
+    //UKF initialization: CFG1(free pendulum)
+    tfInitCfg1 = ukf_init(&ukfIo[cfg1], &UkfMatrixCfg1);
+
+    if(tfInitCfg1 == 0 )
+    {        
+        static float64 tetha = 0.5;  //initial conditions for angle
+        static float64 tetha_dot = 0;//initial conditions for angle speed
+        const float64 B = 0.05; //kg*s/m 
+        const float64 l = 0.613;
+        const float64 m = 0.5;
+        const float64 g = 9.81;
+        static const float64 T0 = 0.0001;
+
+        //UKF simulation: BEGIN
+        for(simLoop=0;simLoop<70;simLoop++)
+        {
+            float64 * const py_cfg1 = ukfIo[cfg1].input.y.val;
+            float64 err[2]={0,0};
+            
+            //UKF:CFG1 apply/load system measurements in working array for current iteration
+                 
+            tetha = tetha + T0*tetha_dot;
+            tetha_dot = tetha_dot - ((T0*B*tetha_dot)/m) - ((T0*g)/l)*sin(tetha);
+
+            py_cfg1[0] = tetha;
+            
+            //UKF:CFG0 periodic task call
+            (void)ukf_step(&ukfIo[cfg1]);			  
+            
+            err[0] = fabs(ukfIo[cfg1].update.x.val[0] - tetha);
+            err[1] = fabs(ukfIo[cfg1].update.x.val[1] - tetha_dot);         
+            
+            printf("Loop: %d |system states : real | system states : est | system states : err \n",simLoop);
+            printf("          %2.14f       %2.14f      %2.14f\n", tetha, ukfIo[1].update.x.val[0], err[0]);
+            printf("          %2.14f      %2.14f     %2.14f\n", tetha_dot, ukfIo[1].update.x.val[1], err[1]);
+            
+        }           
         //UKF simulation: END
     }
     else
@@ -245,6 +246,7 @@ void mtxlib_test(void)
     {-2.0,  6.0,  0,     0.3}};
     
     
+#if 0
     static float64 TestMatrix_1_3x3[3][3] = 
     {{10.5, 2.17, 3.03},
     { 0.44, 0.59, 6.89},
@@ -254,7 +256,7 @@ void mtxlib_test(void)
     { {1.11, 29.3, 31.2},
     {45.3, 5.17, 6.11},
     {7.61, 88.0, 9.34}};
-    
+#endif
     
     static float64 TestMatrix_1_2x3[2][3] = 
     { {1.11, 29.3, 31.2},   //size 3x3
@@ -286,8 +288,6 @@ void mtxlib_test(void)
     
     (void)mtx_chol_lower_f64(&myFactMatrix);
     show_matrix_obj(myFactMatrix);
-    
-    //TBD: define lower cholesky decomposition test
     
     /*show_matrix_obj(myChol);
     mtx_transp_square_f64(&myChol);

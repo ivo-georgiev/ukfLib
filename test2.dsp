@@ -97,6 +97,10 @@ SOURCE=.\ukfCfg.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\ukfCfg1.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\ukfLib.c
 # End Source File
 # End Group
@@ -114,6 +118,10 @@ SOURCE=.\System_Types.h
 # Begin Source File
 
 SOURCE=.\ukfCfg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ukfCfg1.h
 # End Source File
 # Begin Source File
 

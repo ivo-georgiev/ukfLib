@@ -349,7 +349,7 @@ mtxResultInfo mtx_add_f64(tMatrix * pA,tMatrix * pB)
     const uint8 nCol = pA->ncol;
     uint8 col,row;
 
-    float64 sum=0;
+    // float64 sum=0;
     
     for(row=0;row<nRow;row++)
     {

@@ -1,3 +1,6 @@
+#ifndef MTXLIB_FILE
+#define MTXLIB_FILE
+
 #include "System_Types.h"
 #include<math.h>
 /*---------------------------------------------*/
@@ -19,30 +22,29 @@ typedef int mtxResultInfo;
 #define MTX_NOT_POS_DEFINED (mtxResultInfo)254
 #define MTX_OPERATION_ERROR (mtxResultInfo)255
 
-#ifndef MTXLIB_FILE
-#define MTXLIB_FILE
 typedef struct tMatrix
 {
     uint8 nrow;
     uint8 ncol;
     double* val;
 }tMatrix;
+
+extern mtxResultInfo mtx_init_f64(tMatrix* A, double * M, uint8 nrow, uint8 ncol);
+extern mtxResultInfo mtx_mul_f64(tMatrix * pA, tMatrix * pB, tMatrix * pC);
+extern mtxResultInfo mtx_transp_square_f64(tMatrix * pA);
+extern mtxResultInfo mtx_transp_dest_f64(tMatrix * pA,tMatrix * pB);
+extern mtxResultInfo mtx_diagsum_f64(tMatrix * pA, double * diagsum);
+extern mtxResultInfo mtx_chol_upper_f64(tMatrix * pA);
+extern mtxResultInfo mtx_chol_lower_f64(tMatrix * pA);
+extern mtxResultInfo mtx_inv_f64(tMatrix * pA, tMatrix * pI);
+extern mtxResultInfo mtx_add_f64(tMatrix * pA,tMatrix * pB);
+extern mtxResultInfo mtx_subtract_f64(tMatrix * pA,tMatrix * pB);
+extern mtxResultInfo mtx_mul_scalar_f64(tMatrix * pA,double scalar);
+extern mtxResultInfo mtx_add_scalar_f64(tMatrix * pA,double scalar);
+extern mtxResultInfo mtx_subtract_scalar_f64(tMatrix * pA,double scalar);
+extern mtxResultInfo mtx_cpy_f64(tMatrix * const pDestP,tMatrix const * const pSrcP);
+extern mtxResultInfo mtx_identity_f64(tMatrix * pI);
+extern mtxResultInfo mtx_zeros_f64(tMatrix * pZ);
+//old integerlib
 #endif
 
-mtxResultInfo mtx_init_f64(tMatrix* A, double * M, uint8 nrow, uint8 ncol);
-mtxResultInfo mtx_mul_f64(tMatrix * pA, tMatrix * pB, tMatrix * pC);
-mtxResultInfo mtx_transp_square_f64(tMatrix * pA);
-mtxResultInfo mtx_transp_dest_f64(tMatrix * pA,tMatrix * pB);
-mtxResultInfo mtx_diagsum_f64(tMatrix * pA, double * diagsum);
-mtxResultInfo mtx_chol_upper_f64(tMatrix * pA);
-mtxResultInfo mtx_chol_lower_f64(tMatrix * pA);
-mtxResultInfo mtx_inv_f64(tMatrix * pA, tMatrix * pI);
-mtxResultInfo mtx_add_f64(tMatrix * pA,tMatrix * pB);
-mtxResultInfo mtx_subtract_f64(tMatrix * pA,tMatrix * pB);
-mtxResultInfo mtx_mul_scalar_f64(tMatrix * pA,double scalar);
-mtxResultInfo mtx_add_scalar_f64(tMatrix * pA,double scalar);
-mtxResultInfo mtx_subtract_scalar_f64(tMatrix * pA,double scalar);
-mtxResultInfo mtx_cpy_f64(tMatrix * const pDestP,tMatrix const * const pSrcP);
-mtxResultInfo mtx_identity_f64(tMatrix * pI);
-mtxResultInfo mtx_zeros_f64(tMatrix * pZ);
-//old integerlib
