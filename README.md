@@ -4,7 +4,8 @@ What is included:
 - ukfLib.c, ukfLib.h : Unscented Kalman filter implementation.
 - ukfCfg.c,ukfCfg.h : These files contain UKF matrix and mathematical state space models/equation(state and measurement equations).They are specific for every different nonlinear filtering problem. In current project these files adress the issue from Matthew B Rhudy tutorial(Understanding Nonlinear Kalman Filters, Part II:An Implementation Guide):
 https://web.statler.wvu.edu/~irl/IRL_WVU_Online_UKF_Implementation_V1.0_06_28_2013.pdf
-- test.c : file is used for both simulation and unit testing. It also show how filter should be initialized and used in practice.
+- ukfCfg1.c,ukfCfg1.h : This configuration is used for estimation of angle and angular speed of free pendulum.
+- test2.c : file is used for both simulation and unit testing. It also show how filter should be initialized and used in practice.
 - Matlab model(R2013b) with s-fun for simulation and verification in Simulink enviroment.This model use files listed above to build and simulate s-function.
 
 Why this project is useful:
