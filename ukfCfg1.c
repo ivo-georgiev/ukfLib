@@ -56,6 +56,8 @@ static float64 y_meas[1][1] = {{0}};
 static float64 y_predicted_mean[1][1] = {{0}};
 static float64 x_system_states[2][1] = {{0},{0}};
 static float64 x_system_states_ic[2][1] = {{0},{0}};
+static float64 x_system_states_limits[2][3] = {{0,0,0.000001},{0,0,0.000001}};
+static boolean x_system_states_limits_enable[2][1] = {{0},{0}};
 static float64 x_system_states_correction[2][1] = {{0},{0}};
 static float64 X_sigma_points[2][5]=
 {/*  s1  s2  s3  s4  s5}       */
@@ -74,7 +76,6 @@ static float64 Pxx_error_covariance[2][2]=
 {/*  x1, x2       */
     {0,  0}, /* x1 */
     {0,  0}, /* x2 */ 
-  
 };
 
 //State covariance initial values
@@ -86,9 +87,9 @@ static float64 Pxx_error_covariance[2][2]=
   in the corresponding state, i.e. how much deviation you might expect in the initialization of that state.  If you have no idea where to start, 
  I recommend using an identity matrix rather than the zero matrix. */
 static float64 Pxx0_init_error_covariance[2][2]=
-{/*  x1, x2       */
-    {1,  0,}, /* x1 */
-    {0,  1,}, /* x2 */  
+{/*  x1,    x2         */
+    {100,    0}, /* x1 */
+    {0  ,  100}, /* x2 */  
 };
 
 //Process noise covariance Q : initial noise assumptions
@@ -98,15 +99,15 @@ static float64 Pxx0_init_error_covariance[2][2]=
   If you are very confident in your equations, you could set Q to zero. If you do that the filter will use
   the noise free model to predict the state vector and will ignore any measurement data since your model is assumed perfect. */
 static float64 Qxx_process_noise_cov[2][2]=
-{/*  x1, x2,      */
+{/*  x1,  x2,        */
     {0.1,  0}, /* x1 */
     {0,  0.1}, /* x2 */   
 };
 
 //Output noise covariance: initial noise assumptions
 static float64 Ryy0_init_out_covariance[1][1]=
-{/*  y1,          */
-    {1}/* y1 */
+{/*  y1,      */
+    {1} /* y1 */
 };
 
 //Output covariance Pyy = R (initial assumption)
@@ -120,7 +121,6 @@ static float64 Pyy_out_covariance_copy[1][1]=
     {0},  /* y1 */
 };
 
-
 //cross-covariance of state and output
 static float64 Pxy_cross_covariance[2][1]=
 {/*  y1        */
@@ -129,27 +129,18 @@ static float64 Pxy_cross_covariance[2][1]=
 };
 
 //Kalman gain matrix
-static float64 K_kalman_gain[2][1]=
-{  
-    {0},
-    {0},
-};
+static float64 K_kalman_gain[2][1]= {{0},{0}};
 
 //Kalman gain transponce matrix
-static float64 K_kalman_gain_transp[1][2]=
-{  
-    {0, 0}
-};
+static float64 K_kalman_gain_transp[1][2]= {{0,0}};
+
 static float64 Pxx_covariance_correction[2][2]=
-{/*  x1, x2, x3,      */
+{/*  x1, x2,       */
     {0,  0}, /* x1 */
     {0,  0}, /* x2 */   
 };
 
-static float64 I_identity_matrix[1][1]=
-{
-    {0},
-};
+static float64 I_identity_matrix[1][1]={{0}};
 
 tUkfMatrix UkfMatrixCfg1 = 
 {
@@ -158,6 +149,8 @@ tUkfMatrix UkfMatrixCfg1 =
     {NROWS(Wc_weight_vector),NCOL(Wc_weight_vector),&Wc_weight_vector[0][0]},
     {NROWS(x_system_states),NCOL(x_system_states),&x_system_states[0][0]},
     {NROWS(x_system_states_ic),NCOL(x_system_states_ic),&x_system_states_ic[0][0]},
+    {NROWS(x_system_states_limits),NCOL(x_system_states_limits),&x_system_states_limits[0][0]},
+    {NROWS(x_system_states_limits_enable),NCOL(x_system_states_limits_enable),&x_system_states_limits_enable[0][0]},
     {NROWS(x_system_states_correction),NCOL(x_system_states_correction),&x_system_states_correction[0][0]},
     {NROWS(u_system_input),NCOL(u_system_input),&u_system_input[0][0]},
     {NROWS(u_prev_system_input),NCOL(u_prev_system_input),&u_prev_system_input[0][0]},
@@ -180,6 +173,7 @@ tUkfMatrix UkfMatrixCfg1 =
     &ObservFcn[0],
     0.0001
 };
+
 /******************************************************************************************************************************************************************************************************\
  ***  FUNCTION:
  ***      void Fx0(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx)
@@ -207,7 +201,6 @@ void Fx1(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 
     pX_m->val[nCol*0+sigmaIdx] = pX_p->val[nCol*0+sigmaIdx]+ dT*pX_p->val[nCol*1+sigmaIdx];
 
     pu_p = pu_p;
-
 }
 /******************************************************************************************************************************************************************************************************\
  ***  FUNCTION:
@@ -232,15 +225,14 @@ void Fx1(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 
 void Fx2(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 dT)
 {
     const uint8 nCol = pX_m->ncol;
-	const float64 B = 0.05; //kg*s/m 
-	const float64 l = 0.613;
+    const float64 B = 0.05; //kg*s/m 
+    const float64 l = 0.613;
     const float64 m = 0.5;
     const float64 g = 9.81;	
    
     pX_m->val[nCol*1+sigmaIdx]/*x2(k)*/ = (1-((dT*B)/m))*pX_p->val[nCol*1+sigmaIdx] - ((dT*g)/l)*sin(pX_p->val[nCol*0 + sigmaIdx]);
 
     pu_p = pu_p;
-
 }
 
 /******************************************************************************************************************************************************************************************************\
@@ -266,7 +258,7 @@ void Fx2(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 
 void Hy1(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx)
 {
     const uint8 nCol = pX_m->ncol;
-	pY_m->val[sigmaIdx] = pX_m->val[nCol*0 + sigmaIdx];
+    pY_m->val[sigmaIdx] = pX_m->val[nCol*0 + sigmaIdx];
     
     pu = pu;
 }

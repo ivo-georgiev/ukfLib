@@ -1,10 +1,19 @@
 #include "mtxLib.h"
 
-mtxResultInfo mtx_init_f64(tMatrix * A, float64 * pValue, uint8 nrow, uint8 ncol)
+mtxResultInfo mtx_init_bool(tMatrixBool * pA, boolean * pValue, uint8 nrow, uint8 ncol)
 {
-    A->val = pValue;
-    A->ncol = ncol;
-    A->nrow = nrow;
+    pA->val = pValue;
+    pA->ncol = ncol;
+    pA->nrow = nrow;
+    
+    return MTX_OPERATION_OK; 
+}
+
+mtxResultInfo mtx_init_f64(tMatrix * pA, float64 * pValue, uint8 nrow, uint8 ncol)
+{
+    pA->val = pValue;
+    pA->ncol = ncol;
+    pA->nrow = nrow;
 
     return MTX_OPERATION_OK; 
 }
