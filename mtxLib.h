@@ -22,14 +22,22 @@ typedef int mtxResultInfo;
 #define MTX_NOT_POS_DEFINED (mtxResultInfo)254
 #define MTX_OPERATION_ERROR (mtxResultInfo)255
 
-typedef struct tMatrix
+typedef struct sMatrix
 {
     uint8 nrow;
     uint8 ncol;
     double* val;
 }tMatrix;
 
-extern mtxResultInfo mtx_init_f64(tMatrix* A, double * M, uint8 nrow, uint8 ncol);
+typedef struct sMatrixBool
+{
+    uint8 nrow;
+    uint8 ncol;
+    boolean* val;
+}tMatrixBool;
+
+extern mtxResultInfo mtx_init_bool(tMatrixBool * pA, boolean * pValue, uint8 nrow, uint8 ncol);
+extern mtxResultInfo mtx_init_f64(tMatrix * pA, float64 * pValue, uint8 nrow, uint8 ncol);
 extern mtxResultInfo mtx_mul_f64(tMatrix * pA, tMatrix * pB, tMatrix * pC);
 extern mtxResultInfo mtx_transp_square_f64(tMatrix * pA);
 extern mtxResultInfo mtx_transp_dest_f64(tMatrix * pA,tMatrix * pB);

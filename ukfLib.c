@@ -37,7 +37,48 @@ void ukf_sigmapoint(tUKF * const pUkf);
 void ukf_mean_pred_state(tUKF * const pUkf);
 void ukf_mean_pred_output(tUKF * const pUkf);
 void ukf_calc_covariances(tUKF * const pUkf);
+float64 ukf_state_limiter(const float64 state,const float64 min,const float64 max,const boolean enbl);
 
+/******************************************************************************************************************************************************************************************************\
+ ***  FUNCTION:
+ ***      float64 ukf_state_limiter(const float64 State,const float64 minLimit,const float64 maxLimit,const boolean enbl)
+ *** 
+ ***  DESCRIPTION:
+ ***      Clamp system states in permitted range     
+ ***            
+ ***  PARAMETERS:
+ ***      Type               Name              Range              Description
+ ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ***      const float64      state                                state value which should be clamped
+ ***      const float64      min                                  lower state range
+ ***      const float64      max                                  higher state range 
+ ***      const boolean      enbl                                 limiter enable flag
+ ***  RETURNS:
+ ***      float64            clamp
+ ***  SETTINGS:
+ ***
+\******************************************************************************************************************************************************************************************************/
+float64 ukf_state_limiter(const float64 state,const float64 min,const float64 max,const boolean enbl)
+{
+    float64 clamp = state;
+    
+    if(0 != enbl)
+    {
+        if(min > state)
+        {
+            clamp = min;
+        }  
+        else 
+        {
+            if( max < state) 
+            {
+                clamp = max;
+            }    
+        }
+    }
+    
+    return clamp;
+}
 /******************************************************************************************************************************************************************************************************\
  ***  FUNCTION:
  ***      boolean ukf_dimension_check(tUKF * const pUkf)
@@ -157,25 +198,41 @@ boolean ukf_dimension_check(tUKF * const pUkf)
 \******************************************************************************************************************************************************************************************************/
 boolean ukf_init(tUKF * const pUkf, tUkfMatrix * pUkfMatrix)
 {
+    uint8 xIdx;
     tUKFpar * const pPar = (tUKFpar *)&pUkf->par;
     tUKFprev * const pPrev = (tUKFprev *)&pUkf->prev;
     const uint8 WmLen = pUkfMatrix->Wm_weight_vector.ncol;
     const uint8 WcLen = pUkfMatrix->Wc_weight_vector.ncol;
     
+    pPar->xLim = pUkfMatrix->x_system_states_limits;
+    pPar->xLimEnbl = pUkfMatrix->x_system_states_limits_enable;
     pPar->x0 = pUkfMatrix->x_system_states_ic;
     pPar->Ryy0 = pUkfMatrix->Ryy0_init_out_covariance;
     pPar->Pxx0 = pUkfMatrix->Pxx0_init_error_covariance;
     pPar->Qxx = pUkfMatrix->Qxx_process_noise_cov;
     pPar->Wm =  pUkfMatrix->Wm_weight_vector;
     pPar->Wc =  pUkfMatrix->Wc_weight_vector;
-    pPar->alpha = pUkfMatrix->Sc_vector.val[alphaIdx];//scaling[alphaIdx];
-    pPar->betha = pUkfMatrix->Sc_vector.val[bethaIdx];;//scaling[bethaIdx];
-    pPar->kappa = pUkfMatrix->Sc_vector.val[kappaIdx];;//scaling[kappaIdx];
+    pPar->alpha = pUkfMatrix->Sc_vector.val[alphaIdx];
+    pPar->betha = pUkfMatrix->Sc_vector.val[bethaIdx];
+    pPar->kappa = pUkfMatrix->Sc_vector.val[kappaIdx];
     pPar->xLen = pUkfMatrix->x_system_states.nrow; 
     pPar->yLen = pUkfMatrix->y_predicted_mean.nrow;
     pPar->sLen = 2*pPar->xLen+1;
     pPar->dT = pUkfMatrix->dT;
-    
+
+    for(xIdx=0;xIdx<pPar->xLim.nrow;xIdx++)
+    {
+        const float64 xMin = pPar->xLim.val[pPar->xLim.ncol*xIdx + xMinIdx];
+        const float64 xMax = pPar->xLim.val[pPar->xLim.ncol*xIdx + xMaxIdx];
+        const float64 xEps = pPar->xLim.val[pPar->xLim.ncol*xIdx + xEpsIdx];
+
+        if(0 != pPar->xLimEnbl.val[xIdx] && ((xMin + xEps) > xMax))
+        {
+            //limiter range too low -> disable limiter for this state
+            pPar->xLimEnbl.val[xIdx] = 0;
+        }
+    }
+
     //#1.3'(begin) Calculate scaling parameter
     pPar->lambda = pPar->alpha * pPar->alpha;
     pPar->lambda *= (float64)(pPar->xLen + pPar->kappa);
@@ -312,7 +369,6 @@ void ukf_sigmapoint(tUKF * const pUkf)
     float64 * const pPxx_p = pUkf->prev.Pxx_p.val;
     float64 * const pX_p = pUkf->prev.X_p.val;
     float64 * const px_p = pUkf->prev.x_p.val;
-    float64 f64Scalar;
     const float64 lambda = pUkf->par.lambda;
     const uint8 sLen = pUkf->par.sLen;
     const uint8 xLen = pUkf->par.xLen;
@@ -320,36 +376,40 @@ void ukf_sigmapoint(tUKF * const pUkf)
     uint8 sigmaIdx=0;
     mtxResultInfo mtxResult;
     
-    //#1.1(begin) Calculate error covariance matrix square root
+    //#1.1(begin/end) Calculate error covariance matrix square root
     mtxResult = mtx_chol_lower_f64(&pUkf->prev.Pxx_p);
-
-    //#1.1(end) Calculate error covariance matrix square root
 
     if(MTX_OPERATION_OK == mtxResult)
     {       
         //#1.2(begin) Calculate the sigma-points
         for(xIdx=0;xIdx<xLen;xIdx++)
         {
+            const float64 xMin = pUkf->par.xLim.val[pUkf->par.xLim.ncol*xIdx + xMinIdx];
+            const float64 xMax = pUkf->par.xLim.val[pUkf->par.xLim.ncol*xIdx + xMaxIdx];
+            const boolean xLimEnbl = pUkf->par.xLimEnbl.val[xIdx];
+
             //first column of sigma point matrix is equal of previous state value
-            pX_p[sLen*xIdx+sigmaIdx] = px_p[xIdx];
+            pX_p[sLen*xIdx + sigmaIdx] = ukf_state_limiter(px_p[xIdx], xMin, xMax, xLimEnbl);
         }
-               
-        f64Scalar = sqrt(xLen + lambda);
         
-        (void)mtx_mul_scalar_f64(&pUkf->prev.Pxx_p,f64Scalar);
+        (void)mtx_mul_scalar_f64(&pUkf->prev.Pxx_p, sqrt(xLen + lambda));
         
         for(sigmaIdx=1;sigmaIdx < sLen;sigmaIdx++)
         {
             for(xIdx=0;xIdx<xLen;xIdx++)
             {
+                const float64 xMin = pUkf->par.xLim.val[pUkf->par.xLim.ncol*xIdx + xMinIdx];
+                const float64 xMax = pUkf->par.xLim.val[pUkf->par.xLim.ncol*xIdx + xMaxIdx];
+                const boolean xLimEnbl = pUkf->par.xLimEnbl.val[xIdx];
+                
                 if(sigmaIdx <= xLen)
                 {
-                    pX_p[sLen*xIdx+sigmaIdx] = px_p[xIdx] + pPxx_p[xLen*xIdx + (sigmaIdx-1)];
+                    pX_p[sLen*xIdx + sigmaIdx] = ukf_state_limiter(px_p[xIdx] + pPxx_p[xLen*xIdx + (sigmaIdx-1)], xMin, xMax, xLimEnbl);
                 }
                 else
                 {
-                    pX_p[sLen*xIdx+sigmaIdx] = px_p[xIdx] - pPxx_p[xLen*xIdx + (sigmaIdx-xLen-1)];
-                }            
+                    pX_p[sLen*xIdx + sigmaIdx] = ukf_state_limiter(px_p[xIdx] - pPxx_p[xLen*xIdx + (sigmaIdx-xLen-1)], xMin, xMax, xLimEnbl);
+                }              
             }
         }
         //#1.2(end) Calculate the sigma-points

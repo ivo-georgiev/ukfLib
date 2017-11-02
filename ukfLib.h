@@ -7,6 +7,10 @@
 #ifndef UKFLIB_FILE
 #define UKFLIB_FILE
 
+#define xMinIdx (uint8)0
+#define xMaxIdx (uint8)1
+#define xEpsIdx (uint8)2
+
 #define alphaIdx   (uint8)0
 #define bethaIdx   (uint8)1
 #define kappaIdx   (uint8)2
@@ -21,6 +25,8 @@ typedef struct ukfMatrix
     tMatrix Wc_weight_vector;
     tMatrix x_system_states;
     tMatrix x_system_states_ic;
+    tMatrix x_system_states_limits;
+    tMatrixBool x_system_states_limits_enable;
     tMatrix x_system_states_correction;
     tMatrix u_system_input;
     tMatrix u_prev_system_input;
@@ -54,14 +60,15 @@ typedef struct uKFpar
     float64 betha;//Contain information about the prior distribution (for Gaussian, beta = 2 is optimal).
     float64 kappa; //tertiary scaling parameter, usual value 0.
     float64 lambda;
+    float64 dT;
     tMatrix Wm;
     tMatrix Wc;
     tMatrix Qxx;
     tMatrix Ryy0;
     tMatrix Pxx0;
     tMatrix x0;
-    float64 dT;
-
+    tMatrix xLim;
+    tMatrixBool xLimEnbl;
 }tUKFpar;
 
 typedef struct uKFin
