@@ -495,8 +495,8 @@ void ukf_mean_pred_output(tUKF * const pUkf)
     const uint8 xLen = pPar->xLen;
     const uint8 yLen= pPar->yLen;
     uint8 sigmaIdx,xIdx,xTrIdx,yIdx;
- 
-    memset(py_m,0,sizeof(float64)*yLen); 
+  
+    mtx_zeros_f64(&pUkf->predict.y_m);
     
     //P(k|k-1) = Q(k-1)
     mtx_cpy_f64(&pUkf->predict.P_m, &pUkf->par.Qxx);
@@ -566,8 +566,8 @@ void ukf_calc_covariances(tUKF * const pUkf)
     uint8 sigmaIdx,xIdx,yIdx,yTrIdx;
 
     mtx_cpy_f64(&pUkf->update.Pyy, &pPar->Ryy0);//Pyy(k|k-1) = R(k)
-    
-    memset(pPxy,0,sizeof(float64)*xLen*yLen);
+
+    mtx_zeros_f64(&pUkf->update.Pxy);
     
     for(sigmaIdx=0;sigmaIdx<sigmaLen;sigmaIdx++)
     {              
@@ -638,7 +638,7 @@ void ukf_meas_update(tUKF * const pUkf)
 
     //#4.2(begin) Update state estimate
     // y = y - y_m
-    (void)mtx_subtract_f64(&pUkf->input.y,&pUkf->predict.y_m);
+    (void)mtx_sub_f64(&pUkf->input.y,&pUkf->predict.y_m);
 
     // K*(y - y_m) states correction 
     (void)mtx_mul_f64(&pUpdate->K, &pUkf->input.y, &pUkf->update.x_corr);
@@ -655,7 +655,7 @@ void ukf_meas_update(tUKF * const pUkf)
     //Pxx_corr = K*Pyy*K'
     (void)mtx_mul_f64(&pUpdate->Pxy, &pUpdate->Kt, &pUpdate->Pxx_corr);
 
-    (void)mtx_subtract_f64(&pUkf->predict.P_m,&pUpdate->Pxx_corr);
+    (void)mtx_sub_f64(&pUkf->predict.P_m,&pUpdate->Pxx_corr);
     //#4.3(end).Update error covariance
 }
 
