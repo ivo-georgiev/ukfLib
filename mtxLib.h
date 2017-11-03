@@ -35,7 +35,7 @@
 /*---------------------------------------------*/
 #define NCOL(arr) sizeof(arr[0])/sizeof(arr[0][0])
 #define NROWS(arr)    sizeof(arr)/sizeof(arr[0])
-//#define rowxcol(arr) sizeof(arr)/sizeof(arr[0][0])
+#define COLXROW(arr) sizeof(arr)/sizeof(arr[0][0])
 
 int mtx_chol1_f64(double* mtxA, double* mtxL,uint8 mtxSize);
 
@@ -49,6 +49,7 @@ typedef int mtxResultInfo;
 
 typedef struct sMatrix
 {
+    uint16 nelem;
     uint8 nrow;
     uint8 ncol;
     double* val;
@@ -56,13 +57,14 @@ typedef struct sMatrix
 
 typedef struct sMatrixBool
 {
+    uint16 nelem;
     uint8 nrow;
     uint8 ncol;
     boolean* val;
 }tMatrixBool;
 
-extern mtxResultInfo mtx_init_bool(tMatrixBool * pA, boolean * pValue, uint8 nrow, uint8 ncol);
-extern mtxResultInfo mtx_init_f64(tMatrix * pA, float64 * pValue, uint8 nrow, uint8 ncol);
+extern mtxResultInfo mtx_init_bool(tMatrixBool * pA, boolean * pValue, uint8 nrow, uint8 ncol,uint16 nelem);
+extern mtxResultInfo mtx_init_f64(tMatrix * pA, float64 * pValue, uint8 nrow, uint8 ncol,uint16 nelem);
 extern mtxResultInfo mtx_mul_f64(tMatrix * pA, tMatrix * pB, tMatrix * pC);
 extern mtxResultInfo mtx_transp_square_f64(tMatrix * pA);
 extern mtxResultInfo mtx_transp_dest_f64(tMatrix * pA,tMatrix * pB);
