@@ -728,17 +728,16 @@ mtxResultInfo mtx_identity_f64(tMatrix * const pSrc)
     float64 * pDst= (float64 *)pSrc->val;    
     const uint8 nRow = pSrc->nrow;
     const uint8 nCol = pSrc->ncol;
-    uint8 col,row;
+    uint8 mtxIdx;
     
     if(nRow == nCol)
-    {        
-        for(row=0;row<nRow;row++)
+    {   
+        pDst[0] = 1;
+        
+        for(mtxIdx=1;mtxIdx<pSrc->nelem;mtxIdx++)
         {
-            for(col=0;col<nCol;col++)
-            {
-                pDst[nCol*row+col] = (row==col) ?  1 : 0;             
-            }
-        }
+            pDst[mtxIdx] = mtxIdx < nCol ? 0 : (mtxIdx/nCol) == mtxIdx%((mtxIdx/nCol)*nCol) ?  1 : 0;   
+        }    
     }
     else
     {
