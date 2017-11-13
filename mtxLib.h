@@ -63,14 +63,14 @@ typedef struct sMatrixBool
     boolean* val;
 }tMatrixBool;
 
-extern mtxResultInfo mtx_init_bool(tMatrixBool * pA, boolean * pValue, uint8 nrow, uint8 ncol,uint16 nelem);
-extern mtxResultInfo mtx_init_f64(tMatrix * pA, float64 * pValue, uint8 nrow, uint8 ncol,uint16 nelem);
-extern mtxResultInfo mtx_mul_f64(tMatrix * pA, tMatrix * pB, tMatrix * pC);
-extern mtxResultInfo mtx_transp_square_f64(tMatrix * pA);
-extern mtxResultInfo mtx_transp_dest_f64(tMatrix * pA,tMatrix * pB);
-extern mtxResultInfo mtx_diagsum_f64(tMatrix * pA, double * diagsum);
-extern mtxResultInfo mtx_chol_upper_f64(tMatrix * pA);
-extern mtxResultInfo mtx_chol_lower_f64(tMatrix * pA);
+extern mtxResultInfo mtx_init_bool(tMatrixBool * const pSrc, boolean * const pValue, const uint8 nrow, const uint8 ncol,const uint16 nelem);
+extern mtxResultInfo mtx_init_f64(tMatrix * const pSrc, float64 * const pValue,const uint8 nrow,const uint8 ncol,const uint16 nelem);
+extern mtxResultInfo mtx_mul_f64(tMatrix const * const pSrc1, tMatrix const * const pSrc2, tMatrix * const pDst);
+extern mtxResultInfo mtx_transp_square_f64(tMatrix * const pSrc);
+extern mtxResultInfo mtx_transp_dest_f64(tMatrix const * const pSrc,tMatrix * const pDst);
+extern mtxResultInfo mtx_diagsum_f64(tMatrix * pSrc, double * diagsum);
+extern mtxResultInfo mtx_chol_upper_f64(tMatrix * const pSrc);
+extern mtxResultInfo mtx_chol_lower_f64(tMatrix * const pSrc);
 extern mtxResultInfo mtx_inv_f64(tMatrix * const pSrc, tMatrix * const pDst);
 extern mtxResultInfo mtx_add_f64(tMatrix * const pDst,tMatrix const * const pSrc);
 extern mtxResultInfo mtx_sub_f64(tMatrix * const pDst,tMatrix const * const pSrc);

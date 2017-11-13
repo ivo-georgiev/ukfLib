@@ -33,9 +33,7 @@
 static void Fx1(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 dT);
 static void Fx2(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 dT);
 
-
 static void Hy1(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx);
-
 
 static tPredictFcn PredictFcn[2] = {&Fx1,&Fx2};
 static tObservFcn  ObservFcn[1] = {&Hy1};
@@ -46,8 +44,8 @@ static tObservFcn  ObservFcn[1] = {&Hy1};
 static float64 Sc_vector[1][3] = {{1,2,0}};
 static float64 Wm_weight_vector[1][5] = {{0,0,0,0,0}};
 static float64 Wc_weight_vector[1][5] = {{0,0,0,0,0}};
-static float64 u_system_input[2][1] = {{0},{0}}; 
-static float64 u_prev_system_input[2][1] = {{0},{0}};
+//static float64 u_system_input[2][1] = {{0},{0}}; 
+//static float64 u_prev_system_input[2][1] = {{0},{0}};
 static float64 y_meas[1][1] = {{0}};
 static float64 y_predicted_mean[1][1] = {{0}};
 static float64 x_system_states[2][1] = {{0},{0}};
@@ -148,8 +146,8 @@ tUkfMatrix UkfMatrixCfg1 =
     {COLXROW(x_system_states_limits),NROWS(x_system_states_limits),NCOL(x_system_states_limits),&x_system_states_limits[0][0]},
     {COLXROW(x_system_states_limits_enable),NROWS(x_system_states_limits_enable),NCOL(x_system_states_limits_enable),&x_system_states_limits_enable[0][0]},
     {COLXROW(x_system_states_correction),NROWS(x_system_states_correction),NCOL(x_system_states_correction),&x_system_states_correction[0][0]},
-    {COLXROW(u_system_input),NROWS(u_system_input),NCOL(u_system_input),&u_system_input[0][0]},
-    {COLXROW(u_prev_system_input),NROWS(u_prev_system_input),NCOL(u_prev_system_input),&u_prev_system_input[0][0]},
+    {0,0,0,NULL},//{COLXROW(u_system_input),NROWS(u_system_input),NCOL(u_system_input),&u_system_input[0][0]},
+    {0,0,0,NULL},//{COLXROW(u_prev_system_input),NROWS(u_prev_system_input),NCOL(u_prev_system_input),&u_prev_system_input[0][0]},
     {COLXROW(X_sigma_points),NROWS(X_sigma_points),NCOL(X_sigma_points),&X_sigma_points[0][0]},
     {COLXROW(Y_sigma_points),NROWS(Y_sigma_points),NCOL(Y_sigma_points),&Y_sigma_points[0][0]},
     {COLXROW(y_predicted_mean),NROWS(y_predicted_mean),NCOL(y_predicted_mean),&y_predicted_mean[0][0]},   
@@ -181,7 +179,7 @@ tUkfMatrix UkfMatrixCfg1 =
  ***  PARAMETERS:
  ***      Type               Name              Range              Description
  ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ***      tMatrix *          pu_p                                 Pointer to the input array/vector at (k-1) moment
+ ***      tMatrix *          pu_p                                 NULL for this system, be sure that is not used in calc
  ***      tMatrix *          pX_p                                 Pointer to the sigma points array at (k-1) moment 
  ***      tMatrix *          pX_m                                 Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
  ***      uint8              sigmaIdx                             Sigma point index.
@@ -195,8 +193,6 @@ void Fx1(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 
     const uint8 nCol = pX_m->ncol; 
 
     pX_m->val[nCol*0+sigmaIdx] = pX_p->val[nCol*0+sigmaIdx]+ dT*pX_p->val[nCol*1+sigmaIdx];
-
-    pu_p = pu_p;
 }
 /******************************************************************************************************************************************************************************************************\
  ***  FUNCTION:
@@ -209,7 +205,7 @@ void Fx1(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 
  ***  PARAMETERS:
  ***      Type               Name              Range              Description
  ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ***      tMatrix *          pu_p                                 Pointer to the input array/vector at (k-1) moment
+ ***      tMatrix *          pu_p                                 NULL for this system, be sure that is not used in calc
  ***      tMatrix *          pX_p                                 Pointer to the sigma points array at (k-1) moment 
  ***      tMatrix *          pX_m                                 Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
  ***      uint8              sigmaIdx                             Sigma point index.
@@ -226,9 +222,7 @@ void Fx2(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 
     const float64 m = 0.5;
     const float64 g = 9.81;	
    
-    pX_m->val[nCol*1+sigmaIdx]/*x2(k)*/ = (1-((dT*B)/m))*pX_p->val[nCol*1+sigmaIdx] - ((dT*g)/l)*sin(pX_p->val[nCol*0 + sigmaIdx]);
-
-    pu_p = pu_p;
+    pX_m->val[nCol*1+sigmaIdx] = (1-((dT*B)/m))*pX_p->val[nCol*1+sigmaIdx] - ((dT*g)/l)*sin(pX_p->val[nCol*0 + sigmaIdx]);
 }
 
 /******************************************************************************************************************************************************************************************************\
@@ -242,7 +236,7 @@ void Fx2(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 
  ***  PARAMETERS:
  ***      Type               Name              Range              Description
  ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ***      tMatrix *          pu                                   Pointer to the input array/vector at (k) moment. Not used involved in system equation
+ ***      tMatrix *          pu                                   NULL for this system, be sure that is not used in calc
  ***      tMatrix *          pY_m                                 Pointer to the predicted output at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
  ***      tMatrix *          pX_m                                 Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
  ***      uint8              sigmaIdx                             Sigma point index.
@@ -254,8 +248,7 @@ void Fx2(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 
 void Hy1(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx)
 {
     const uint8 nCol = pX_m->ncol;
-    pY_m->val[sigmaIdx] = pX_m->val[nCol*0 + sigmaIdx];
     
-    pu = pu;
+    pY_m->val[sigmaIdx] = pX_m->val[nCol*0 + sigmaIdx];
 }
 

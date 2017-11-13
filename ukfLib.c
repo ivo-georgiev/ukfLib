@@ -104,75 +104,180 @@ boolean ukf_dimension_check(tUKF * const pUkf)
     const uint8  sigmaLen = pUkf->par.sLen;
     boolean Result = 0;
 
-    //check system input vector size: (xLen x 1)
-    if((pUkf->input.u.nrow != stateLen || pUkf->input.u.ncol != 1)&&
-       (pUkf->prev.u_p.nrow != stateLen || pUkf->prev.u_p.ncol != 1))
+    //check system input vector size if exist: (xLen x 1)
+    if(NULL != pUkf->input.u.val && NULL != pUkf->prev.u_p.val)
     {
-        Result |= 1;
-    } 
-    //check measurement vector size: (yLen x 1)
-    if(pUkf->input.y.nrow != pUkf->par.yLen || pUkf->input.y.ncol != 1)
+        if((pUkf->input.u.nrow != stateLen || pUkf->input.u.ncol != 1)&&
+            (pUkf->prev.u_p.nrow != stateLen || pUkf->prev.u_p.ncol != 1))
+        {
+            Result |= 1;
+        }
+    }
+    else
     {
-        Result |= 1;
-    }  
-    //check Wm,Wc sigma weight matrix size: (1 x sLen)
-    if((pUkf->par.Wm.nrow != 1 || pUkf->par.Wm.ncol != sigmaLen) &&
-       (pUkf->par.Wc.nrow != 1 || pUkf->par.Wc.ncol != sigmaLen))
+        //input and system input prev arrays are NOT MANDATORY for system description in CFG file!!  
+    }
+ 
+    
+    if(NULL != pUkf->input.y.val)
     {
-        Result |= 1;
-    }  
-    //check initial covariance matrix size: (xLen x xLen)
-    if(pUkf->par.Pxx0.nrow != stateLen || pUkf->par.Pxx0.ncol != stateLen)
+        //check measurement vector size: (yLen x 1)
+        if(pUkf->input.y.nrow != pUkf->par.yLen || pUkf->input.y.ncol != 1)
+        {
+            Result |= 1;
+        } 
+    }
+    else
     {
         Result |= 1;
     }
-    //check Process noise covariance Q: (xLen x xLen)
-    if(pUkf->par.Qxx.nrow != stateLen || pUkf->par.Qxx.ncol != stateLen)
+ 
+    if(NULL != pUkf->par.Wm.val && NULL != pUkf->par.Wc.val)
+    {
+        //check Wm,Wc sigma weight matrix size: (1 x sLen)
+        if((pUkf->par.Wm.nrow != 1 || pUkf->par.Wm.ncol != sigmaLen) &&
+            (pUkf->par.Wc.nrow != 1 || pUkf->par.Wc.ncol != sigmaLen))
+        {
+            Result |= 1;
+        }
+    }
+    else
     {
         Result |= 1;
     }
-    //check Output noise covariance matrix size: (yLen x yLen)
-    if(pUkf->par.Ryy0.nrow != pUkf->par.yLen || pUkf->par.Ryy0.ncol != pUkf->par.yLen)
+    
+    if(NULL != pUkf->par.Pxx0.val)
+    {
+        //check initial covariance matrix size: (xLen x xLen)
+        if(pUkf->par.Pxx0.nrow != stateLen || pUkf->par.Pxx0.ncol != stateLen)
+        {
+            Result |= 1;
+        }
+    }
+    else
     {
         Result |= 1;
     }
-    //check X sigma point matrix size: (xLen x 2*xLen+1)
-    if(pUkf->predict.X_m.nrow != stateLen || pUkf->predict.X_m.ncol != pUkf->par.sLen)
+
+    if(NULL != pUkf->par.Qxx.val)
+    {
+        //check Process noise covariance Q: (xLen x xLen)
+        if(pUkf->par.Qxx.nrow != stateLen || pUkf->par.Qxx.ncol != stateLen)
+        {
+            Result |= 1;
+        }
+    }
+    else
     {
         Result |= 1;
     }
-    //check Y sigma point matrix size: (yLen x 2*xLen+1) , Y(k|k-1) = y_m
-    if(pUkf->predict.Y_m.nrow != pUkf->par.yLen || pUkf->predict.Y_m.ncol != pUkf->par.sLen)
+
+    if(NULL != pUkf->par.Ryy0.val)
+    {
+        //check Output noise covariance matrix size: (yLen x yLen)
+        if(pUkf->par.Ryy0.nrow != pUkf->par.yLen || pUkf->par.Ryy0.ncol != pUkf->par.yLen)
+        {
+            Result |= 1;
+        }
+    }
+    else
     {
         Result |= 1;
     }
-    //check state/error covariance matrix size: (xLen x xLen) , Pxx_p == P_m == Pxx
-    if(pUkf->predict.P_m.nrow != stateLen || pUkf->predict.P_m.ncol != stateLen)
+
+    if(NULL != pUkf->predict.X_m.val)
+    {
+        //check X sigma point matrix size: (xLen x 2*xLen+1)
+        if(pUkf->predict.X_m.nrow != stateLen || pUkf->predict.X_m.ncol != pUkf->par.sLen)
+        {
+            Result |= 1;
+        }
+    }
+    else
     {
         Result |= 1;
     }
-    //check Output covariance and it's copy size 
-    if((pUkf->update.Pyy.nrow != pUkf->par.yLen || pUkf->update.Pyy.ncol != pUkf->par.yLen) &&
-       (pUkf->update.Pyy_cpy.nrow != pUkf->par.yLen || pUkf->update.Pyy_cpy.ncol != pUkf->par.yLen))
+
+    if(NULL != pUkf->predict.Y_m.val)
+    {
+        //check Y sigma point matrix size: (yLen x 2*xLen+1) , Y(k|k-1) = y_m
+        if(pUkf->predict.Y_m.nrow != pUkf->par.yLen || pUkf->predict.Y_m.ncol != pUkf->par.sLen)
+        {
+            Result |= 1;
+        }
+    }
+    else
     {
         Result |= 1;
     }
-    //check cross-covariance matrix of state and output size: (xLen x yLen)
-    if(pUkf->update.Pxy.nrow != stateLen || pUkf->update.Pxy.ncol != pUkf->par.yLen)
+
+    if(NULL != pUkf->predict.P_m.val)
+    {
+        //check state/error covariance matrix size: (xLen x xLen) , Pxx_p == P_m == Pxx
+        if(pUkf->predict.P_m.nrow != stateLen || pUkf->predict.P_m.ncol != stateLen)
+        {
+            Result |= 1;
+        }
+    }
+    else
     {
         Result |= 1;
     }
-    //check Pxx covariance correction: (xLen x xLen)
-    if(pUkf->update.Pxx_corr.nrow != stateLen || pUkf->update.Pxx_corr.ncol != stateLen)
+
+    if(NULL != pUkf->update.Pyy.val && NULL != pUkf->update.Pyy_cpy.val)
+    {
+        //check Output covariance and it's copy size 
+        if((pUkf->update.Pyy.nrow != pUkf->par.yLen || pUkf->update.Pyy.ncol != pUkf->par.yLen) &&
+            (pUkf->update.Pyy_cpy.nrow != pUkf->par.yLen || pUkf->update.Pyy_cpy.ncol != pUkf->par.yLen))
+        {
+            Result |= 1;
+        }
+    }
+    else
     {
         Result |= 1;
     }
-    //check Kalman gain matrix and it's transp: (xLen x yLen)
-    if((pUkf->update.K.nrow != stateLen || pUkf->update.K.ncol != pUkf->par.yLen) &&
-       (pUkf->update.Kt.nrow != pUkf->par.yLen || pUkf->update.Kt.ncol != stateLen))
+
+    if(NULL != pUkf->update.Pxy.val)
+    {
+        //check cross-covariance matrix of state and output size: (xLen x yLen)
+        if(pUkf->update.Pxy.nrow != stateLen || pUkf->update.Pxy.ncol != pUkf->par.yLen)
+        {
+            Result |= 1;
+        }
+    }
+    else
     {
         Result |= 1;
     }
+
+    if(NULL != pUkf->update.Pxx_corr.val)
+    {
+        //check Pxx covariance correction: (xLen x xLen)
+        if(pUkf->update.Pxx_corr.nrow != stateLen || pUkf->update.Pxx_corr.ncol != stateLen)
+        {
+            Result |= 1;
+        }
+    }
+    else
+    {
+        Result |= 1;
+    }
+
+    if(NULL != pUkf->update.K.val && NULL != pUkf->update.Kt.val)
+    {
+        //check Kalman gain matrix and it's transp: (xLen x yLen)
+        if((pUkf->update.K.nrow != stateLen || pUkf->update.K.ncol != pUkf->par.yLen) &&
+            (pUkf->update.Kt.nrow != pUkf->par.yLen || pUkf->update.Kt.ncol != stateLen))
+        {
+            Result |= 1;
+        }
+    }
+    else
+    {
+        Result |= 1;
+    }
+
 
     return Result;
 }
@@ -220,17 +325,24 @@ boolean ukf_init(tUKF * const pUkf, tUkfMatrix * pUkfMatrix)
     pPar->sLen = 2*pPar->xLen+1;
     pPar->dT = pUkfMatrix->dT;
 
-    for(xIdx=0;xIdx<pPar->xLim.nrow;xIdx++)
+    if(NULL != pUkf->par.xLimEnbl.val && NULL != pUkf->par.xLim.val)
     {
-        const float64 xMin = pPar->xLim.val[pPar->xLim.ncol*xIdx + xMinIdx];
-        const float64 xMax = pPar->xLim.val[pPar->xLim.ncol*xIdx + xMaxIdx];
-        const float64 xEps = pPar->xLim.val[pPar->xLim.ncol*xIdx + xEpsIdx];
-
-        if(0 != pPar->xLimEnbl.val[xIdx] && ((xMin + xEps) > xMax))
+        for(xIdx=0;xIdx<pPar->xLim.nrow;xIdx++)
         {
-            //limiter range too low -> disable limiter for this state
-            pPar->xLimEnbl.val[xIdx] = 0;
+            const float64 xMin = pPar->xLim.val[pPar->xLim.ncol*xIdx + xMinIdx];
+            const float64 xMax = pPar->xLim.val[pPar->xLim.ncol*xIdx + xMaxIdx];
+            const float64 xEps = pPar->xLim.val[pPar->xLim.ncol*xIdx + xEpsIdx];
+            
+            if(0 != pPar->xLimEnbl.val[xIdx] && ((xMin + xEps) > xMax))
+            {
+                //limiter range too low -> disable limiter for this state
+                pPar->xLimEnbl.val[xIdx] = 0;
+            }
         }
+    }
+    else
+    {
+        //limiter arrays are not defined in CFG file
     }
 
     //#1.3'(begin) Calculate scaling parameter
@@ -327,21 +439,24 @@ boolean ukf_init(tUKF * const pUkf, tUkfMatrix * pUkfMatrix)
 \******************************************************************************************************************************************************************************************************/
 void ukf_step(tUKF * const pUkf)
 {
-    float64 * const pu_p = pUkf->prev.u_p.val;
-    const float64 * const pu = pUkf->input.u.val;
-    const uint8 uLen = pUkf->prev.u_p.nrow;//input length
-    uint8 u8Idx;
-
     ukf_sigmapoint(pUkf);
     ukf_mean_pred_state(pUkf);
     ukf_mean_pred_output(pUkf);
     ukf_calc_covariances(pUkf);
     ukf_meas_update(pUkf);
     
-    for(u8Idx=0;u8Idx<uLen;u8Idx++)
+    if(NULL != pUkf->input.u.val && NULL != pUkf->prev.u_p.val)
     {
-        //store prev inputs required for next step calculation
-        pu_p[u8Idx] = pu[u8Idx];
+        float64 * const pu_p = pUkf->prev.u_p.val;
+        const float64 * const pu = pUkf->input.u.val;
+        const uint8 uLen = pUkf->prev.u_p.nrow;
+        uint8 u8Idx;
+
+        for(u8Idx=0;u8Idx<uLen;u8Idx++)
+        {
+            //store prev inputs required for next step calculation
+            pu_p[u8Idx] = pu[u8Idx];
+        }
     }
 }
 
@@ -384,10 +499,17 @@ void ukf_sigmapoint(tUKF * const pUkf)
         //#1.2(begin) Calculate the sigma-points
         for(xIdx=0;xIdx<xLen;xIdx++)
         {
-            const float64 xMin = pUkf->par.xLim.val[pUkf->par.xLim.ncol*xIdx + xMinIdx];
-            const float64 xMax = pUkf->par.xLim.val[pUkf->par.xLim.ncol*xIdx + xMaxIdx];
-            const boolean xLimEnbl = pUkf->par.xLimEnbl.val[xIdx];
+            float64 xMin = 0;
+            float64 xMax = 0;
+            boolean xLimEnbl = 0;
 
+            if(NULL != pUkf->par.xLimEnbl.val && NULL != pUkf->par.xLim.val)
+            {
+                xMin = pUkf->par.xLim.val[pUkf->par.xLim.ncol*xIdx + xMinIdx];
+                xMax = pUkf->par.xLim.val[pUkf->par.xLim.ncol*xIdx + xMaxIdx];
+                xLimEnbl = pUkf->par.xLimEnbl.val[xIdx];
+            }
+            
             //first column of sigma point matrix is equal of previous state value
             pX_p[sLen*xIdx + sigmaIdx] = ukf_state_limiter(px_p[xIdx], xMin, xMax, xLimEnbl);
         }
@@ -398,10 +520,17 @@ void ukf_sigmapoint(tUKF * const pUkf)
         {
             for(xIdx=0;xIdx<xLen;xIdx++)
             {
-                const float64 xMin = pUkf->par.xLim.val[pUkf->par.xLim.ncol*xIdx + xMinIdx];
-                const float64 xMax = pUkf->par.xLim.val[pUkf->par.xLim.ncol*xIdx + xMaxIdx];
-                const boolean xLimEnbl = pUkf->par.xLimEnbl.val[xIdx];
-                
+                float64 xMin = 0;
+                float64 xMax = 0;
+                boolean xLimEnbl = 0;
+
+                if(NULL != pUkf->par.xLimEnbl.val && NULL != pUkf->par.xLim.val)
+                {
+                    xMin = pUkf->par.xLim.val[pUkf->par.xLim.ncol*xIdx + xMinIdx];
+                    xMax = pUkf->par.xLim.val[pUkf->par.xLim.ncol*xIdx + xMaxIdx];
+                    xLimEnbl = pUkf->par.xLimEnbl.val[xIdx];
+                }
+
                 if(sigmaIdx <= xLen)
                 {
                     pX_p[sLen*xIdx + sigmaIdx] = ukf_state_limiter(px_p[xIdx] + pPxx_p[xLen*xIdx + (sigmaIdx-1)], xMin, xMax, xLimEnbl);
@@ -409,7 +538,7 @@ void ukf_sigmapoint(tUKF * const pUkf)
                 else
                 {
                     pX_p[sLen*xIdx + sigmaIdx] = ukf_state_limiter(px_p[xIdx] - pPxx_p[xLen*xIdx + (sigmaIdx-xLen-1)], xMin, xMax, xLimEnbl);
-                }              
+                }
             }
         }
         //#1.2(end) Calculate the sigma-points
