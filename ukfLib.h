@@ -24,11 +24,11 @@ typedef struct ukfMatrix
     tMatrix Wc_weight_vector;
     tMatrix x_system_states;
     tMatrix x_system_states_ic;
-    tMatrix x_system_states_limits;
-    tMatrixBool x_system_states_limits_enable;
+    tMatrix x_system_states_limits;              //NOT MANDATORY assign NULL if not required
+    tMatrixBool x_system_states_limits_enable;   //NOT MANDATORY assign NULL if not required
     tMatrix x_system_states_correction;
-    tMatrix u_system_input;
-    tMatrix u_prev_system_input;
+    tMatrix u_system_input;                      //NOT MANDATORY assign NULL if not required
+    tMatrix u_prev_system_input;                 //NOT MANDATORY assign NULL if not required
     tMatrix X_sigma_points;
     tMatrix Y_sigma_points;
     tMatrix y_predicted_mean;
