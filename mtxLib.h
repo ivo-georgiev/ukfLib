@@ -80,6 +80,7 @@ extern mtxResultInfo mtx_sub_scalar_f64(tMatrix * const pSrc,const float64 scala
 extern mtxResultInfo mtx_cpy_f64(tMatrix * const pDst,tMatrix const * const pSrc);
 extern mtxResultInfo mtx_identity_f64(tMatrix * const pSrc);
 extern mtxResultInfo mtx_zeros_f64(tMatrix * const pSrc);
+extern mtxResultInfo mtx_mul_src2tr_f64(tMatrix const * const pSrc1, tMatrix const * const pSrc2, tMatrix * const pDst);
 
 #endif
 

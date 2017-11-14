@@ -264,11 +264,10 @@ boolean ukf_dimension_check(tUKF * const pUkf)
         Result |= 1;
     }
 
-    if(NULL != pUkf->update.K.val && NULL != pUkf->update.Kt.val)
+    if(NULL != pUkf->update.K.val)
     {
-        //check Kalman gain matrix and it's transp: (xLen x yLen)
-        if((pUkf->update.K.nrow != stateLen || pUkf->update.K.ncol != pUkf->par.yLen) &&
-            (pUkf->update.Kt.nrow != pUkf->par.yLen || pUkf->update.Kt.ncol != stateLen))
+        //check Kalman gain matrix (xLen x yLen)
+        if(pUkf->update.K.nrow != stateLen || pUkf->update.K.ncol != pUkf->par.yLen)
         {
             Result |= 1;
         }
@@ -390,7 +389,6 @@ boolean ukf_init(tUKF * const pUkf, tUkfMatrix * pUkfMatrix)
 
     pUkf->update.Iyy = pUkfMatrix->I_identity_matrix;
     pUkf->update.K = pUkfMatrix->K_kalman_gain;
-    pUkf->update.Kt = pUkfMatrix->K_kalman_gain_transp;
     pUkf->update.Pxx = pUkfMatrix->Pxx_error_covariance;
     pUkf->update.Pxy = pUkfMatrix->Pxy_cross_covariance;
     pUkf->update.Pyy = pUkfMatrix->Pyy_out_covariance;
@@ -760,9 +758,6 @@ void ukf_meas_update(tUKF * const pUkf)
 
     //Kgain = Pxy * inv(Pyy)
     (void)mtx_mul_f64(&pUpdate->Pxy,&pUpdate->Iyy, &pUpdate->K);
-    
-    //K' - transponed gain needed for further calculationd
-    (void)mtx_transp_dest_f64(&pUpdate->K, &pUpdate->Kt);
     //#4.1(end) Calculate Kalman gain:
 
     //#4.2(begin) Update state estimate
@@ -782,7 +777,7 @@ void ukf_meas_update(tUKF * const pUkf)
     (void)mtx_mul_f64(&pUpdate->K,&pUpdate->Pyy,&pUpdate->Pxy);
 
     //Pxx_corr = K*Pyy*K'
-    (void)mtx_mul_f64(&pUpdate->Pxy, &pUpdate->Kt, &pUpdate->Pxx_corr);
+    (void)mtx_mul_src2tr_f64(&pUpdate->Pxy, &pUpdate->K, &pUpdate->Pxx_corr);
 
     (void)mtx_sub_f64(&pUkf->predict.P_m,&pUpdate->Pxx_corr);
     //#4.3(end).Update error covariance

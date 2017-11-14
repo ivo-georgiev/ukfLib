@@ -41,7 +41,7 @@ typedef struct ukfMatrix
     tMatrix Pxx0_init_error_covariance;
     tMatrix Qxx_process_noise_cov;
     tMatrix K_kalman_gain;
-    tMatrix K_kalman_gain_transp;
+    //tMatrix K_kalman_gain_transp;
     tMatrix I_identity_matrix;
     tMatrix Pxx_covariance_correction; 
     tPredictFcn * fcnPredict;
@@ -81,7 +81,7 @@ typedef struct uKFprev
     tMatrix u_p;    // u(k-1)   Previous inputs
     tMatrix x_p;    // x(k-1)   Previous states
     tMatrix X_p;    // X(k-1)   Calculate the sigma-points
-    tMatrix Pxx_p;    // P(k-1)    Previous error covariance 
+    tMatrix Pxx_p;  // P(k-1)    Previous error covariance 
 }tUKFprev;
 
 typedef struct uKFpredict //p(previous)==k-1, m(minus)=(k|k-1)
@@ -99,10 +99,9 @@ typedef struct uKFupdate
 {
     tMatrix Pyy;    //Calculate covariance of predicted output
     tMatrix Pyy_cpy; 
-    tMatrix Pxy;   //Calculate cross-covariance of state and output
-    tMatrix K;     //K(k) Calculate gain
-    tMatrix Kt;     //Kt(k) Kalman gain transponce
-    tMatrix x;     //x(k) Update state estimate
+    tMatrix Pxy;     //Calculate cross-covariance of state and output
+    tMatrix K;       //K(k) Calculate gain
+    tMatrix x;       //x(k) Update state estimate
     tMatrix x_corr;
     tMatrix Pxx;     //P(k) Update error covariance
     tMatrix Pxx_corr;
@@ -116,7 +115,6 @@ typedef struct uKF
     tUKFin      input;
     tUKFpredict predict;
     tUKFupdate  update;
-
 }tUKF;
 
 #endif

@@ -104,7 +104,7 @@ mtxResultInfo mtx_diagsum_f64(tMatrix * pSrc, float64 * diagsum)
     {
         for(eIdx=1;eIdx < pSrc->nelem;eIdx++)
         {
-            const uint16 cmpLeft = eIdx / ncol;
+            const uint16 cmpLeft = (uint16)(eIdx / ncol);
             
             sum += eIdx < ncol ? 0 : cmpLeft == eIdx % (cmpLeft*ncol) ?  pSrcL[eIdx] : 0;   
         }
@@ -258,6 +258,53 @@ mtxResultInfo mtx_mul_f64(tMatrix const * const pSrc1, tMatrix const * const pSr
     return ResultL;
 }
 /******************************************************************************************************************************************************************************************************\
+ ***  FUNCTION: 
+ ***     
+ *** 
+ ***  DESCRIPTION: Special multiplication Dst=Src1*Src2'
+ ***  Special function for multiplication of Src1 matrix with transpose image of Src2 matrix. Be sure that array size are suitable for multiplication after Src2 transpose  
+ ***            
+ ***  PARAMETERS:
+ ***      Type               Name              Range              Description
+ ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ***      
+ ***  RETURNS:
+ ***      
+ ***  SETTINGS:
+ ***
+\******************************************************************************************************************************************************************************************************/
+mtxResultInfo mtx_mul_src2tr_f64(tMatrix const * const pSrc1, tMatrix const * const pSrc2, tMatrix * const pDst)
+{
+    mtxResultInfo ResultL = MTX_OPERATION_OK;
+    float64 const * const pSrc1L = (float64 *)pSrc1->val;
+    float64 const * const pSrc2L = (float64 *)pSrc2->val;
+    float64 * const pDstL = (float64 *)pDst->val;
+    uint8 rowSrc1,rowSrc2,k;
+    float64 sum;
+
+    if(pSrc1->ncol == pSrc2->ncol)
+    {        
+        for(rowSrc1=0;rowSrc1<pSrc1->nrow;rowSrc1++)
+        {
+            for(rowSrc2=0;rowSrc2<pSrc2->nrow;rowSrc2++)  
+            {
+                sum = 0;
+                for(k=0;k<pSrc1->ncol;k++)
+                {
+                    sum += pSrc1L[pSrc1->ncol*rowSrc1 + k ] * pSrc2L[pSrc2->ncol*rowSrc2 + k];
+                }
+                pDstL[pDst->ncol*rowSrc1 + rowSrc2] = sum;
+            }
+        }
+    }
+    else
+    {
+        ResultL = MTX_SIZE_MISMATCH;
+    }
+    
+    return ResultL;
+}
+/******************************************************************************************************************************************************************************************************\
  ***  FUNCTION:
  ***     
  *** 
@@ -338,7 +385,7 @@ mtxResultInfo mtx_chol_upper_f64(tMatrix * const pSrc)
     const uint8 nrow = pSrc->nrow;
     const uint8 ncol = pSrc->ncol;
     uint8 col,row;
-    sint8 tmp;// 
+    sint8 tmp;
     float64 sum=0;
     
     if(ncol == nrow)
@@ -451,7 +498,9 @@ mtxResultInfo mtx_inv_f64(tMatrix * const pSrc, tMatrix * const pDst)
     mtxResultInfo Result = MTX_OPERATION_OK;
     const uint8 nrow = pSrc->nrow;
     const uint8 ncol = pSrc->ncol;
-    uint8 j,i,k,l;
+    uint8 j,i;
+    uint8 k = 0;
+    uint8 l = 0;
     float64 s=0;
     float64 t=0;
     
@@ -739,7 +788,7 @@ mtxResultInfo mtx_identity_f64(tMatrix * const pSrc)
         
         for(eIdx=1;eIdx < pSrc->nelem;eIdx++)
         {
-            const uint16 cmpLeft = eIdx / nCol;
+            const uint16 cmpLeft = (uint16)(eIdx / nCol);
             
             pDst[eIdx] = eIdx < nCol ? 0 : cmpLeft == eIdx % (cmpLeft*nCol) ?  1 : 0;   
         }    
