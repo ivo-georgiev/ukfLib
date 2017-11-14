@@ -159,13 +159,6 @@ static float64 K_kalman_gain[4][2]=
     {0, 0},
 };
 
-//Kalman gain transponce matrix
-static float64 K_kalman_gain_transp[2][4]=
-{  
-    {0, 0, 0, 0},
-    {0, 0, 0, 0}
-};
-
 static float64 Pxx_covariance_correction[4][4]=
 {/*  x1, x2, x3, x4        */
     {0,  0,  0,  0}, /* x1 */
@@ -204,7 +197,6 @@ tUkfMatrix UkfMatrixCfg0 =
     {COLXROW(Pxx0_init_error_covariance),NROWS(Pxx0_init_error_covariance),NCOL(Pxx0_init_error_covariance),&Pxx0_init_error_covariance[0][0]},
     {COLXROW(Qxx_process_noise_cov),NROWS(Qxx_process_noise_cov),NCOL(Qxx_process_noise_cov),&Qxx_process_noise_cov[0][0]},
     {COLXROW(K_kalman_gain),NROWS(K_kalman_gain),NCOL(K_kalman_gain),&K_kalman_gain[0][0]},
-    {COLXROW(K_kalman_gain_transp),NROWS(K_kalman_gain_transp),NCOL(K_kalman_gain_transp),&K_kalman_gain_transp[0][0]},
     {COLXROW(I_identity_matrix),NROWS(I_identity_matrix),NCOL(I_identity_matrix),&I_identity_matrix[0][0]},  
     {COLXROW(Pxx_covariance_correction),NROWS(Pxx_covariance_correction),NCOL(Pxx_covariance_correction),&Pxx_covariance_correction[0][0]},   
     &PredictFcn[0],
