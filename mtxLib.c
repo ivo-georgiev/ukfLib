@@ -1,47 +1,146 @@
+/******************************************************************************************************************************************************************************************************\
+ *** 
+ *** Description       : IMPLEMENTATION OF BASIC MATRIX OPERATION
+ *** Codefile          : mtxLib.c
+ ***
+ *** MIT License
+ ***
+ *** Copyright (c) 2017 ivo-georgiev
+ ***  
+ *** Permission is hereby granted, free of charge, to any person obtaining a copy
+ *** of this software and associated documentation files (the "Software"), to deal
+ *** in the Software without restriction, including without limitation the rights
+ *** to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *** copies of the Software, and to permit persons to whom the Software is
+ *** furnished to do so, subject to the following conditions:
+ ***    
+ *** The above copyright notice and this permission notice shall be included in all
+ *** copies or substantial portions of the Software.
+ ***      
+ *** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *** IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *** FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *** AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *** OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *** SOFTWARE.
+\******************************************************************************************************************************************************************************************************/
+
 #include "mtxLib.h"
 
-mtxResultInfo mtx_init_f64(tMatrix * A, float64 * pValue, uint8 nrow, uint8 ncol)
+/******************************************************************************************************************************************************************************************************\
+ ***  FUNCTION:
+ ***     
+ *** 
+ ***  DESCRIPTION:
+ ***
+ ***            
+ ***  PARAMETERS:
+ ***      Type               Name              Range              Description
+ ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ***      
+ ***  RETURNS:
+ ***      
+ ***  SETTINGS:
+ ***
+\******************************************************************************************************************************************************************************************************/
+mtxResultInfo mtx_init_bool(tMatrixBool * const pSrc, boolean * const pValue, const uint8 nrow, const uint8 ncol,const uint16 nelem)
 {
-    A->val = pValue;
-    A->ncol = ncol;
-    A->nrow = nrow;
-
+    pSrc->val = pValue;
+    pSrc->ncol = ncol;
+    pSrc->nrow = nrow;
+    pSrc->nelem = nelem;
     return MTX_OPERATION_OK; 
 }
-
-
-mtxResultInfo mtx_diagsum_f64(tMatrix * pA, float64 * diagsum)
+/******************************************************************************************************************************************************************************************************\
+ ***  FUNCTION:
+ ***     
+ *** 
+ ***  DESCRIPTION:
+ ***
+ ***            
+ ***  PARAMETERS:
+ ***      Type               Name              Range              Description
+ ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ***      
+ ***  RETURNS:
+ ***      
+ ***  SETTINGS:
+ ***
+\******************************************************************************************************************************************************************************************************/
+mtxResultInfo mtx_init_f64(tMatrix * const pSrc, float64 * const pValue, const uint8 nrow, const uint8 ncol,const uint16 nelem)
+{
+    pSrc->val = pValue;
+    pSrc->ncol = ncol;
+    pSrc->nrow = nrow;
+    pSrc->nelem = nelem;
+    return MTX_OPERATION_OK; 
+}
+/******************************************************************************************************************************************************************************************************\
+ ***  FUNCTION:
+ ***     
+ *** 
+ ***  DESCRIPTION: For square matrix only
+ ***
+ ***            
+ ***  PARAMETERS:
+ ***      Type               Name              Range              Description
+ ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ***      
+ ***  RETURNS:
+ ***      
+ ***  SETTINGS:
+ ***
+\******************************************************************************************************************************************************************************************************/
+mtxResultInfo mtx_diagsum_f64(tMatrix * pSrc, float64 * diagsum)
 {
     mtxResultInfo Result = MTX_OPERATION_OK;
-    const float64 * const pSrcL = (float64 *)pA->val;
-    const uint8 nrow = pA->nrow;
-    const uint8 ncol = pA->ncol;
-    uint8 row,col;
-    float64 sum=0;
-
-    for(row=1;row<nrow;row++)//?bug this is for upper diag sum???
+    float64 const * const pSrcL = (float64 *)pSrc->val;
+    const uint8 ncol = pSrc->ncol;
+    uint16 eIdx;
+    float64 sum = pSrcL[0];
+    
+    if(pSrc->nrow == ncol)
     {
-        for(col=0;col<ncol;col++)
+        for(eIdx=1;eIdx < pSrc->nelem;eIdx++)
         {
-            if(row > col)
-            {
-                sum += pSrcL[ncol*row+col];
-            }
+            const uint16 cmpLeft = (uint16)(eIdx / ncol);
+            
+            sum += eIdx < ncol ? 0 : cmpLeft == eIdx % (cmpLeft*ncol) ?  pSrcL[eIdx] : 0;   
         }
     }
+    else
+    {
+        Result = MTX_SIZE_MISMATCH;
+    }
+ 
+
     *diagsum = sum;
     
     return Result;
 }
-
-
-//A=A'
-mtxResultInfo mtx_transp_square_f64(tMatrix * pA)
+/******************************************************************************************************************************************************************************************************\
+ ***  FUNCTION:
+ ***     
+ *** 
+ ***  DESCRIPTION: A=A'
+ ***
+ ***            
+ ***  PARAMETERS:
+ ***      Type               Name              Range              Description
+ ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ***      
+ ***  RETURNS:
+ ***      
+ ***  SETTINGS:
+ ***
+\******************************************************************************************************************************************************************************************************/
+mtxResultInfo mtx_transp_square_f64(tMatrix * const pSrc)
 {
     mtxResultInfo ResultL = MTX_OPERATION_OK;
-    const uint8 nrow = pA->nrow;
-    const uint8 ncol = pA->ncol;
-    float64 * pSrcL = (float64 *)pA->val;
+    const uint8 nrow = pSrc->nrow;
+    const uint8 ncol = pSrc->ncol;
+    float64 * const pSrcL = (float64 *)pSrc->val;
     uint8 row,col;
     float64 temp;
     
@@ -65,20 +164,33 @@ mtxResultInfo mtx_transp_square_f64(tMatrix * pA)
         ResultL = MTX_NOT_SQUARE;
     }
 
-
     return ResultL;
 }
-
-//
-mtxResultInfo mtx_transp_dest_f64(tMatrix * pA,tMatrix * pB)
+/******************************************************************************************************************************************************************************************************\
+ ***  FUNCTION:
+ ***     
+ *** 
+ ***  DESCRIPTION:
+ ***
+ ***            
+ ***  PARAMETERS:
+ ***      Type               Name              Range              Description
+ ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ***      
+ ***  RETURNS:
+ ***      
+ ***  SETTINGS:
+ ***
+\******************************************************************************************************************************************************************************************************/
+mtxResultInfo mtx_transp_dest_f64(tMatrix const * const pSrc,tMatrix * const pDst)
 {
     mtxResultInfo ResultL = MTX_OPERATION_OK;
-    float64 * pSrcL = (float64 *)pA->val;
-    float64 * pDstL = (float64 *)pB->val;
-    const uint8 nRowSrcL = pA->nrow;
-    const uint8 nColSrcL = pA->ncol;
-    const uint8 nRowDstL = pB->nrow;
-    const uint8 nColDstL = pB->ncol;
+    float64 const * const pSrcL = (float64 *)pSrc->val;
+    float64 * const pDstL = (float64 *)pDst->val;
+    const uint8 nRowSrcL = pSrc->nrow;
+    const uint8 nColSrcL = pSrc->ncol;
+    const uint8 nRowDstL = pDst->nrow;
+    const uint8 nColDstL = pDst->ncol;
     uint8 row,col;
     
     if(nRowSrcL == nColDstL || nColSrcL == nRowDstL)
@@ -98,31 +210,43 @@ mtxResultInfo mtx_transp_dest_f64(tMatrix * pA,tMatrix * pB)
 
 return ResultL;
 }
-
-//C=A*B
-mtxResultInfo mtx_mul_f64(tMatrix * pA, tMatrix * pB, tMatrix * pC)
+/******************************************************************************************************************************************************************************************************\
+ ***  FUNCTION:
+ ***     
+ *** 
+ ***  DESCRIPTION: C=A*B
+ ***
+ ***            
+ ***  PARAMETERS:
+ ***      Type               Name              Range              Description
+ ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ***      
+ ***  RETURNS:
+ ***      
+ ***  SETTINGS:
+ ***
+\******************************************************************************************************************************************************************************************************/
+mtxResultInfo mtx_mul_f64(tMatrix const * const pSrc1, tMatrix const * const pSrc2, tMatrix * const pDst)
 {
     mtxResultInfo ResultL = MTX_OPERATION_OK;
-    float64 * const pSrc1L = (float64 *)pA->val;
-    float64 * const pSrc2L = (float64 *)pB->val;
-    float64 * const pDstL = (float64 *)pC->val;
-    //const uint8 nrow = pA->nrow;
-    //const uint8 ncol = pA->ncol;
+    float64 const * const pSrc1L = (float64 *)pSrc1->val;
+    float64 const * const pSrc2L = (float64 *)pSrc2->val;
+    float64 * const pDstL = (float64 *)pDst->val;
     uint8 row,col,k;
     float64 sum;
 
-    if(pA->ncol == pB->nrow)//?
+    if(pSrc1->ncol == pSrc2->nrow)
     {        
-        for(row=0;row<pA->nrow;row++)
+        for(row=0;row<pSrc1->nrow;row++)
         {
-            for(col=0;col<pB->ncol;col++)  
+            for(col=0;col<pSrc2->ncol;col++)  
             {
                 sum = 0;
-                for(k=0;k<pA->ncol;k++)
+                for(k=0;k<pSrc1->ncol;k++)
                 {
-                    sum += pSrc1L[pA->ncol*row+k] * pSrc2L[pB->ncol*k+col];
+                    sum += pSrc1L[pSrc1->ncol*row+k] * pSrc2L[pSrc2->ncol*k+col];
                 }
-                pDstL[pC->ncol*row+col] = sum;
+                pDstL[pDst->ncol*row+col] = sum;
             }
         }
     }
@@ -133,15 +257,77 @@ mtxResultInfo mtx_mul_f64(tMatrix * pA, tMatrix * pB, tMatrix * pC)
     
     return ResultL;
 }
-//A=chol_lower(A)
-mtxResultInfo mtx_chol_lower_f64(tMatrix * pA)
+/******************************************************************************************************************************************************************************************************\
+ ***  FUNCTION: 
+ ***     
+ *** 
+ ***  DESCRIPTION: Special multiplication Dst=Src1*Src2'
+ ***  Special function for multiplication of Src1 matrix with transpose image of Src2 matrix. Be sure that array size are suitable for multiplication after Src2 transpose  
+ ***            
+ ***  PARAMETERS:
+ ***      Type               Name              Range              Description
+ ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ***      
+ ***  RETURNS:
+ ***      
+ ***  SETTINGS:
+ ***
+\******************************************************************************************************************************************************************************************************/
+mtxResultInfo mtx_mul_src2tr_f64(tMatrix const * const pSrc1, tMatrix const * const pSrc2, tMatrix * const pDst)
 {
     mtxResultInfo ResultL = MTX_OPERATION_OK;
-    float64 * const pSrcL = pA->val;
-    const uint8 nrow = pA->nrow;
-    const uint8 ncol = pA->ncol;
+    float64 const * const pSrc1L = (float64 *)pSrc1->val;
+    float64 const * const pSrc2L = (float64 *)pSrc2->val;
+    float64 * const pDstL = (float64 *)pDst->val;
+    uint8 rowSrc1,rowSrc2,k;
+    float64 sum;
+
+    if(pSrc1->ncol == pSrc2->ncol)
+    {        
+        for(rowSrc1=0;rowSrc1<pSrc1->nrow;rowSrc1++)
+        {
+            for(rowSrc2=0;rowSrc2<pSrc2->nrow;rowSrc2++)  
+            {
+                sum = 0;
+                for(k=0;k<pSrc1->ncol;k++)
+                {
+                    sum += pSrc1L[pSrc1->ncol*rowSrc1 + k ] * pSrc2L[pSrc2->ncol*rowSrc2 + k];
+                }
+                pDstL[pDst->ncol*rowSrc1 + rowSrc2] = sum;
+            }
+        }
+    }
+    else
+    {
+        ResultL = MTX_SIZE_MISMATCH;
+    }
+    
+    return ResultL;
+}
+/******************************************************************************************************************************************************************************************************\
+ ***  FUNCTION:
+ ***     
+ *** 
+ ***  DESCRIPTION:
+ ***
+ ***            
+ ***  PARAMETERS:
+ ***      Type               Name              Range              Description
+ ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ***      
+ ***  RETURNS:
+ ***      
+ ***  SETTINGS:
+ ***
+\******************************************************************************************************************************************************************************************************/
+mtxResultInfo mtx_chol_lower_f64(tMatrix * const pSrc)
+{
+    mtxResultInfo ResultL = MTX_OPERATION_OK;
+    float64 * const pSrcL = pSrc->val;
+    const uint8 nrow = pSrc->nrow;
+    const uint8 ncol = pSrc->ncol;
     uint8 col,row;
-    sint8 tmp;// 
+    sint8 tmp; 
     float64 sum=0;
     
     if(ncol == nrow)
@@ -176,15 +362,30 @@ mtxResultInfo mtx_chol_lower_f64(tMatrix * pA)
     
     return ResultL;
 }
-//A=chol_upper(A)
-mtxResultInfo mtx_chol_upper_f64(tMatrix * pA)
+/******************************************************************************************************************************************************************************************************\
+ ***  FUNCTION:
+ ***     
+ *** 
+ ***  DESCRIPTION:
+ ***
+ ***            
+ ***  PARAMETERS:
+ ***      Type               Name              Range              Description
+ ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ***      
+ ***  RETURNS:
+ ***      
+ ***  SETTINGS:
+ ***
+\******************************************************************************************************************************************************************************************************/
+mtxResultInfo mtx_chol_upper_f64(tMatrix * const pSrc)
 {
     mtxResultInfo ResultL = MTX_OPERATION_OK;
-    float64 * const pSrcL = pA->val;
-    const uint8 nrow = pA->nrow;
-    const uint8 ncol = pA->ncol;
+    float64 * const pSrcL = pSrc->val;
+    const uint8 nrow = pSrc->nrow;
+    const uint8 ncol = pSrc->ncol;
     uint8 col,row;
-    sint8 tmp;// 
+    sint8 tmp;
     float64 sum=0;
     
     if(ncol == nrow)
@@ -217,8 +418,22 @@ mtxResultInfo mtx_chol_upper_f64(tMatrix * pA)
 
     return ResultL;
 }
-
-//cholesky Decomposition Upper variant 1
+/******************************************************************************************************************************************************************************************************\
+ ***  FUNCTION:
+ ***     
+ *** 
+ ***  DESCRIPTION: Upper cholesky decomposition variant 1
+ ***
+ ***            
+ ***  PARAMETERS:
+ ***      Type               Name              Range              Description
+ ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ***      
+ ***  RETURNS:
+ ***      
+ ***  SETTINGS:
+ ***
+\******************************************************************************************************************************************************************************************************/
 mtxResultInfo mtx_chol1_f64(float64* A, float64* L,uint8 size)
 {
     uint8 Result = MTX_OPERATION_OK;
@@ -261,237 +476,322 @@ mtxResultInfo mtx_chol1_f64(float64* A, float64* L,uint8 size)
     
     return Result;
 }
-
-int mtx_sum_updiag_f64(int*A ,int m, int n)
+/******************************************************************************************************************************************************************************************************\
+***  FUNCTION:
+***     
+ *** 
+ ***  DESCRIPTION:
+ ***  
+ ***            
+ ***  PARAMETERS:
+ ***      Type               Name              Range              Description
+ ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ***      tMatrix * const    pDst                                - At the begining should point to identity matrix!!
+ ***      tMatrix * const    pSrc                                - Square matrix
+ ***  RETURNS:
+ ***      
+ ***  SETTINGS:
+ ***
+\******************************************************************************************************************************************************************************************************/
+mtxResultInfo mtx_inv_f64(tMatrix * const pSrc, tMatrix * const pDst)
 {
-    int i,j,sum=0;
-    for(i=0;i<m;i++)
-    {
-        for(j=1;j<n;j++)
-        {
-            if(i < j)
-            {
-                sum += *(A+i*n+j);
-            }
-        }
-    }
-    return sum;
-}
-
-//* pA - source  pI- destination
-mtxResultInfo mtx_inv_f64(tMatrix * pA, tMatrix * pI)
-{
-    mtxResultInfo ResultL = MTX_OPERATION_OK;
-    const uint8 nrow = pA->nrow;
-    const uint8 ncol = pA->ncol;
-    uint8 j,i,k,l;
+    mtxResultInfo Result = MTX_OPERATION_OK;
+    const uint8 nrow = pSrc->nrow;
+    const uint8 ncol = pSrc->ncol;
+    uint8 j,i;
+    uint8 k = 0;
+    uint8 l = 0;
     float64 s=0;
     float64 t=0;
     
-    for(j = 0;j<nrow;j++)
-    {
-        for(i = j; i<nrow; i++)
+    if(nrow == ncol)
+    {     
+        for(j = 0;j<nrow;j++)
         {
-            if(0 != pA->val[ncol*i+j])
+            for(i = j; i<nrow; i++)
             {
-                for(k = 0;k<nrow;k++)
+                if(0 != pSrc->val[ncol*i+j])
                 {
-                    s = pA->val[ncol*j+k];
-                    pA->val[ncol*j+k] = pA->val[ncol*i+k];
-                    pA->val[ncol*i+k] = s;
-                    
-                    s = pI->val[ncol*j+k];
-                    pI->val[ncol*j+k] = pI->val[ncol*i+k];
-                    pI->val[ncol*i+k] = s;
-                }
-                
-                t = 1 / pA->val[ncol*j+j];
-                
-                for(k=0;k<nrow;k++)
-                {
-                    pA->val[ncol*j+k] = t * pA->val[ncol*j+k];
-                    pI->val[ncol*j+k] = t * pI->val[ncol*j+k];
-                }
-
-                for(l=0;l<nrow;l++)
-                {
-                    if(l != j)
+                    for(k = 0;k<nrow;k++)
                     {
-                        t = -pA->val[ncol*l+j];
-                        for(k=0;k<nrow;k++)
+                        s = pSrc->val[ncol*j+k];
+                        pSrc->val[ncol*j+k] = pSrc->val[ncol*i+k];
+                        pSrc->val[ncol*i+k] = s;
+                        
+                        s = pDst->val[ncol*j+k];
+                        pDst->val[ncol*j+k] = pDst->val[ncol*i+k];
+                        pDst->val[ncol*i+k] = s;
+                    }
+                    
+                    t = 1 / pSrc->val[ncol*j+j];
+                    
+                    for(k=0;k<nrow;k++)
+                    {
+                        pSrc->val[ncol*j+k] = t * pSrc->val[ncol*j+k];
+                        pDst->val[ncol*j+k] = t * pDst->val[ncol*j+k];
+                    }
+                    
+                    for(l=0;l<nrow;l++)
+                    {
+                        if(l != j)
                         {
-                            pA->val[ncol*l+k] += t *  pA->val[ncol*j+k];
-                            pI->val[ncol*l+k] += t *  pI->val[ncol*j+k];
+                            t = -pSrc->val[ncol*l+j];
+                            for(k=0;k<nrow;k++)
+                            {
+                                pSrc->val[ncol*l+k] += t *  pSrc->val[ncol*j+k];
+                                pDst->val[ncol*l+k] += t *  pDst->val[ncol*j+k];
+                            }
                         }
                     }
                 }
+                break;
             }
-            break;
-        }
-        if(0 == pA->val[ncol*l+k])
-        {
-            ResultL = MTX_SINGULAR;
+            if(0 == pSrc->val[ncol*l+k])
+            {
+                Result = MTX_SINGULAR;
+            }
         }
     }
-    
-    return ResultL;
-    
-}
-
-//A=A+B
-mtxResultInfo mtx_add_f64(tMatrix * pA,tMatrix * pB)
-{
-    mtxResultInfo Result = MTX_OPERATION_OK;
-    float64 * pDest= (float64 *)pA->val;
-    float64 * pSrc1= (float64 *)pB->val;
-
-    const uint8 nRow = pA->nrow;
-    const uint8 nCol = pA->ncol;
-    uint8 col,row;
-
-    // float64 sum=0;
-    
-    for(row=0;row<nRow;row++)
+    else
     {
-        for(col=0;col<nCol;col++)
-        {
-            pDest[nCol*row+col] += pSrc1[nCol*row+col];
-        }
+        Result = MTX_SIZE_MISMATCH;
     }
-
+    
     return Result;
+    
 }
-//A=A-B
-mtxResultInfo mtx_subtract_f64(tMatrix * pA,tMatrix * pB)
+/******************************************************************************************************************************************************************************************************\
+ ***  FUNCTION:
+ ***     
+ *** 
+ ***  DESCRIPTION:
+ ***
+ ***            
+ ***  PARAMETERS:
+ ***      Type               Name              Range              Description
+ ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ***      
+ ***  RETURNS:
+ ***      
+ ***  SETTINGS:
+ ***
+\******************************************************************************************************************************************************************************************************/
+mtxResultInfo mtx_add_f64(tMatrix * const pDst,tMatrix const * const pSrc)
 {
     uint8 Result = MTX_OPERATION_OK;
-    float64 * pDest= (float64 *)pA->val;
-    float64 * pSrc1= (float64 *)pB->val;    
-    const uint8 nRow = pA->nrow;
-    const uint8 nCol = pA->ncol;
-    uint8 col,row;
+    float64 * const pDstL= (float64 *)pDst->val;
+    float64 const * const pSrcL= (float64 *)pSrc->val;    
+    uint16 eIdx;
   
-    
-    for(row=0;row<nRow;row++)
+    if(pDst->ncol == pSrc->ncol && pDst->nrow == pSrc->nrow)
     {
-        for(col=0;col<nCol;col++)
+        for(eIdx=0;eIdx<pSrc->nelem;eIdx++)
         {
-            pDest[nCol*row+col] -= pSrc1[nCol*row+col];
+            pDstL[eIdx] += pSrcL[eIdx];
         }
+    }
+    else
+    {
+        Result = MTX_SIZE_MISMATCH;
     }
     
     return Result;
 }
-
-//A=k*A=A*k
-mtxResultInfo mtx_mul_scalar_f64(tMatrix * pA,float64 scalar)
+/******************************************************************************************************************************************************************************************************\
+ ***  FUNCTION:
+ ***     
+ *** 
+ ***  DESCRIPTION:
+ ***
+ ***            
+ ***  PARAMETERS:
+ ***      Type               Name              Range              Description
+ ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ***      
+ ***  RETURNS:
+ ***      
+ ***  SETTINGS:
+ ***
+\******************************************************************************************************************************************************************************************************/
+mtxResultInfo mtx_sub_f64(tMatrix * const pDst,tMatrix const * const pSrc)
 {
-    mtxResultInfo Result = MTX_OPERATION_OK;
-    float64 * pDest= pA->val;    
-    const uint8 nRow = pA->nrow;
-    const uint8 nCol = pA->ncol;
-    uint8 col,row;
-    
-    
-    for(row=0;row<nRow;row++)
+    uint8 Result = MTX_OPERATION_OK;
+    float64 * const pDstL= (float64 *)pDst->val;
+    float64 const * const pSrcL= (float64 *)pSrc->val;    
+    uint16 eIdx;
+  
+    if(pDst->ncol == pSrc->ncol && pDst->nrow == pSrc->nrow)
     {
-        for(col=0;col<nCol;col++)
+        for(eIdx=0;eIdx<pSrc->nelem;eIdx++)
         {
-            pDest[nCol*row+col] *= scalar;
+            pDstL[eIdx] -= pSrcL[eIdx];
         }
+    }
+    else
+    {
+        Result = MTX_SIZE_MISMATCH;
     }
     
     return Result;
 }
-
-mtxResultInfo mtx_subtract_scalar_f64(tMatrix * pA,float64 scalar)
+/******************************************************************************************************************************************************************************************************\
+ ***  FUNCTION:
+ ***     
+ *** 
+ ***  DESCRIPTION:
+ ***
+ ***            
+ ***  PARAMETERS:
+ ***      Type               Name              Range              Description
+ ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ***      
+ ***  RETURNS:
+ ***      
+ ***  SETTINGS:
+ ***
+\******************************************************************************************************************************************************************************************************/
+mtxResultInfo mtx_mul_scalar_f64(tMatrix * const pSrc,const float64 scalar)
 {
     mtxResultInfo Result = MTX_OPERATION_OK;
-    float64 * pDest= pA->val;    
-    const uint8 nRow = pA->nrow;
-    const uint8 nCol = pA->ncol;
-    uint8 col,row;
+    float64 * const pDst= pSrc->val;    
+    uint16 eIdx;
     
-    
-    for(row=0;row<nRow;row++)
+    for(eIdx=0;eIdx<pSrc->nelem;eIdx++)
     {
-        for(col=0;col<nCol;col++)
-        {
-            pDest[nCol*row+col] -= scalar;
-        }
+        pDst[eIdx] *= scalar;
     }
     
     return Result;
 }
-
-mtxResultInfo mtx_add_scalar_f64(tMatrix * pA,float64 scalar)
+/******************************************************************************************************************************************************************************************************\
+ ***  FUNCTION:
+ ***     
+ *** 
+ ***  DESCRIPTION:
+ ***
+ ***            
+ ***  PARAMETERS:
+ ***      Type               Name              Range              Description
+ ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ***      
+ ***  RETURNS:
+ ***      
+ ***  SETTINGS:
+ ***
+\******************************************************************************************************************************************************************************************************/
+mtxResultInfo mtx_sub_scalar_f64(tMatrix * const pSrc,const float64 scalar)
 {
     mtxResultInfo Result = MTX_OPERATION_OK;
-    float64 * pDest= pA->val;    
-    const uint8 nRow = pA->nrow;
-    const uint8 nCol = pA->ncol;
-    uint8 col,row;
+    float64 * const pDst= pSrc->val;    
+    uint16 eIdx;
     
-    
-    for(row=0;row<nRow;row++)
+    for(eIdx=0;eIdx<pSrc->nelem;eIdx++)
     {
-        for(col=0;col<nCol;col++)
-        {
-            pDest[nCol*row+col] += scalar;
-        }
+        pDst[eIdx] -= scalar;
     }
     
     return Result;
 }
-
-mtxResultInfo mtx_cpy_f64(tMatrix * const pDestP,tMatrix const * const pSrcP)
+/******************************************************************************************************************************************************************************************************\
+ ***  FUNCTION:
+ ***     
+ *** 
+ ***  DESCRIPTION:
+ ***
+ ***            
+ ***  PARAMETERS:
+ ***      Type               Name              Range              Description
+ ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ***      
+ ***  RETURNS:
+ ***      
+ ***  SETTINGS:
+ ***
+\******************************************************************************************************************************************************************************************************/
+mtxResultInfo mtx_add_scalar_f64(tMatrix * const pSrc,const float64 scalar)
 {
     mtxResultInfo Result = MTX_OPERATION_OK;
-    float64 * const pDestL = pDestP->val;
-    float64 const * const pSrcL= pSrcP->val;
-    const uint8 nRow = pDestP->nrow;
-    const uint8 nCol = pSrcP->ncol;
-    uint8 row,col;
-
-    if(pDestP->ncol == pSrcP->ncol && pDestP->nrow == pSrcP->nrow)
+    float64 * const pDst= pSrc->val;    
+    uint16 eIdx;
+    
+    for(eIdx=0;eIdx<pSrc->nelem;eIdx++)
     {
-        for(row=0;row<nRow;row++)
+        pDst[eIdx] += scalar;
+    }
+    
+    return Result;
+}
+/******************************************************************************************************************************************************************************************************\
+ ***  FUNCTION:
+ ***     
+ *** 
+ ***  DESCRIPTION:
+ ***
+ ***            
+ ***  PARAMETERS:
+ ***      Type               Name              Range              Description
+ ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ***      
+ ***  RETURNS:
+ ***      
+ ***  SETTINGS:
+ ***
+\******************************************************************************************************************************************************************************************************/ 
+mtxResultInfo mtx_cpy_f64(tMatrix * const pDst,tMatrix const * const pSrc)
+{
+    mtxResultInfo Result = MTX_OPERATION_OK;
+    float64 * const pDstL = pDst->val;
+    float64 const * const pSrcL= pSrc->val;
+    uint16 eIdx;
+
+    if(pDst->ncol == pSrc->ncol && pDst->nrow == pSrc->nrow)
+    {
+        for(eIdx=0;eIdx<pSrc->nelem;eIdx++)
         {
-            for(col=0;col<nCol;col++)
-            {
-                pDestL[nCol*row+col] = pSrcL[nCol*row+col];
-            }
+            pDstL[eIdx] = pSrcL[eIdx];
         }
+    }
+    else
+    {
+        Result = MTX_SIZE_MISMATCH;
+    }
+
+    return Result;
+
+}
+/******************************************************************************************************************************************************************************************************\
+ ***  FUNCTION:
+ ***     
+ *** 
+ ***  DESCRIPTION:
+ ***
+ ***            
+ ***  PARAMETERS:
+ ***      Type               Name              Range              Description
+ ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ***      
+ ***  RETURNS:
+ ***      
+ ***  SETTINGS:
+ ***
+\******************************************************************************************************************************************************************************************************/ 
+mtxResultInfo mtx_identity_f64(tMatrix * const pSrc)
+{
+    mtxResultInfo Result = MTX_OPERATION_OK;
+    float64 * const pDst= (float64 *)pSrc->val;    
+    const uint8 nCol = pSrc->ncol;
+    uint16 eIdx;
+    
+    if(pSrc->nrow == nCol)
+    {   
+        pDst[0] = 1;
         
-        //memcpy(pDest,pSrc,sizeof(pSrc));
-    }
-    else
-    {
-        Result = MTX_SIZE_MISMATCH;
-
-    }
-
-    return Result;
-
-}
-
-mtxResultInfo mtx_identity_f64(tMatrix * pI)
-{
-    mtxResultInfo Result = MTX_OPERATION_OK;
-    float64 * pDest= (float64 *)pI->val;    
-    const uint8 nRow = pI->nrow;
-    const uint8 nCol = pI->ncol;
-    uint8 col,row;
-    
-    if(nRow == nCol)
-    {        
-        for(row=0;row<nRow;row++)
+        for(eIdx=1;eIdx < pSrc->nelem;eIdx++)
         {
-            for(col=0;col<nCol;col++)
-            {
-                pDest[nCol*row+col] = (row==col) ?  1 : 0;             
-            }
-        }
+            const uint16 cmpLeft = (uint16)(eIdx / nCol);
+            
+            pDst[eIdx] = eIdx < nCol ? 0 : cmpLeft == eIdx % (cmpLeft*nCol) ?  1 : 0;   
+        }    
     }
     else
     {
@@ -500,21 +800,31 @@ mtxResultInfo mtx_identity_f64(tMatrix * pI)
 
     return Result;
 }
-
-mtxResultInfo mtx_zeros_f64(tMatrix * pZ)
+/******************************************************************************************************************************************************************************************************\
+ ***  FUNCTION:
+ ***     
+ *** 
+ ***  DESCRIPTION:
+ ***
+ ***            
+ ***  PARAMETERS:
+ ***      Type               Name              Range              Description
+ ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ***      
+ ***  RETURNS:
+ ***      
+ ***  SETTINGS:
+ ***
+\******************************************************************************************************************************************************************************************************/ 
+mtxResultInfo mtx_zeros_f64(tMatrix * const pSrc)
 {
     mtxResultInfo Result = MTX_OPERATION_OK;
-    float64 * pDest= (float64 *)pZ->val;    
-    const uint8 nRow = pZ->nrow;
-    const uint8 nCol = pZ->ncol;
-    uint8 col,row;    
-    
-    for(row=0;row<nRow;row++)
+    float64 * const pDst = (float64 *)pSrc->val;
+    uint16 eIdx;    
+       
+    for(eIdx=0;eIdx<pSrc->nelem;eIdx++)
     {
-        for(col=0;col<nCol;col++)
-        {
-            pDest[nCol*row+col] = 0;             
-        }
+        pDst[eIdx] = 0;             
     }
     
     return Result;
