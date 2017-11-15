@@ -398,7 +398,7 @@ boolean ukf_init(tUKF * const pUkf, tUkfMatrix * pUkfMatrix)
     pUkf->update.Pxx_corr = pUkfMatrix->Pxx_covariance_correction;
 
     mtx_cpy_f64(&pUkf->prev.Pxx_p, &pPar->Pxx0);//init also P_m, Pxx   
-    //mtx_cpy_f64(&pUkf->prev.x_p, &pPar->x0);//init also x_m
+    mtx_cpy_f64(&pUkf->prev.x_p, &pPar->x0);
     /*mtx_cpy_f64(&pUkf->update.Pyy, &pPar->Ryy0);
     mtx_zeros_f64(&pUkf->prev.X_p);//inti also X_m
     mtx_zeros_f64(&pUkf->prev.u_p); 

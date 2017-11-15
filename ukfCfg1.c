@@ -49,7 +49,7 @@ static float64 Wc_weight_vector[1][5] = {{0,0,0,0,0}};
 static float64 y_meas[1][1] = {{0}};
 static float64 y_predicted_mean[1][1] = {{0}};
 static float64 x_system_states[2][1] = {{0},{0}};
-static float64 x_system_states_ic[2][1] = {{0},{0}};
+static float64 x_system_states_ic[2][1] = {{-3.14/9},{0}};
 static float64 x_system_states_limits[2][3] = {{0,0,0.000001},{0,0,0.000001}};
 static boolean x_system_states_limits_enable[2][1] = {{0},{0}};
 static float64 x_system_states_correction[2][1] = {{0},{0}};
@@ -125,9 +125,6 @@ static float64 Pxy_cross_covariance[2][1]=
 //Kalman gain matrix
 static float64 K_kalman_gain[2][1]= {{0},{0}};
 
-//Kalman gain transponce matrix
-//static float64 K_kalman_gain_transp[1][2]= {{0,0}};
-
 static float64 Pxx_covariance_correction[2][2]=
 {/*  x1, x2,       */
     {0,  0}, /* x1 */
@@ -192,6 +189,8 @@ void Fx1(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 
     const uint8 nCol = pX_m->ncol; 
 
     pX_m->val[nCol*0+sigmaIdx] = pX_p->val[nCol*0+sigmaIdx]+ dT*pX_p->val[nCol*1+sigmaIdx];
+
+    pu_p = pu_p;
 }
 /******************************************************************************************************************************************************************************************************\
  ***  FUNCTION:
@@ -221,7 +220,9 @@ void Fx2(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 
     const float64 m = 0.5;
     const float64 g = 9.81;	
    
-    pX_m->val[nCol*1+sigmaIdx] = (1-((dT*B)/m))*pX_p->val[nCol*1+sigmaIdx] - ((dT*g)/l)*sin(pX_p->val[nCol*0 + sigmaIdx]);
+    pX_m->val[nCol*1 + sigmaIdx] = (1-((dT*B)/m))*pX_p->val[nCol*1 + sigmaIdx] - ((dT*g)/l)*sin(pX_p->val[nCol*0 + sigmaIdx]);
+
+    pu_p = pu_p;
 }
 
 /******************************************************************************************************************************************************************************************************\
@@ -245,9 +246,9 @@ void Fx2(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 
  ***
 \******************************************************************************************************************************************************************************************************/
 void Hy1(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx)
-{
-    const uint8 nCol = pX_m->ncol;
-    
-    pY_m->val[sigmaIdx] = pX_m->val[nCol*0 + sigmaIdx];
+{ 
+    pY_m->val[sigmaIdx] = pX_m->val[sigmaIdx];
+
+    pu = pu;
 }
 

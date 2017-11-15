@@ -292,16 +292,19 @@ void mtxlib_test(void)
     /*show_matrix_obj(myChol);
     mtx_transp_square_f64(&myChol);
     show_matrix_obj(myChol);
-    
+    */
     
     show_matrix_obj(Im);
     show_matrix_obj(oTestMatrix_0_4x4);
     mtx_inv_f64(&oTestMatrix_0_4x4, &Im);
     show_matrix_obj(Im);
-    
-    show_matrix_obj(myTestMatx);
-    mtx_transp_dest_f64(&myTestMatx,&oTestMatrixDest_3x2);
-    show_matrix_obj(oTestMatrixDest_3x2);*/
+
+    mtx_identity_f64(&Im);
+    show_matrix_obj(Im);
+   
+    //show_matrix_obj(myTestMatx);
+    //mtx_transp_dest_f64(&myTestMatx,&oTestMatrixDest_3x2);
+    //show_matrix_obj(oTestMatrixDest_3x2);*/
 }
 //
 
