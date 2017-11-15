@@ -140,7 +140,6 @@ static float64 Pyy_out_covariance_copy[2][2]=
     {0,  0},  /* y2 */
 };
 
-
 //cross-covariance of state and output
 static float64 Pxy_cross_covariance[4][2]=
 {/*  y1, y2         */
@@ -228,6 +227,8 @@ void Fx1(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 
     const uint8 nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
 
     pX_m->val[nCol*0 + sigmaIdx] = pX_p->val[nCol*0 + sigmaIdx] + dT * pX_p->val[nCol*2 + sigmaIdx];
+
+    pu_p = pu_p;
 }
 /******************************************************************************************************************************************************************************************************\
  ***  FUNCTION:
@@ -254,6 +255,8 @@ void Fx2(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 
     const uint8 nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
    
     pX_m->val[nCol*1 + sigmaIdx] = pX_p->val[nCol*1 + sigmaIdx] + dT * pX_p->val[nCol*3 + sigmaIdx];
+
+    pu_p = pu_p;
 }
 /******************************************************************************************************************************************************************************************************\
  ***  FUNCTION:
@@ -280,6 +283,9 @@ void Fx3(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 
     const uint8 nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
     
     pX_m->val[nCol*2 + sigmaIdx] = pX_p->val[nCol*2 + sigmaIdx];
+
+    pu_p = pu_p;
+    dT = dT;
 }
 /******************************************************************************************************************************************************************************************************\
  ***  FUNCTION:
@@ -306,6 +312,9 @@ void Fx4(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 
     const uint8 nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
     
     pX_m->val[nCol*3 + sigmaIdx] = pX_p->val[nCol*3 + sigmaIdx];
+
+    pu_p = pu_p;
+    dT = dT;
 }
 /******************************************************************************************************************************************************************************************************\
  ***  FUNCTION:
@@ -342,6 +351,8 @@ void Hy1(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx)
     term2 *= term2;
 
     pY_m->val[sigmaIdx] = sqrt(term1+term2); 
+
+    pu = pu;
 }
 /******************************************************************************************************************************************************************************************************\
  ***  FUNCTION:
@@ -377,5 +388,7 @@ void Hy2(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx)
     term2 = pX_m->val[nCol*1 + sigmaIdx] - E2;
     term2 *= term2;
     
-    pY_m->val[nCol*1 + sigmaIdx] = sqrt(term1+term2);   
+    pY_m->val[nCol*1 + sigmaIdx] = sqrt(term1+term2); 
+    
+    pu = pu;
 }
