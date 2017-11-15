@@ -21,7 +21,7 @@ int main(void)
     //UKF test start here
     ukf_test();
 
-	return 0;
+    return 0;
 }
 
 void show_matrix_obj(tMatrix A)
@@ -269,21 +269,21 @@ void mtxlib_test(void)
         {0,0}  
     };
     tMatrix myFactMatrix;
-    tMatrix myTestMatx={0,0,NULL};
-    tMatrix myChol={0,0,NULL};
-    tMatrix Im={0,0,NULL};
-    tMatrix oTestMatrix_0_4x4={0,0,NULL};
-    tMatrix oTestMatrixDest_3x2={0,0,NULL};
+    tMatrix myTestMatx={0,0,0,NULL};
+    tMatrix myChol={0,0,0,NULL};
+    tMatrix Im={0,0,0,NULL};
+    tMatrix oTestMatrix_0_4x4={0,0,0,NULL};
+    tMatrix oTestMatrixDest_3x2={0,0,0,NULL};
     
-    mtx_init_f64(&myTestMatx,&TestMatrix_1_2x3[0][0],NROWS(TestMatrix_1_2x3),NCOL(TestMatrix_1_2x3));
-    mtx_init_f64(&myChol,&symMtxChol[0][0],NROWS(symMtxChol),NCOL(symMtxChol));
-    mtx_init_f64(&Im,&Identity_5x5[0][0],NROWS(Identity_5x5),NCOL(Identity_5x5));
-    mtx_init_f64(&oTestMatrix_0_4x4,&TestMatrix_0_4x4[0][0],NROWS(TestMatrix_0_4x4),NCOL(TestMatrix_0_4x4));
-    mtx_init_f64(&oTestMatrixDest_3x2,&TestMatrixDest_3x2[0][0],NROWS(TestMatrixDest_3x2),NCOL(TestMatrixDest_3x2));
+    mtx_init_f64(&myTestMatx,&TestMatrix_1_2x3[0][0],NROWS(TestMatrix_1_2x3),NCOL(TestMatrix_1_2x3),COLXROW(TestMatrix_1_2x3));
+    mtx_init_f64(&myChol,&symMtxChol[0][0],NROWS(symMtxChol),NCOL(symMtxChol),COLXROW(symMtxChol));
+    mtx_init_f64(&Im,&Identity_5x5[0][0],NROWS(Identity_5x5),NCOL(Identity_5x5),COLXROW(Identity_5x5));
+    mtx_init_f64(&oTestMatrix_0_4x4,&TestMatrix_0_4x4[0][0],NROWS(TestMatrix_0_4x4),NCOL(TestMatrix_0_4x4),COLXROW(TestMatrix_0_4x4));
+    mtx_init_f64(&oTestMatrixDest_3x2,&TestMatrixDest_3x2[0][0],NROWS(TestMatrixDest_3x2),NCOL(TestMatrixDest_3x2),COLXROW(TestMatrixDest_3x2));
     //show_matrix(&TestMatrix_1_2x3[0][0],2,3);
     //show_matrix_obj(myTestMatx);
     
-    (void)mtx_init_f64(&myFactMatrix,&symMtx[0][0],NROWS(symMtx),NCOL(symMtx));
+    (void)mtx_init_f64(&myFactMatrix,&symMtx[0][0],NROWS(symMtx),NCOL(symMtx),COLXROW(symMtx));
     //show_matrix(&symMtx[0][0],5,5);
     
     (void)mtx_chol_lower_f64(&myFactMatrix);
@@ -292,16 +292,19 @@ void mtxlib_test(void)
     /*show_matrix_obj(myChol);
     mtx_transp_square_f64(&myChol);
     show_matrix_obj(myChol);
-    
+    */
     
     show_matrix_obj(Im);
     show_matrix_obj(oTestMatrix_0_4x4);
     mtx_inv_f64(&oTestMatrix_0_4x4, &Im);
     show_matrix_obj(Im);
-    
-    show_matrix_obj(myTestMatx);
-    mtx_transp_dest_f64(&myTestMatx,&oTestMatrixDest_3x2);
-    show_matrix_obj(oTestMatrixDest_3x2);*/
+
+    mtx_identity_f64(&Im);
+    show_matrix_obj(Im);
+   
+    //show_matrix_obj(myTestMatx);
+    //mtx_transp_dest_f64(&myTestMatx,&oTestMatrixDest_3x2);
+    //show_matrix_obj(oTestMatrixDest_3x2);*/
 }
 //
 
