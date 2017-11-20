@@ -340,7 +340,7 @@ mtxResultInfo mtx_chol_lower_f64(tMatrix * const pSrc)
             {
                 sum = pSrcL[mtxSize*col+row];
                 
-                for(tmp = col-1;tmp>=0;tmp--)
+                for(tmp = (sint8)(col-1);tmp>=0;tmp--)
                 {
                     sum -= pSrcL[mtxSize*row+tmp] * pSrcL[mtxSize*col+tmp];
                 }
@@ -396,7 +396,7 @@ mtxResultInfo mtx_chol_upper_f64(tMatrix * const pSrc)
             {
                 sum = pSrcL[ncol*row + col];
                 
-                for(tmp = row-1;tmp>=0;tmp--)// tmp could be calc negative
+                for(tmp = (sint8)(row-1);tmp>=0;tmp--)// tmp could be calc negative
                 {
                     sum -= pSrcL[ncol*tmp+row] * pSrcL[ncol*tmp+col];
                 }
@@ -447,7 +447,7 @@ mtxResultInfo mtx_chol1_f64(float64* A, float64* L,uint8 size)
         {
             sum = A[size*row + col];
             
-            for(tmp = row-1;tmp>=0;tmp--)
+            for(tmp = (sint8)(row-1);tmp>=0;tmp--)
             {
                 sum -= L[size*tmp + row] * L[size*tmp + col];
             }
