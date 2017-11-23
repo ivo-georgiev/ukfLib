@@ -14,3 +14,5 @@ Why this project is useful:
   ukfCfgN.c,ukfCfgN.h files.
 - Implementation follow the prety good Matthew Rhudy tutorial step by step and solve the same example. Users could easy compare the difference between matlab and C implementation.
 - The project contain simulink model(R2013b) which show how s-function could be created(s-function builder) and simulated from given set of source files. There is two steps needed to simulate UKF filter in Simulink. First step is to load data in WS by running of ukf.m. The second step is to build s-fun and run simulink model. Filter behavior could be checked at every simulation step and compared with expected data generated from m-script implementation(applied also in tutorial). 
+
+For more information please see UKF wiki page: https://github.com/ivo-georgiev/ukfLib/wiki
