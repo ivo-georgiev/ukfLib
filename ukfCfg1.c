@@ -1,10 +1,9 @@
  /******************************************************************************************************************************************************************************************************\
  *** 
- *** Description       : IMPLEMENTATION OF THE ADDITIVE NOISE UKF: This example problem is "Computer Exercise 13.21" from (Simon, 2006).
- *** Codefile          : ukfCfg.c
- *** Documentation     : https://web.statler.wvu.edu/%7Eirl/IRL_WVU_Online_UKF_Implementation_V1.0_06_28_2013.pdf
+ *** Description       : IMPLEMENTATION OF THE ADDITIVE NOISE UKF: Damped pendulum.
+ *** Codefile          : ukfCfg1.c
+ *** Documentation     : https://github.com/ivo-georgiev/ukfLib/wiki/Damped-pendulum:-CFG1
  ***
- *** State vector
  ***
  *** MIT License
  ***
@@ -73,13 +72,6 @@ static float64 Pxx_error_covariance[2][2]=
 };
 
 //State covariance initial values
-/*Matthew B Rhudy : initial error covariance matrix should be defined based on your initialization error.
- I.e., if you think your initial state is not very close, the P0 value should be large,
- whereas if the initialization is very good (high confidence that your states are close to the correct values) you can assume a smaller P0 value.
-  I would not recommend setting P0 to zero, as this assumes there is no initialization error and your initial states are perfect.  
-  This is almost never the case.  Many times the P0 matrix is diagonal, with the diagonal components corresponding to the expected variance
-  in the corresponding state, i.e. how much deviation you might expect in the initialization of that state.  If you have no idea where to start, 
- I recommend using an identity matrix rather than the zero matrix. */
 static float64 Pxx0_init_error_covariance[2][2]=
 {/*  x1,    x2         */
     {100,    0}, /* x1 */
@@ -87,11 +79,6 @@ static float64 Pxx0_init_error_covariance[2][2]=
 };
 
 //Process noise covariance Q : initial noise assumptions
-/* Matthew B Rhudy : Q matrix corresponds to the uncertainty that you expect in your state equations.
-  This could include modeling errors or other uncertainties in the equations themselves.
-  Some formulations consider input measurements in the state equations which introduces process noise.
-  If you are very confident in your equations, you could set Q to zero. If you do that the filter will use
-  the noise free model to predict the state vector and will ignore any measurement data since your model is assumed perfect. */
 static float64 Qxx_process_noise_cov[2][2]=
 {/*  x1,  x2,        */
     {0.1,  0}, /* x1 */
@@ -169,7 +156,7 @@ tUkfMatrix UkfMatrixCfg1 =
  ***      void Fx0(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx)
  *** 
  ***  DESCRIPTION:
- ***       Calculate predicted state 0 for each sigma point. Note  that  this  problem  has  a  linear  prediction stage 
+ ***       Calculate predicted state 0 for each sigma point.  
  ***       X_m[0][sigmaIdx] = f(X_p, u_p) =   
  ***            
  ***  PARAMETERS:
@@ -197,7 +184,7 @@ void Fx1(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 
  ***      void Fx1(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx)
  *** 
  ***  DESCRIPTION:
- ***       Calculate predicted state 1 for each sigma point. Note  that  this  problem  has  a  linear  prediction stage 
+ ***       Calculate predicted state 1 for each sigma point.  
  ***       X_m[1][sigmaIdx] = f(X_p, u_p) = e(k)  =     
  ***            
  ***  PARAMETERS:
@@ -230,7 +217,7 @@ void Fx2(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 
  ***      void Hy1(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx)
  *** 
  ***  DESCRIPTION:
- ***       Calculate predicted state 3 for each sigma point. This problem has a nonlinear observation 
+ ***       Calculate predicted state 3 for each sigma point.  
  ***       Y_m[0][sigmaIdx] = h1(X_m, u) = y1(k)  =     
  ***            
  ***  PARAMETERS:
