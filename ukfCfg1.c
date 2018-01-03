@@ -40,7 +40,7 @@ static tObservFcn  ObservFcn[1] = {&Hy1};
 //-----------------------
 //UKF Processing matrix
 //-----------------------
-static float64 Sc_vector[1][3] = {{1,2,0}};
+static float64 Sc_vector[1][3] = {{0.1,2,0}};
 static float64 Wm_weight_vector[1][5] = {{0,0,0,0,0}};
 static float64 Wc_weight_vector[1][5] = {{0,0,0,0,0}};
 //static float64 u_system_input[2][1] = {{0},{0}}; 
