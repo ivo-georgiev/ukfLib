@@ -130,7 +130,7 @@ void ukf_test(void)
             err[2] = fabs(ukfIo[cfg0].update.x.val[2] - x_exp[simLoop-1][2]);
             err[3] = fabs(ukfIo[cfg0].update.x.val[3] - x_exp[simLoop-1][3]);
             
-            printf("Loop: %d |system states : ukf.m | system states : est | system states : impl. diff \n",simLoop);
+            printf("Loop: %d |system states : ukf.m | system states : est | system states : impl. diff \n",(int)simLoop);
             printf("          %2.14f        %2.14f       %2.14f\n", x_exp[simLoop-1][0], ukfIo[cfg0].update.x.val[0], err[0]);
             printf("          %2.14f        %2.14f       %2.14f\n", x_exp[simLoop-1][1], ukfIo[cfg0].update.x.val[1], err[1]);
             printf("          %2.14f        %2.14f       %2.14f\n", x_exp[simLoop-1][2], ukfIo[cfg0].update.x.val[2], err[2]);
@@ -184,7 +184,7 @@ void ukf_test(void)
             err[0] = fabs(ukfIo[cfg1].update.x.val[0] - tetha);
             err[1] = fabs(ukfIo[cfg1].update.x.val[1] - tetha_dot);         
             
-            printf("Loop: %d |system states : real | system states : est | system states : err \n",simLoop);
+            printf("Loop: %d |system states : real | system states : est | system states : err \n",(int)simLoop);
             printf("          %2.14f       %2.14f      %2.14f\n", tetha, ukfIo[1].update.x.val[0], err[0]);
             printf("          %2.14f      %2.14f     %2.14f\n", tetha_dot, ukfIo[1].update.x.val[1], err[1]);
             
