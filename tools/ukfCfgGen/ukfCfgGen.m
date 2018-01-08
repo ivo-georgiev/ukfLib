@@ -31,8 +31,28 @@ copyfile('ukfCfgTemplate.c', newCfgSource)
 
 str = textscan(fidS,'%s', 'delimiter', '\n')
 
-%search for state transition section
-%beginStTrIdx = find(strcmp(str{1}, '<STATE TRANSITION:BEGIN>'), 1, 'first');
+c = str{1}
+for i = 1:xL  
+    endIdx = find(~cellfun(@isempty,strfind(c, '<STATE TRANSITION:END>')))
+    c(endIdx+1:end+1,:) = c(endIdx:end,:);
+    c(endIdx,:) = {['void Fx' num2str(i) '(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 dT)']}
+    
+    endIdx = find(~cellfun(@isempty,strfind(c, '<STATE TRANSITION:END>')))
+    c(endIdx+1:end+1,:) = c(endIdx:end,:);
+    c(endIdx,:) = {'{'}
+    
+    endIdx = find(~cellfun(@isempty,strfind(c, '<STATE TRANSITION:END>')))
+    c(endIdx+1:end+1,:) = c(endIdx:end,:);
+    c(endIdx,:) = {'const uint8 nCol = pX_m->ncol;'}
+    
+    endIdx = find(~cellfun(@isempty,strfind(c, '<STATE TRANSITION:END>')))
+    c(endIdx+1:end+1,:) = c(endIdx:end,:);
+    c(endIdx,:) = sourceStateFcn(xL)
+    
+    endIdx = find(~cellfun(@isempty,strfind(c, '<STATE TRANSITION:END>')))
+    c(endIdx+1:end+1,:) = c(endIdx:end,:);
+    c(endIdx,:) = {'}'}
+end
 
 
 

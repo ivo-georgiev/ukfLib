@@ -95,12 +95,7 @@ tUkfMatrix UkfMatrixCfg<cfgId> =
 };
 
 //<STATE TRANSITION:BEGIN>
-void Fx<xID>(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 dT)
-{
-    const uint8 nCol = pX_m->ncol; 
 
-    pX_m->val[nCol*<xIdx>+sigmaIdx] = <state_equation>;
-}
 //<STATE TRANSITION:END>
 
 //<MEASUREMENT FUNCTION:BEGIN>
