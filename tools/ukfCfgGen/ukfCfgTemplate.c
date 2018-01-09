@@ -28,12 +28,17 @@
 \******************************************************************************************************************************************************************************************************/
 #include "ukfCfg<cfgId>.h"
 
-static void Fx<xID>(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 dT);
+//<STATE TRANSITION PROTOTYPE:BEGIN>
+//<STATE TRANSITION PROTOTYPE:END>
 
-static void Hy<yID>(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx);
+//<MEASUREMENT PROTOTYPE:BEGIN>
+//<MEASUREMENT PROTOTYPE:END>
 
-static tPredictFcn PredictFcn[xL] = {&Fx1,<...>};
-static tObservFcn  ObservFcn[yL] = {&Hy1,<...>};
+//<STATE TRANSITION PTR ARRAY:BEGIN>
+//<STATE TRANSITION PTR ARRAY:END>
+
+//<MEASUREMENT PTR ARRAY:BEGIN>
+//<MEASUREMENT PTR ARRAY:END>
 
 //-----------------------
 //UKF Processing matrix
@@ -95,14 +100,8 @@ tUkfMatrix UkfMatrixCfg<cfgId> =
 };
 
 //<STATE TRANSITION:BEGIN>
-
 //<STATE TRANSITION:END>
 
 //<MEASUREMENT FUNCTION:BEGIN>
-void Hy<yID>(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx)
-{ 
-    const uint8 nCol = pY_m->ncol; 
-    pY_m->val[nCol*<yIdx> + sigmaIdx] = <measurement_equation>;
-}
 //<MEASUREMENT FUNCTION:END>
 
