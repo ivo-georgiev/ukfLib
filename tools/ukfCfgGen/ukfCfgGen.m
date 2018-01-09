@@ -13,6 +13,36 @@ measFcn = {'y(1) = x(1)'};
 
 [xL,~] = size(discreteStateFcn);
 [yL,~] = size(measFcn);
+sL = 2*xL+1;
+
+ukfMatrix={
+{'<Sc_vector>' ,[1,3]}
+{'<Wm_weight_vector>' ,[1,sL]}
+{'<Wc_weight_vector>' ,[1,sL]}
+{'<u_system_input>' ,[2,1]}
+{'<u_prev_system_input>' ,[2,1]}
+{'<y_meas>' ,[yL,1]}
+{'<y_predicted_mean>' ,[yL,1]}
+{'<x_system_states>',[xL,1]}
+{'<x_system_states_ic>' ,[xL,1]}
+{'<x_system_states_limits>' ,[xL,3]}
+{'<x_system_states_limits_enable>' ,[xL,1]}
+{'<x_system_states_correction>' ,[xL,1]}
+{'<X_sigma_points>' ,[xL,sL]}
+{'<Y_sigma_points>' ,[yL,sL]}
+{'<Pxx_error_covariance>' ,[xL,xL]}
+{'<Pxx0_init_error_covariance>' ,[xL,xL]}
+{'<Qxx_process_noise_cov>' ,[xL,xL]}
+{'<Ryy0_init_out_covariance>' ,[yL,yL]}
+{'<Pyy_out_covariance>' ,[yL,yL]}
+{'<Pyy_out_covariance_copy>' ,[yL,yL]}
+{'<Pxy_cross_covariance>' ,[xL,yL]}
+{'<K_kalman_gain>' ,[xL,yL]}
+{'<Pxx_covariance_correction>' ,[xL,yL]}
+{'<I_identity_matrix>',[yL,yL]}
+}
+
+
 
 sourceStateFcn = cell(xL,1);
 for mIdx=1:xL
@@ -38,12 +68,12 @@ for pIdx=1:yL
     end;
 end
 
-newCfgSource = ['ukfCfg' num2str(cfgID) '.c']
-newCfgHeader = ['ukfCfg' num2str(cfgID) '.h']
+newCfgSource = ['ukfCfg' num2str(cfgID) '.c'];
+newCfgHeader = ['ukfCfg' num2str(cfgID) '.h'];
 
-[fidS,msg] = fopen('ukfCfgTemplate.c')
+[fidS,msg] = fopen('ukfCfgTemplate.c');
 
-str = textscan(fidS,'%s', 'delimiter', '\n')
+str = textscan(fidS,'%s', 'delimiter', '\n');
 
 c = str{1};
 %put header ID
@@ -57,21 +87,21 @@ c = cellfun(@strrep,c,tmp1,tmp2,'UniformOutput',false);
 ptrString = 'static tPredictFcn PredictFcn[xL] = {';
 for i = 1:xL 
     %State transition prototype
-    endIdx = find(~cellfun(@isempty,strfind(c, '<STATE TRANSITION PROTOTYPE:END>')))
+    endIdx = find(~cellfun(@isempty,strfind(c, '<STATE TRANSITION PROTOTYPE:END>')));
     c(endIdx+1:end+1,:) = c(endIdx:end,:);
-    c(endIdx,:) = {['static void Fx' num2str(i) '(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 dT);']}
+    c(endIdx,:) = {['static void Fx' num2str(i) '(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 dT);']};
     
     % state transition ptr array
     ptrString = [ptrString '&Fx' num2str(i) ','];
     
     %State transition body
-    endIdx = find(~cellfun(@isempty,strfind(c, '<STATE TRANSITION:END>')))
+    endIdx = find(~cellfun(@isempty,strfind(c, '<STATE TRANSITION:END>')));
     c(endIdx+1:end+1,:) = c(endIdx:end,:);
-    c(endIdx,:) = {['void Fx' num2str(i) '(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 dT)']}
+    c(endIdx,:) = {['void Fx' num2str(i) '(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 dT)']};
     
     endIdx = endIdx+1;
     c(endIdx+1:end+1,:) = c(endIdx:end,:);
-    c(endIdx,:) = {'{'}
+    c(endIdx,:) = {'{'};
     
     endIdx = endIdx+1;
     c(endIdx+1:end+1,:) = c(endIdx:end,:);
@@ -89,28 +119,28 @@ end
 ptrString = ptrString(1:end-1);
 ptrString = [ptrString '};'];
 
-endIdx = find(~cellfun(@isempty,strfind(c, '<STATE TRANSITION PTR ARRAY:END>')))
+endIdx = find(~cellfun(@isempty,strfind(c, '<STATE TRANSITION PTR ARRAY:END>')));
 c(endIdx+1:end+1,:) = c(endIdx:end,:);
 c(endIdx,:) = {ptrString};
 
 ptrString = 'static tObservFcn  ObservFcn[yL] = {';
 for j = 1:yL
     %measurement prototype
-    endIdx = find(~cellfun(@isempty,strfind(c, '<MEASUREMENT PROTOTYPE:END>')))
+    endIdx = find(~cellfun(@isempty,strfind(c, '<MEASUREMENT PROTOTYPE:END>')));
     c(endIdx+1:end+1,:) = c(endIdx:end,:);
-    c(endIdx,:) = {['static void Hy' num2str(j) '(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx);']}
+    c(endIdx,:) = {['static void Hy' num2str(j) '(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx);']};
     
     %measurement ptr array
      ptrString = [ptrString '&Hy' num2str(j) ','];
     
     %measurement body
-    endIdx = find(~cellfun(@isempty,strfind(c, '<MEASUREMENT FUNCTION:END>')))
+    endIdx = find(~cellfun(@isempty,strfind(c, '<MEASUREMENT FUNCTION:END>')));
     c(endIdx+1:end+1,:) = c(endIdx:end,:);
-    c(endIdx,:) = {['void Hy' num2str(j) '(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx)']}
+    c(endIdx,:) = {['void Hy' num2str(j) '(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx)']};
     
     endIdx = endIdx+1;
     c(endIdx+1:end+1,:) = c(endIdx:end,:);
-    c(endIdx,:) = {'{'}
+    c(endIdx,:) = {'{'};
     
     endIdx = endIdx+1;
     c(endIdx+1:end+1,:) = c(endIdx:end,:);
@@ -132,6 +162,19 @@ endIdx = find(~cellfun(@isempty,strfind(c, '<MEASUREMENT PTR ARRAY:END>')))
 c(endIdx+1:end+1,:) = c(endIdx:end,:);
 c(endIdx,:) = {ptrString};
 
+l=cell(length(c),1);
+replace = cell(length(c),1);
+
+for k=2:length(ukfMatrix)
+    l(:)=ukfMatrix{k}(1);
+    v = ukfMatrix{k}(2);
+    row = v{1}(1);
+    col = v{1}(2);
+    
+    replace(:) = {regexprep(['{' regexprep(repmat(['{' strjoin(cellfun(@(x)regexprep(x,'0','0,'),arrayfun(@num2str,repmat(0,1,col),'UniformOutput',false),'UniformOutput',false)) '},'],1,row),'0,}','0}') '};'],',};','};')};
+    
+    c = cellfun(@strrep, c, l,replace,'UniformOutput',false)
+end
 
 delete(newCfgSource);
 fid = fopen(newCfgSource,'w');
