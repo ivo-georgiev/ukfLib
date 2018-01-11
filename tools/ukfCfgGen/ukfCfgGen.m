@@ -53,8 +53,6 @@ ukfMatrix={
 {'<I_identity_matrix>',[yL,yL],zeros(yL,yL),true}
 }
 
-
-
 sourceStateFcn = cell(xL,1);
 for mIdx=1:xL
     sourceStateFcn(mIdx) = discreteStateFcn(mIdx);
@@ -184,9 +182,15 @@ for k = 1:length(ukfMatrix)
         replace(:) = {mtx2carr(cell2mat(ukfMatrix{k}(3)))};      
         c = cellfun(@strrep, c, l,replace,'UniformOutput',false);
     else
+        %comment array definition if not required
         rowIdx =  cellfun(@strfind,c,repmat(ukfMatrix{k}(1),length(c),1),'UniformOutput',false);
-        rowIdx = find(~cellfun(@isempty,rowIdx))
+        rowIdx = find(~cellfun(@isempty,rowIdx));
         c{rowIdx}(1:2)= '//'
+        
+        %replace '{0,0,0,NULL},' if optional array is not present
+        rowIx =  cellfun(@strfind,c,repmat({ukfMatrix{k}{1}(2:end-1)},length(c),1),'UniformOutput',false);
+        rowIx = max(find(~cellfun(@isempty,rowIx)));
+        c{rowIx}='{0,0,0,NULL},';
     end
 end
 
