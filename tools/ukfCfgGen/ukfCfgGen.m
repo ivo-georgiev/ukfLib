@@ -14,32 +14,43 @@ measFcn = {'y(1) = x(1)'};
 [xL,~] = size(discreteStateFcn);
 [yL,~] = size(measFcn);
 sL = 2*xL+1;
+uL= 2;
 
+alpha = 1;
+betha = 2;
+kappa = 0;
+
+Ryy0 = zeros(yL,yL);
+Pxx0 = diag(ones(1,xL)*0.01);
+Qxx = diag(ones(1,xL)*0.01);
+
+%UKF matrix properties
 ukfMatrix={
-{'<Sc_vector>' ,[1,3]}
-{'<Wm_weight_vector>' ,[1,sL]}
-{'<Wc_weight_vector>' ,[1,sL]}
-{'<u_system_input>' ,[2,1]}
-{'<u_prev_system_input>' ,[2,1]}
-{'<y_meas>' ,[yL,1]}
-{'<y_predicted_mean>' ,[yL,1]}
-{'<x_system_states>',[xL,1]}
-{'<x_system_states_ic>' ,[xL,1]}
-{'<x_system_states_limits>' ,[xL,3]}
-{'<x_system_states_limits_enable>' ,[xL,1]}
-{'<x_system_states_correction>' ,[xL,1]}
-{'<X_sigma_points>' ,[xL,sL]}
-{'<Y_sigma_points>' ,[yL,sL]}
-{'<Pxx_error_covariance>' ,[xL,xL]}
-{'<Pxx0_init_error_covariance>' ,[xL,xL]}
-{'<Qxx_process_noise_cov>' ,[xL,xL]}
-{'<Ryy0_init_out_covariance>' ,[yL,yL]}
-{'<Pyy_out_covariance>' ,[yL,yL]}
-{'<Pyy_out_covariance_copy>' ,[yL,yL]}
-{'<Pxy_cross_covariance>' ,[xL,yL]}
-{'<K_kalman_gain>' ,[xL,yL]}
-{'<Pxx_covariance_correction>' ,[xL,yL]}
-{'<I_identity_matrix>',[yL,yL]}
+% name         ,size ,value,             ,presence
+{'<Sc_vector>' ,[1,3],[alpha,betha,kappa],true}
+{'<Wm_weight_vector>' ,[1,sL],zeros(1,sL),true}
+{'<Wc_weight_vector>' ,[1,sL],zeros(1,sL),true}
+{'<u_system_input>' ,[uL,1],zeros(uL,1),false}
+{'<u_prev_system_input>' ,[uL,1],zeros(uL,1),false}
+{'<y_meas>' ,[yL,1],zeros(yL,1),true}
+{'<y_predicted_mean>' ,[yL,1],zeros(yL,1),true}
+{'<x_system_states>',[xL,1],zeros(xL,1),true}
+{'<x_system_states_ic>' ,[xL,1],zeros(xL,1),true}
+{'<x_system_states_limits>' ,[xL,3],zeros(xL,3),true}
+{'<x_system_states_limits_enable>' ,[xL,1],zeros(xL,1),true}
+{'<x_system_states_correction>' ,[xL,1],zeros(xL,1),true}
+{'<X_sigma_points>' ,[xL,sL],zeros(xL,sL),true}
+{'<Y_sigma_points>' ,[yL,sL],zeros(yL,1),true}
+{'<Pxx_error_covariance>' ,[xL,xL],zeros(xL,xL),true}
+{'<Pxx0_init_error_covariance>' ,[xL,xL],Pxx0,true}
+{'<Qxx_process_noise_cov>' ,[xL,xL],Qxx,true}
+{'<Ryy0_init_out_covariance>' ,[yL,yL],Ryy0,true}
+{'<Pyy_out_covariance>' ,[yL,yL],zeros(yL,yL),true}
+{'<Pyy_out_covariance_copy>' ,[yL,yL],zeros(yL,yL),true}
+{'<Pxy_cross_covariance>' ,[xL,yL],zeros(xL,yL),true}
+{'<K_kalman_gain>' ,[xL,yL],zeros(xL,yL),true}
+{'<Pxx_covariance_correction>' ,[xL,xL],zeros(xL,xL),true}
+{'<I_identity_matrix>',[yL,yL],zeros(yL,yL),true}
 }
 
 
@@ -164,16 +175,19 @@ c(endIdx,:) = {ptrString};
 
 l=cell(length(c),1);
 replace = cell(length(c),1);
-
-for k=2:length(ukfMatrix)
-    l(:)=ukfMatrix{k}(1);
-    v = ukfMatrix{k}(2);
-    row = v{1}(1);
-    col = v{1}(2);
-    
-    replace(:) = {regexprep(['{' regexprep(repmat(['{' strjoin(cellfun(@(x)regexprep(x,'0','0,'),arrayfun(@num2str,repmat(0,1,col),'UniformOutput',false),'UniformOutput',false)) '},'],1,row),'0,}','0}') '};'],',};','};')};
-    
-    c = cellfun(@strrep, c, l,replace,'UniformOutput',false)
+for k = 1:length(ukfMatrix)
+    if(true == cell2mat(ukfMatrix{k}(4)))
+        l(:)=ukfMatrix{k}(1);
+        v = ukfMatrix{k}(2);
+        row = v{1}(1);
+        col = v{1}(2);
+        replace(:) = {mtx2carr(cell2mat(ukfMatrix{k}(3)))};      
+        c = cellfun(@strrep, c, l,replace,'UniformOutput',false);
+    else
+        rowIdx =  cellfun(@strfind,c,repmat(ukfMatrix{k}(1),length(c),1),'UniformOutput',false);
+        rowIdx = find(~cellfun(@isempty,rowIdx))
+        c{rowIdx}(1:2)= '//'
+    end
 end
 
 delete(newCfgSource);

@@ -1,6 +1,6 @@
  /******************************************************************************************************************************************************************************************************\
  *** 
- *** Description       : IMPLEMENTATION OF THE ADDITIVE NOISE UKF: 
+ *** Description       : TEMPLATE FILE USED FROM CFG GENERATOR: 
  *** Codefile          : ukfCfgTemplate.c
  *** Documentation     : 
  ***
@@ -43,30 +43,30 @@
 //-----------------------
 //UKF Processing matrix
 //-----------------------
-static float64 Sc_vector[1][3] = {{alpha,betha,kappa}};
-static float64 Wm_weight_vector[1][sL] = <Wm_weight_vector>
-static float64 Wc_weight_vector[1][sL] = <Wc_weight_vector>
-//static float64 u_system_input[2][1] = <u_system_input>
-//static float64 u_prev_system_input[2][1] = <u_prev_system_input>
-static float64 y_meas[yL][1] = <y_meas> 
-static float64 y_predicted_mean[yL][1] = <y_predicted_mean>
-static float64 x_system_states[xL][1] = <x_system_states>
-static float64 x_system_states_ic[xL][1] = <x_system_states_ic>
-static float64 x_system_states_limits[xL][3] = <x_system_states_limits>
-static boolean x_system_states_limits_enable[xL][1] = <x_system_states_limits_enable>
-static float64 x_system_states_correction[xL][1] = <x_system_states_correction>
-static float64 X_sigma_points[xL][sL]= <X_sigma_points>
-static float64 Y_sigma_points[yL][sL]= <Y_sigma_points>
-static float64 Pxx_error_covariance[xL][xL]= <Pxx_error_covariance>
-static float64 Pxx0_init_error_covariance[xL][xL]= <Pxx0_init_error_covariance>
-static float64 Qxx_process_noise_cov[xL][xL]= <Qxx_process_noise_cov>
-static float64 Ryy0_init_out_covariance[yL][yL]= <Ryy0_init_out_covariance>
-static float64 Pyy_out_covariance[yL][yL]= <Pyy_out_covariance>
-static float64 Pyy_out_covariance_copy[yL][yL]= <Pyy_out_covariance_copy>
-static float64 Pxy_cross_covariance[xL][yL]= <Pxy_cross_covariance>
-static float64 K_kalman_gain[xL][yL]= <K_kalman_gain>
-static float64 Pxx_covariance_correction[xL][yL]= <Pxx_covariance_correction>
-static float64 I_identity_matrix[yL][yL]= <I_identity_matrix>
+static float64 Sc_vector[1][3] = <Sc_vector>;
+static float64 Wm_weight_vector[1][sL] = <Wm_weight_vector>;
+static float64 Wc_weight_vector[1][sL] = <Wc_weight_vector>;
+static float64 u_system_input[uL][1] = <u_system_input>;
+static float64 u_prev_system_input[uL][1] = <u_prev_system_input>;
+static float64 y_meas[yL][1] = <y_meas>; 
+static float64 y_predicted_mean[yL][1] = <y_predicted_mean>;
+static float64 x_system_states[xL][1] = <x_system_states>;
+static float64 x_system_states_ic[xL][1] = <x_system_states_ic>;
+static float64 x_system_states_limits[xL][3] = <x_system_states_limits>;
+static boolean x_system_states_limits_enable[xL][1] = <x_system_states_limits_enable>;
+static float64 x_system_states_correction[xL][1] = <x_system_states_correction>;
+static float64 X_sigma_points[xL][sL]= <X_sigma_points>;
+static float64 Y_sigma_points[yL][sL]= <Y_sigma_points>;
+static float64 Pxx_error_covariance[xL][xL]= <Pxx_error_covariance>;
+static float64 Pxx0_init_error_covariance[xL][xL]= <Pxx0_init_error_covariance>;
+static float64 Qxx_process_noise_cov[xL][xL]= <Qxx_process_noise_cov>;
+static float64 Ryy0_init_out_covariance[yL][yL]= <Ryy0_init_out_covariance>;
+static float64 Pyy_out_covariance[yL][yL]= <Pyy_out_covariance>;
+static float64 Pyy_out_covariance_copy[yL][yL]= <Pyy_out_covariance_copy>;
+static float64 Pxy_cross_covariance[xL][yL]= <Pxy_cross_covariance>;
+static float64 K_kalman_gain[xL][yL]= <K_kalman_gain>;
+static float64 Pxx_covariance_correction[xL][yL]= <Pxx_covariance_correction>;
+static float64 I_identity_matrix[yL][yL]= <I_identity_matrix>;
 
 tUkfMatrix UkfMatrixCfg<cfgId> = 
 {
@@ -75,8 +75,8 @@ tUkfMatrix UkfMatrixCfg<cfgId> =
     {COLXROW(Wc_weight_vector),NROWS(Wc_weight_vector),NCOL(Wc_weight_vector),&Wc_weight_vector[0][0]},
     {COLXROW(x_system_states),NROWS(x_system_states),NCOL(x_system_states),&x_system_states[0][0]},
     {COLXROW(x_system_states_ic),NROWS(x_system_states_ic),NCOL(x_system_states_ic),&x_system_states_ic[0][0]},
-    {COLXROW(x_system_states_limits),NROWS(x_system_states_limits),NCOL(x_system_states_limits),&x_system_states_limits[0][0]},
-    {COLXROW(x_system_states_limits_enable),NROWS(x_system_states_limits_enable),NCOL(x_system_states_limits_enable),&x_system_states_limits_enable[0][0]},
+    {0,0,0,NULL},//{COLXROW(x_system_states_limits),NROWS(x_system_states_limits),NCOL(x_system_states_limits),&x_system_states_limits[0][0]},
+    {0,0,0,NULL},//{COLXROW(x_system_states_limits_enable),NROWS(x_system_states_limits_enable),NCOL(x_system_states_limits_enable),&x_system_states_limits_enable[0][0]},
     {COLXROW(x_system_states_correction),NROWS(x_system_states_correction),NCOL(x_system_states_correction),&x_system_states_correction[0][0]},
     {0,0,0,NULL},//{COLXROW(u_system_input),NROWS(u_system_input),NCOL(u_system_input),&u_system_input[0][0]},
     {0,0,0,NULL},//{COLXROW(u_prev_system_input),NROWS(u_prev_system_input),NCOL(u_prev_system_input),&u_prev_system_input[0][0]},
