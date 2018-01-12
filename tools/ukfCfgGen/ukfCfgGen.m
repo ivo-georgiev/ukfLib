@@ -1,13 +1,12 @@
 %Initial version of UKF cfg generator
 %Status : In progress 
-clear all
-clc
+function ukfCfgGen(handles)
 %Initialization section (test with pendulum)
-cfgID = 1;
+cfgID = 6;
 dT = 0.0001;
 
-discreteStateFcn = {'x(1) = x(1) + dT*x(2);';
-                    'x(2) = (1 - dT*0.1)*x(2) - dT*16.003263*sin(x(1));'};
+discreteStateFcn = {handles.ukfdata.StateFcn{:}};% {'x(1) = x(1) + dT*x(2);';'x(2) = (1 - dT*0.1)*x(2) - dT*16.003263*sin(x(1));'};
+discreteStateFcn = eval(discreteStateFcn{:});
 
 measFcn = {'y(1) = x(1);'};
 
@@ -21,8 +20,8 @@ betha = 2;
 kappa = 0;
 
 Ryy0 = zeros(yL,yL);
-Pxx0 = diag(ones(1,xL)*0.01);
-Qxx = diag(ones(1,xL)*0.01);
+Pxx0 = handles.ukfdata.Pxx; % diag(ones(1,xL)*0.01);
+Qxx = handles.ukfdata.Qxx; %diag(ones(1,xL)*0.01);
 
 %UKF matrix properties
 ukfMatrix={
@@ -243,7 +242,7 @@ for k = 1:length(ukfMatrix)
 end
 
 if(2 == exist(newCfgSource,'file'))
-    delete(newCfgSource);
+%    delete(newCfgSource);
 end
 
 fid = fopen(newCfgSource,'w');
@@ -253,4 +252,29 @@ for rowIdx=1:length(c)
 end
 
 fclose(fid);
+end
+
+function str = mtx2carr(mtx)
+% convert numeric matrix in string ready for initialization of C arrays
+% Example:
+% in = [1 2 3; 4 5 6]
+% out = {{1,2,3,},{4,5,6}}
+
+[r,c]=size(mtx);
+str = arrayfun(@num2str, mtx, 'UniformOutput', false);
+if c > 1    
+    str = cellfun(@strcat,str, repmat({','},r,c),'UniformOutput',false);
+    str(:,1) = cellfun(@strcat,repmat({'{'},r,1),str(:,1),'UniformOutput',false);
+    str(:,end) = cellfun(@strcat,str(:,end),repmat({'},'},r,1),'UniformOutput',false);
+else
+    str(:,1) = cellfun(@strcat,repmat({'{'},r,1),str(:,1),'UniformOutput',false);
+    str(:,end) = cellfun(@strcat,str(:,end),repmat({'},'},r,1),'UniformOutput',false);
+end;
+str = num2cell(str,1);
+str = strcat(str{:});
+str = strjoin(str');
+str = ['{' str(1:end-1) '}'];
+str = str(~isspace(str));
+str = regexprep(str,',}}','}}');
+end
 
