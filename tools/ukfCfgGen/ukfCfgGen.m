@@ -2,13 +2,14 @@
 %Status : In progress 
 function ukfCfgGen(handles)
 %Initialization section (test with pendulum)
-cfgID = 6;
-dT = 0.0001;
+cfgID = 255;%handles.ukfdata.cfgID;
+dT = handles.ukfdata.dT;
 
-discreteStateFcn = {handles.ukfdata.StateFcn{:}};% {'x(1) = x(1) + dT*x(2);';'x(2) = (1 - dT*0.1)*x(2) - dT*16.003263*sin(x(1));'};
+discreteStateFcn = {handles.ukfdata.StateFcn};% {'x(1) = x(1) + dT*x(2);';'x(2) = (1 - dT*0.1)*x(2) - dT*16.003263*sin(x(1));'};
 discreteStateFcn = eval(discreteStateFcn{:});
 
-measFcn = {'y(1) = x(1);'};
+measFcn = {handles.ukfdata.MeasFcn};%{'y(1) = x(1);'};
+measFcn = eval(measFcn{:});
 
 [xL,~] = size(discreteStateFcn);
 [yL,~] = size(measFcn);

@@ -22,7 +22,7 @@ function varargout = ukfGUI(varargin)
 
 % Edit the above text to modify the response to help ukfGUI
 
-% Last Modified by GUIDE v2.5 12-Jan-2018 17:14:26
+% Last Modified by GUIDE v2.5 13-Jan-2018 01:14:16
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -175,21 +175,27 @@ function initialize_gui(fig_handle, handles, isreset)
 if isfield(handles, 'ukfdata') && ~isreset
     return;
 end
+handles.ukfdata.StateFcn = '{''x(1) = x(1) + dT*x(2);'';''x(2) = (1 - dT*0.1)*x(2) - dT*16.003263*sin(x(1));''}';
+handles.ukfdata.MeasFcn = '{''y(1) = x(1);''}';
 
-handles.ukfdata.Pxx = 0;
-handles.ukfdata.Qxx = 0;
-handles.ukfdata.Ryy  = 0;
+[xL,~] = size(handles.ukfdata.StateFcn);
+[yL,~] = size(handles.ukfdata.MeasFcn);
+sL = 2*xL+1;
+uL= 2;
 
-handles.ukfdata.StateFcn = {'x(1) = x(1) + dT*x(2);';'x(2) = (1 - dT*0.1)*x(2) - dT*16.003263*sin(x(1));'};
+handles.ukfdata.Pxx = diag(ones(1,xL)*0.01);
+handles.ukfdata.Qxx = diag(ones(1,xL)*0.2);
+handles.ukfdata.Ryy  = 0.13;
+handles.ukfdata.dT  = 0.0001;
+handles.ukfdata.cfgID  = 1;
 
-set(handles.Pxx_value, 'String', handles.ukfdata.Pxx);
-set(handles.Ryy_value,  'String', handles.ukfdata.Ryy);
-set(handles.Qxx_value,  'String', handles.ukfdata.Ryy);
-
-set(handles.unitgroup, 'SelectedObject', handles.english);
+% set(handles.Pxx_value, 'String', handles.ukfdata.Pxx);
+% set(handles.Ryy_value,  'String', handles.ukfdata.Ryy);
+% set(handles.Qxx_value,  'String', handles.ukfdata.Ryy);
 
 % Update handles structure
-guidata(handles.UKF_CFG_GEN, handles);
+%guidata(handles.UKF_CFG_GEN, handles);
+guidata(fig_handle,handles)
 
 
 
@@ -360,7 +366,15 @@ function dT_value_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of dT_value as text
 %        str2double(get(hObject,'String')) returns contents of dT_value as a double
+dT = str2double(get(hObject, 'String'));
+if isnan(dT)
+    set(hObject, 'String', 0);
+    errordlg('Input must be a number','Error');
+end
 
+% Save the new Ryy_value value
+handles.ukfdata.dT = dT;
+guidata(hObject,handles)
 
 % --- Executes during object creation, after setting all properties.
 function dT_value_CreateFcn(hObject, eventdata, handles)
@@ -423,6 +437,29 @@ function MeasFcn_CreateFcn(hObject, eventdata, handles)
 % handles    empty - handles not created until after all CreateFcns called
 
 % Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in Cfg_popup.
+function Cfg_popup_Callback(hObject, eventdata, handles)
+% hObject    handle to Cfg_popup (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns Cfg_popup contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from Cfg_popup
+
+
+% --- Executes during object creation, after setting all properties.
+function Cfg_popup_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to Cfg_popup (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
