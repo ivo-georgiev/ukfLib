@@ -1,15 +1,15 @@
 %Initial version of UKF cfg generator
-%Status : In progress
+%Status : In progress 
 clear all
 clc
 %Initialization section (test with pendulum)
 cfgID = 1;
 dT = 0.0001;
 
-discreteStateFcn = {'x(1) = x(1) + dT*x(2)';
-                    'x(2) = (1 - dT*0.1)*x(2) - dt*16.003263*sin(x(1))'};
+discreteStateFcn = {'x(1) = x(1) + dT*x(2);';
+                    'x(2) = (1 - dT*0.1)*x(2) - dT*16.003263*sin(x(1));'};
 
-measFcn = {'y(1) = x(1)'};
+measFcn = {'y(1) = x(1);'};
 
 [xL,~] = size(discreteStateFcn);
 [yL,~] = size(measFcn);
@@ -85,6 +85,14 @@ newCfgHeader = ['ukfCfg' num2str(cfgID) '.h'];
 str = textscan(fidS,'%s', 'delimiter', '\n');
 
 c = str{1};
+%set generation Date/Time 
+tmp1 = cell(1,length(c))';
+tmp1(:) = {'<Time/Date>'};
+
+tmp2 = cell(1,length(c))';
+tmp2(:) = {datestr(now, 'dd-mmm-yyyy HH:MM:SS')};
+c = cellfun(@strrep,c,tmp1,tmp2,'UniformOutput',false);
+
 %put header ID
 tmp1 = cell(1,length(c))';
 tmp1(:) = {'<cfgId>'};
@@ -92,8 +100,48 @@ tmp1(:) = {'<cfgId>'};
 tmp2 = cell(1,length(c))';
 tmp2(:) = {num2str(cfgID)};
 c = cellfun(@strrep,c,tmp1,tmp2,'UniformOutput',false);
+%put defines for xL:state size
+tmp1 = cell(1,length(c))';
+tmp1(:) = {'<xL>'};
 
+tmp2 = cell(1,length(c))';
+tmp2(:) = {num2str(xL)};
+c = cellfun(@strrep,c,tmp1,tmp2,'UniformOutput',false);
+
+%put defines for yL:measurement size
+tmp1 = cell(1,length(c))';
+tmp1(:) = {'<yL>'};
+
+tmp2 = cell(1,length(c))';
+tmp2(:) = {num2str(yL)};
+c = cellfun(@strrep,c,tmp1,tmp2,'UniformOutput',false);
+
+%put defines for yL:sigma point size
+tmp1 = cell(1,length(c))';
+tmp1(:) = {'<sL>'};
+
+tmp2 = cell(1,length(c))';
+tmp2(:) = {num2str(sL)};
+c = cellfun(@strrep,c,tmp1,tmp2,'UniformOutput',false);
+
+%put defines for yL:input size
+tmp1 = cell(1,length(c))';
+tmp1(:) = {'<uL>'};
+
+tmp2 = cell(1,length(c))';
+tmp2(:) = {num2str(uL)};
+c = cellfun(@strrep,c,tmp1,tmp2,'UniformOutput',false);
+
+%set dt
+tmp1 = cell(1,length(c))';
+tmp1(:) = {'<dT>'};
+
+tmp2 = cell(1,length(c))';
+tmp2(:) = {num2str(dT)};
+c = cellfun(@strrep,c,tmp1,tmp2,'UniformOutput',false);
+%%%%%
 ptrString = 'static tPredictFcn PredictFcn[xL] = {';
+
 for i = 1:xL 
     %State transition prototype
     endIdx = find(~cellfun(@isempty,strfind(c, '<STATE TRANSITION PROTOTYPE:END>')));
@@ -194,10 +242,15 @@ for k = 1:length(ukfMatrix)
     end
 end
 
-delete(newCfgSource);
+if(2 == exist(newCfgSource,'file'))
+    delete(newCfgSource);
+end
+
 fid = fopen(newCfgSource,'w');
 
 for rowIdx=1:length(c)
-fprintf(fid,'%s\n',c{rowIdx});    
+    fprintf(fid,'%s\n',c{rowIdx});    
 end
+
+fclose(fid);
 
