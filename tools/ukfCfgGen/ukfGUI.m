@@ -23,7 +23,7 @@ function varargout = ukfGUI(varargin)
 
 % Edit the above text to modify the response to help ukfGUI
 
-% Last Modified by GUIDE v2.5 13-Jan-2018 22:07:55
+% Last Modified by GUIDE v2.5 13-Jan-2018 22:53:49
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -207,7 +207,7 @@ handles.ukfdata.kappa = 0;
 set(handles.kappaEdit,  'String', handles.ukfdata.kappa);
 set(handles.kappaSlider,  'Value', handles.ukfdata.kappa);
 
-
+handles.ukfdata.LimitsEnable = false;
 
 %set(handles.Pxx_value, 'String', handles.ukfdata.Pxx);
 %set(handles.Ryy_value,  'String', handles.ukfdata.Ryy);
@@ -272,14 +272,15 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-% --- Executes on button press in LimitsEnableCheckBox.
-function LimitsEnableCheckBox_Callback(hObject, eventdata, handles)
-% hObject    handle to LimitsEnableCheckBox (see GCBO)
+% --- Executes on button press in LimitsEnable.
+function LimitsEnable_Callback(hObject, eventdata, handles)
+% hObject    handle to LimitsEnable (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hint: get(hObject,'Value') returns toggle state of LimitsEnableCheckBox
-
+% Hint: get(hObject,'Value') returns toggle state of LimitsEnable
+handles.ukfdata.LimitsEnable = get(hObject,'Value');
+guidata(hObject,handles);
 
 
 function StateTransitionFcn_Callback(hObject, eventdata, handles)
@@ -289,7 +290,6 @@ function StateTransitionFcn_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of StateTransitionFcn as text
 %        str2double(get(hObject,'String')) returns contents of StateTransitionFcn as a double
-a=9;
 % StateFcn = eval(get(hObject, 'String'));
 % if isnan(StateFcn)
 %     set(hObject, 'String', 0);

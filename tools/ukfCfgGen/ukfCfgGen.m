@@ -36,8 +36,8 @@ ukfMatrix={
 {'<y_predicted_mean>' ,[yL,1],zeros(yL,1),true}
 {'<x_system_states>',[xL,1],zeros(xL,1),true}
 {'<x_system_states_ic>' ,[xL,1],zeros(xL,1),true}
-{'<x_system_states_limits>' ,[xL,3],zeros(xL,3),true}
-{'<x_system_states_limits_enable>' ,[xL,1],zeros(xL,1),true}
+{'<x_system_states_limits>' ,[xL,3],zeros(xL,3),handles.ukfdata.LimitsEnable}
+{'<x_system_states_limits_enable>' ,[xL,1],zeros(xL,1),handles.ukfdata.LimitsEnable}
 {'<x_system_states_correction>' ,[xL,1],zeros(xL,1),true}
 {'<X_sigma_points>' ,[xL,sL],zeros(xL,sL),true}
 {'<Y_sigma_points>' ,[yL,sL],zeros(yL,1),true}
@@ -231,14 +231,10 @@ for k = 1:length(ukfMatrix)
         c = cellfun(@strrep, c, l,replace,'UniformOutput',false);
     else
         %comment array definition if not required
-        rowIdx =  cellfun(@strfind,c,repmat(ukfMatrix{k}(1),length(c),1),'UniformOutput',false);
+        rowIdx =  cellfun(@strfind,c,repmat({ukfMatrix{k}{1}},length(c),1),'UniformOutput',false);
         rowIdx = find(~cellfun(@isempty,rowIdx));
-        c{rowIdx}(1:2)= '//'
-        
-        %replace '{0,0,0,NULL},' if optional array is not present
-        rowIx =  cellfun(@strfind,c,repmat({ukfMatrix{k}{1}(2:end-1)},length(c),1),'UniformOutput',false);
-        rowIx = max(find(~cellfun(@isempty,rowIx)));
-        c{rowIx}='{0,0,0,NULL},';
+        c{rowIdx(1)}(:)= ''     
+        c{rowIdx(2)}='{0,0,0,NULL},';
     end
 end
 
