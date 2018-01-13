@@ -7,7 +7,8 @@ function varargout = ukfGUI(varargin)
 %      the existing singleton*.
 %
 %      UKFGUI('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in UKFGUI.M with the given input arguments.
+%      function named CALLBACK in UKFGUI.M with the given input
+%      arguments.
 %
 %      UKFGUI('Property','Value',...) creates a new UKFGUI or raises
 %      the existing singleton*.  Starting from the left, property value pairs are
@@ -22,7 +23,7 @@ function varargout = ukfGUI(varargin)
 
 % Edit the above text to modify the response to help ukfGUI
 
-% Last Modified by GUIDE v2.5 13-Jan-2018 01:14:16
+% Last Modified by GUIDE v2.5 13-Jan-2018 17:51:41
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -71,6 +72,8 @@ function varargout = ukfGUI_OutputFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Get default command line output from handles structure
+handles.output = hObject;
+handles = guidata(hObject);
 varargout{1} = handles.output;
 
 
@@ -460,6 +463,109 @@ function Cfg_popup_CreateFcn(hObject, eventdata, handles)
 % handles    empty - handles not created until after all CreateFcns called
 
 % Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on slider movement.
+function alphaSlider_Callback(hObject, eventdata, handles)
+% hObject    handle to alphaSlider (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+alphaVal = get(hObject,'Value');
+set(handles.alphaEdit,'string',num2str(alphaVal));
+guidata(hObject,handles);
+
+% --- Executes during object creation, after setting all properties.
+function alphaSlider_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to alphaSlider (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+
+% --- Executes on slider movement.
+function betha_slider_Callback(hObject, eventdata, handles)
+% hObject    handle to betha_slider (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+
+
+% --- Executes during object creation, after setting all properties.
+function betha_slider_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to betha_slider (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+
+% --- Executes on slider movement.
+function slider5_Callback(hObject, eventdata, handles)
+% hObject    handle to slider5 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+
+
+% --- Executes during object creation, after setting all properties.
+function slider5_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to slider5 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+
+% --- Executes on key press with focus on alphaSlider and none of its controls.
+function alphaSlider_KeyPressFcn(hObject, eventdata, handles)
+% hObject    handle to alphaSlider (see GCBO)
+% eventdata  structure with the following fields (see UICONTROL)
+%	Key: name of the key that was pressed, in lower case
+%	Character: character interpretation of the key(s) that was pressed
+%	Modifier: name(s) of the modifier key(s) (i.e., control, shift) pressed
+% handles    structure with handles and user data (see GUIDATA)
+
+
+
+function alphaEdit_Callback(hObject, eventdata, handles)
+% hObject    handle to alphaEdit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of alphaEdit as text
+%        str2double(get(hObject,'String')) returns contents of alphaEdit as a double
+edit = str2double(get(hObject,'String'));
+set(handles.alphaSlider,'Value',edit);
+guidata(hObject,handles)
+
+% --- Executes during object creation, after setting all properties.
+function alphaEdit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to alphaEdit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
