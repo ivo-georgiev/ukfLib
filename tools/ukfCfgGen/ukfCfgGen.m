@@ -2,7 +2,7 @@
 %Status : In progress 
 function ukfCfgGen(handles)
 %Initialization section (test with pendulum)
-cfgID = 255;%handles.ukfdata.cfgID;
+cfgID = handles.ukfdata.cfgid;
 dT = handles.ukfdata.dT;
 
 discreteStateFcn = {handles.ukfdata.StateFcn};% {'x(1) = x(1) + dT*x(2);';'x(2) = (1 - dT*0.1)*x(2) - dT*16.003263*sin(x(1));'};
@@ -16,9 +16,9 @@ measFcn = eval(measFcn{:});
 sL = 2*xL+1;
 uL= 2;
 
-alpha = 1;
-betha = 2;
-kappa = 0;
+alpha = handles.ukfdata.alpha; %str2double(get(handles.alphaEdit,'String'));
+betha = handles.ukfdata.betha;
+kappa = handles.ukfdata.kappa;
 
 Ryy0 = zeros(yL,yL);
 Pxx0 = handles.ukfdata.Pxx; % diag(ones(1,xL)*0.01);

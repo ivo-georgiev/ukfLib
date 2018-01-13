@@ -23,7 +23,7 @@ function varargout = ukfGUI(varargin)
 
 % Edit the above text to modify the response to help ukfGUI
 
-% Last Modified by GUIDE v2.5 13-Jan-2018 17:51:41
+% Last Modified by GUIDE v2.5 13-Jan-2018 22:07:55
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -179,7 +179,10 @@ if isfield(handles, 'ukfdata') && ~isreset
     return;
 end
 handles.ukfdata.StateFcn = '{''x(1) = x(1) + dT*x(2);'';''x(2) = (1 - dT*0.1)*x(2) - dT*16.003263*sin(x(1));''}';
+set(handles.StateFcn,  'String', handles.ukfdata.StateFcn);
+
 handles.ukfdata.MeasFcn = '{''y(1) = x(1);''}';
+set(handles.MeasFcn,  'String', handles.ukfdata.MeasFcn);
 
 [xL,~] = size(handles.ukfdata.StateFcn);
 [yL,~] = size(handles.ukfdata.MeasFcn);
@@ -190,11 +193,25 @@ handles.ukfdata.Pxx = diag(ones(1,xL)*0.01);
 handles.ukfdata.Qxx = diag(ones(1,xL)*0.2);
 handles.ukfdata.Ryy  = 0.13;
 handles.ukfdata.dT  = 0.0001;
-handles.ukfdata.cfgID  = 1;
+handles.ukfdata.cfgid  = 1;
 
-% set(handles.Pxx_value, 'String', handles.ukfdata.Pxx);
-% set(handles.Ryy_value,  'String', handles.ukfdata.Ryy);
-% set(handles.Qxx_value,  'String', handles.ukfdata.Ryy);
+handles.ukfdata.alpha = 0.1;
+set(handles.alphaEdit,  'String', handles.ukfdata.alpha);
+set(handles.alphaSlider,  'Value', handles.ukfdata.alpha);
+
+handles.ukfdata.betha = 2;
+set(handles.bethaEdit,  'String', handles.ukfdata.betha);
+set(handles.bethaSlider,  'Value', handles.ukfdata.betha);
+
+handles.ukfdata.kappa = 0;
+set(handles.kappaEdit,  'String', handles.ukfdata.kappa);
+set(handles.kappaSlider,  'Value', handles.ukfdata.kappa);
+
+
+
+%set(handles.Pxx_value, 'String', handles.ukfdata.Pxx);
+%set(handles.Ryy_value,  'String', handles.ukfdata.Ryy);
+%set(handles.Qxx_value,  'String', handles.ukfdata.Ryy);
 
 % Update handles structure
 %guidata(handles.UKF_CFG_GEN, handles);
@@ -477,8 +494,8 @@ function alphaSlider_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
-alphaVal = get(hObject,'Value');
-set(handles.alphaEdit,'string',num2str(alphaVal));
+handles.ukfdata.alpha = get(hObject,'Value');
+set(handles.alphaEdit,'string',num2str(handles.ukfdata.alpha));
 guidata(hObject,handles);
 
 % --- Executes during object creation, after setting all properties.
@@ -494,18 +511,20 @@ end
 
 
 % --- Executes on slider movement.
-function betha_slider_Callback(hObject, eventdata, handles)
-% hObject    handle to betha_slider (see GCBO)
+function bethaSlider_Callback(hObject, eventdata, handles)
+% hObject    handle to bethaSlider (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
-
+handles.ukfdata.betha = get(hObject,'Value');
+set(handles.bethaEdit,'string',num2str(handles.ukfdata.betha));
+guidata(hObject,handles);
 
 % --- Executes during object creation, after setting all properties.
-function betha_slider_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to betha_slider (see GCBO)
+function bethaSlider_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to bethaSlider (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -516,18 +535,20 @@ end
 
 
 % --- Executes on slider movement.
-function slider5_Callback(hObject, eventdata, handles)
-% hObject    handle to slider5 (see GCBO)
+function kappaSlider_Callback(hObject, eventdata, handles)
+% hObject    handle to kappaSlider (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
-
+handles.ukfdata.kappa = get(hObject,'Value');
+set(handles.kappaEdit,'string',num2str(handles.ukfdata.kappa));
+guidata(hObject,handles);
 
 % --- Executes during object creation, after setting all properties.
-function slider5_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to slider5 (see GCBO)
+function kappaSlider_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to kappaSlider (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -547,7 +568,6 @@ function alphaSlider_KeyPressFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
-
 function alphaEdit_Callback(hObject, eventdata, handles)
 % hObject    handle to alphaEdit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -555,8 +575,8 @@ function alphaEdit_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of alphaEdit as text
 %        str2double(get(hObject,'String')) returns contents of alphaEdit as a double
-edit = str2double(get(hObject,'String'));
-set(handles.alphaSlider,'Value',edit);
+handles.ukfdata.alpha = str2double(get(hObject,'String'));
+set(handles.alphaSlider,'Value',handles.ukfdata.alpha);
 guidata(hObject,handles)
 
 % --- Executes during object creation, after setting all properties.
@@ -566,6 +586,104 @@ function alphaEdit_CreateFcn(hObject, eventdata, handles)
 % handles    empty - handles not created until after all CreateFcns called
 
 % Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function bethaEdit_Callback(hObject, eventdata, handles)
+% hObject    handle to bethaEdit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of bethaEdit as text
+%        str2double(get(hObject,'String')) returns contents of bethaEdit as a double
+handles.ukfdata.betha = str2double(get(hObject,'String'));
+set(handles.bethaSlider,'Value',handles.ukfdata.betha);
+guidata(hObject,handles)
+
+% --- Executes during object creation, after setting all properties.
+function bethaEdit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to bethaEdit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function kappaEdit_Callback(hObject, eventdata, handles)
+% hObject    handle to kappaEdit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of kappaEdit as text
+%        str2double(get(hObject,'String')) returns contents of kappaEdit as a double
+handles.ukfdata.kappa = str2double(get(hObject,'String'));
+set(handles.kappaSlider,'Value',handles.ukfdata.kappa);
+guidata(hObject,handles)
+
+% --- Executes during object creation, after setting all properties.
+function kappaEdit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to kappaEdit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function stateMeaning_Callback(hObject, eventdata, handles)
+% hObject    handle to stateMeaning (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of stateMeaning as text
+%        str2double(get(hObject,'String')) returns contents of stateMeaning as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function stateMeaning_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to stateMeaning (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in popupCfg.
+function popupCfg_Callback(hObject, eventdata, handles)
+% hObject    handle to popupCfg (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popupCfg contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupCfg
+contents = cellstr(get(hObject,'String'));
+handles.ukfdata.cfgid = str2double(contents{get(hObject,'Value')});
+guidata(hObject,handles)
+
+% --- Executes during object creation, after setting all properties.
+function popupCfg_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupCfg (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
