@@ -98,14 +98,13 @@ function Pxx_value_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of Pxx_value as text
 %        str2double(get(hObject,'String')) returns contents of Pxx_value as a double
-Pxx = eval(get(hObject, 'String'));
-if isnan(Pxx)
+handles.ukfdata.Pxx = eval(get(hObject, 'String'));
+if isnan(handles.ukfdata.Pxx)
     set(hObject, 'String', 0);
     errordlg('Input must be a number','Error');
 end
 
 % Save the new Pxx_value value
-handles.ukfdata.Pxx = Pxx;
 guidata(hObject,handles)
 
 % --- Executes during object creation, after setting all properties.
@@ -129,14 +128,12 @@ function Ryy_value_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of Ryy_value as text
 %        str2double(get(hObject,'String')) returns contents of Ryy_value as a double
-Ryy = eval(get(hObject, 'String'));
-if isnan(Ryy)
+handles.ukfdata.Ryy = eval(get(hObject, 'String'));
+if isnan(handles.ukfdata.Ryy)
     set(hObject, 'String', 0);
     errordlg('Input must be a number','Error');
 end
 
-% Save the new Ryy_value value
-handles.ukfdata.Ryy = Ryy;
 guidata(hObject,handles)
 
 % --- Executes on button press in Generate_ukfCfg.
@@ -184,15 +181,25 @@ set(handles.StateFcn,  'String', handles.ukfdata.StateFcn);
 handles.ukfdata.MeasFcn = '{''y(1) = x(1);''}';
 set(handles.MeasFcn,  'String', handles.ukfdata.MeasFcn);
 
-[xL,~] = size(handles.ukfdata.StateFcn);
-[yL,~] = size(handles.ukfdata.MeasFcn);
+eval(['tmp=' handles.ukfdata.StateFcn ])
+[xL,~] = size(tmp);
+eval(['tmp=' handles.ukfdata.MeasFcn])
+[yL,~] = size(tmp);
 sL = 2*xL+1;
-uL= 2;
+uL= [];
 
-handles.ukfdata.Pxx = diag(ones(1,xL)*0.01);
-handles.ukfdata.Qxx = diag(ones(1,xL)*0.2);
-handles.ukfdata.Ryy  = 0.13;
+handles.ukfdata.Pxx = diag(ones(1,xL)*100);
+set(handles.Pxx_value, 'String', mat2str(handles.ukfdata.Pxx));
+
+handles.ukfdata.Qxx = diag(ones(1,xL)*0.1);
+set(handles.Qxx_value,  'String', mat2str(handles.ukfdata.Qxx));
+
+handles.ukfdata.Ryy  = 1;
+set(handles.Ryy_value,  'String', mat2str(handles.ukfdata.Ryy));
+
 handles.ukfdata.dT  = 0.0001;
+set(handles.dT_value,  'String', num2str(handles.ukfdata.dT));
+
 handles.ukfdata.cfgid  = 1;
 
 handles.ukfdata.alpha = 0.1;
@@ -208,11 +215,9 @@ set(handles.kappaEdit,  'String', handles.ukfdata.kappa);
 set(handles.kappaSlider,  'Value', handles.ukfdata.kappa);
 
 handles.ukfdata.LimitsEnable = false;
+set(handles.LimitsEnable, 'Value',handles.ukfdata.LimitsEnable);
 
-%set(handles.Pxx_value, 'String', handles.ukfdata.Pxx);
-%set(handles.Ryy_value,  'String', handles.ukfdata.Ryy);
-%set(handles.Qxx_value,  'String', handles.ukfdata.Ryy);
-
+set(handles.popupCfg, 'Value',handles.ukfdata.cfgid);
 % Update handles structure
 %guidata(handles.UKF_CFG_GEN, handles);
 guidata(fig_handle,handles)
