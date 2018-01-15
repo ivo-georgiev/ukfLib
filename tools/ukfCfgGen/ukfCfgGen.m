@@ -166,7 +166,7 @@ for i = 1:xL
     
     endIdx = endIdx+1;
     c(endIdx+1:end+1,:) = c(endIdx:end,:);
-    c(endIdx,:) = sourceStateFcn(xL);
+    c(endIdx,:) = sourceStateFcn(i);
     
     endIdx = endIdx+1;
     c(endIdx+1:end+1,:) = c(endIdx:end,:);
