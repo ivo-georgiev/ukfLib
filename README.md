@@ -7,6 +7,7 @@ https://web.statler.wvu.edu/~irl/IRL_WVU_Online_UKF_Implementation_V1.0_06_28_20
 - ukfCfg1.c,ukfCfg1.h : This configuration is used for estimation of angle and angular speed of free pendulum.
 - test2.c : file is used for both simulation and unit testing. It also show how filter should be initialized and used in practice.
 - Matlab model(R2013b) with s-fun for simulation and verification of each configuration(cfg1,cfg2,..,cfgN) in Simulink enviroment.This model use files listed above to build and simulate s-function.
+-Matlab GUI tool for easy filter configuration and automatic file generation(ukfCfgN.c ukfCfgN.h) 
 
 Why this project is useful:
 - There is not any specific external dependency. All needed sources are available in repository.
