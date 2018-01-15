@@ -23,6 +23,7 @@ kappa = handles.ukfdata.kappa;
 Ryy0 = zeros(yL,yL);
 Pxx0 = handles.ukfdata.Pxx; % diag(ones(1,xL)*0.01);
 Qxx = handles.ukfdata.Qxx; %diag(ones(1,xL)*0.01);
+x0 = handles.ukfdata.x0;
 
 %UKF matrix properties
 ukfMatrix={
@@ -35,7 +36,7 @@ ukfMatrix={
 {'<y_meas>' ,[yL,1],zeros(yL,1),true}
 {'<y_predicted_mean>' ,[yL,1],zeros(yL,1),true}
 {'<x_system_states>',[xL,1],zeros(xL,1),true}
-{'<x_system_states_ic>' ,[xL,1],zeros(xL,1),true}
+{'<x_system_states_ic>' ,[xL,1],x0,true}
 {'<x_system_states_limits>' ,[xL,3],zeros(xL,3),handles.ukfdata.LimitsEnable}
 {'<x_system_states_limits_enable>' ,[xL,1],zeros(xL,1),handles.ukfdata.LimitsEnable}
 {'<x_system_states_correction>' ,[xL,1],zeros(xL,1),true}

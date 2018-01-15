@@ -23,7 +23,7 @@ function varargout = ukfGUI(varargin)
 
 % Edit the above text to modify the response to help ukfGUI
 
-% Last Modified by GUIDE v2.5 13-Jan-2018 22:53:49
+% Last Modified by GUIDE v2.5 15-Jan-2018 23:50:48
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -187,6 +187,9 @@ eval(['tmp=' handles.ukfdata.MeasFcn])
 [yL,~] = size(tmp);
 sL = 2*xL+1;
 uL= [];
+
+handles.ukfdata.x0 = [-pi/9;0];
+set(handles.state_ic, 'String', mat2str(handles.ukfdata.x0));
 
 handles.ukfdata.Pxx = diag(ones(1,xL)*100);
 set(handles.Pxx_value, 'String', mat2str(handles.ukfdata.Pxx));
@@ -689,6 +692,34 @@ function popupCfg_CreateFcn(hObject, eventdata, handles)
 % handles    empty - handles not created until after all CreateFcns called
 
 % Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function state_ic_Callback(hObject, eventdata, handles)
+% hObject    handle to state_ic (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of state_ic as text
+%        str2double(get(hObject,'String')) returns contents of state_ic as a double
+handles.ukfdata.x0 = eval(get(hObject, 'String'));
+if isnan(handles.ukfdata.x0)
+    set(hObject, 'String', 0);
+    errordlg('Input must be a number','Error');
+end
+guidata(hObject,handles);
+
+% --- Executes during object creation, after setting all properties.
+function state_ic_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to state_ic (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
