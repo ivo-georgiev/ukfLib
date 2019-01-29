@@ -41,7 +41,7 @@ ukfMatrix={
 {'<x_system_states_limits_enable>' ,[xL,1],zeros(xL,1),handles.ukfdata.LimitsEnable}
 {'<x_system_states_correction>' ,[xL,1],zeros(xL,1),true}
 {'<X_sigma_points>' ,[xL,sL],zeros(xL,sL),true}
-{'<Y_sigma_points>' ,[yL,sL],zeros(yL,1),true}
+{'<Y_sigma_points>' ,[yL,sL],zeros(yL,sL),true}
 {'<Pxx_error_covariance>' ,[xL,xL],zeros(xL,xL),true}
 {'<Pxx0_init_error_covariance>' ,[xL,xL],Pxx0,true}
 {'<Qxx_process_noise_cov>' ,[xL,xL],Qxx,true}
