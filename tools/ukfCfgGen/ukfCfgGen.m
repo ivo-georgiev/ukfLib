@@ -79,8 +79,7 @@ for pIdx=1:yL
 end
 
 newCfgSource = ['ukfCfg' num2str(cfgID) '.c'];
-newCfgHeader = ['ukfCfg' num2str(cfgID) '.h'];
-
+%process source files
 [fidS,msg] = fopen('ukfCfgTemplate.c');
 
 str = textscan(fidS,'%s', 'delimiter', '\n');
@@ -243,13 +242,35 @@ if(2 == exist(newCfgSource,'file'))
 %    delete(newCfgSource);
 end
 
-fid = fopen(newCfgSource,'w');
+fidS = fopen(newCfgSource,'w');
+fprintf(fidS,'%s\n',c{:});    
+fclose(fidS);
 
-for rowIdx=1:length(c)
-    fprintf(fid,'%s\n',c{rowIdx});    
-end
+%process header files
+newCfgHeader = ['ukfCfg' num2str(cfgID) '.h'];
 
-fclose(fid);
+[fidH,msg] = fopen('ukfCfgTemplate.h');
+
+strH = textscan(fidH,'%s', 'delimiter', '\n');
+h = strH{1};
+tmp1 = cell(1,length(h))';
+tmp1(:) = {'<Time/Date>'};
+
+tmp2 = cell(1,length(h))';
+tmp2(:) = {datestr(now, 'dd-mmm-yyyy HH:MM:SS')};
+h = cellfun(@strrep,h,tmp1,tmp2,'UniformOutput',false);
+
+%put header ID
+tmp1 = cell(1,length(h))';
+tmp1(:) = {'<cfgId>'};
+
+tmp2 = cell(1,length(h))';
+tmp2(:) = {num2str(cfgID)};
+h = cellfun(@strrep,h,tmp1,tmp2,'UniformOutput',false);
+
+fidH = fopen(newCfgHeader,'w');
+fprintf(fidH,'%s\n',h{:});    
+fclose(fidH);
 end
 
 function str = mtx2carr(mtx)
