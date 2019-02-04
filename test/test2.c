@@ -1,5 +1,5 @@
-#include "ukfCfg.h"
-#include "ukfCfg1.h"
+#include "../cfg/ukfCfg.h"
+#include "../cfg/ukfCfg1.h"
 
 #define cfg0 (uint8)0
 #define cfg1 (uint8)1
