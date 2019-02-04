@@ -40,7 +40,7 @@
  *** OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *** SOFTWARE.
 \******************************************************************************************************************************************************************************************************/
-#include "ukfCfg.h"
+#include "../cfg/ukfCfg.h"
 
 static void Fx1(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 dT);
 static void Fx2(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 dT);
