@@ -31,7 +31,7 @@
 #ifndef UKFCFG<cfgId>_H
 #define UKFCFG<cfgId>_H
 
-#include "ukfLib.h"
+#include "../lib/ukfLib.h"
 
 extern tUkfMatrix UkfMatrixCfg<cfgId>;
 
