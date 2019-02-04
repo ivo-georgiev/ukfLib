@@ -1,7 +1,7 @@
 #ifndef UKFCFG1_H
 #define UKFCFG1_H
 
-#include "ukfLib.h"
+#include "../lib/ukfLib.h"
 
 extern tUkfMatrix UkfMatrixCfg1;
 
