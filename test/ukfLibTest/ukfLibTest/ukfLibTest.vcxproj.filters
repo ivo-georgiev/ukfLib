@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\test">
+      <UniqueIdentifier>{0ad185e4-8d6a-408a-9839-477de437e5bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\lib_c">
+      <UniqueIdentifier>{2b28b387-4796-409b-9b6f-fe79c8c7795b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\cfg_c">
+      <UniqueIdentifier>{eef9f7e8-afe7-4026-8ea2-5da264ea55d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\cfg_h">
+      <UniqueIdentifier>{1dcfb505-c307-4c26-90b1-5806510c9008}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\lib_h">
+      <UniqueIdentifier>{372b80ec-1e7b-4da2-b69c-304f74497a30}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\ukfTest.c">
+      <Filter>Source Files\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\cfg\ukfCfg.c">
+      <Filter>Source Files\cfg_c</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\cfg\ukfCfg1.c">
+      <Filter>Source Files\cfg_c</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lib\mtxLib.c">
+      <Filter>Source Files\lib_c</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lib\ukfLib.c">
+      <Filter>Source Files\lib_c</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\cfg\ukfCfg.h">
+      <Filter>Header Files\cfg_h</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\cfg\ukfCfg1.h">
+      <Filter>Header Files\cfg_h</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lib\mtxLib.h">
+      <Filter>Header Files\lib_h</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lib\System_Types.h">
+      <Filter>Header Files\lib_h</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lib\ukfLib.h">
+      <Filter>Header Files\lib_h</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
