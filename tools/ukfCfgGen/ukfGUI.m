@@ -23,7 +23,7 @@ function varargout = ukfGUI(varargin)
 
 % Edit the above text to modify the response to help ukfGUI
 
-% Last Modified by GUIDE v2.5 15-Jan-2018 23:50:48
+% Last Modified by GUIDE v2.5 13-Dec-2019 13:49:10
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -153,7 +153,7 @@ initialize_gui(gcbf, handles, true);
 
 % --- Executes when selected object changed in unitgroup.
 function unitgroup_SelectionChangeFcn(hObject, eventdata, handles)
-% hObject    handle to the selected object in unitgroup 
+% hObject    handle to the selected object in unitgroup
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
@@ -175,7 +175,7 @@ function initialize_gui(fig_handle, handles, isreset)
 if isfield(handles, 'ukfdata') && ~isreset
     return;
 end
-handles.ukfdata.StateFcn = '{''x(1) = x(1) + dT*x(2);'';''x(2) = (1 - dT*0.1)*x(2) - dT*16.003263*sin(x(1));''}';
+handles.ukfdata.StateFcn = '{''x(1) = x(1) + dT*x(2) + 0*u(1) + 0*u(2);'';''x(2) = (1 - dT*0.1)*x(2) - dT*16.003263*sin(x(1)+ 0*u(2));''}';
 set(handles.StateFcn,  'String', handles.ukfdata.StateFcn);
 
 handles.ukfdata.MeasFcn = '{''y(1) = x(1);''}';
@@ -186,7 +186,10 @@ eval(['tmp=' handles.ukfdata.StateFcn ])
 eval(['tmp=' handles.ukfdata.MeasFcn])
 [yL,~] = size(tmp);
 sL = 2*xL+1;
-uL= [];
+
+handles.ukfdata.uL = 2;
+idx_uL = handles.ukfdata.uL + 1;
+set(handles.sys_input_len, 'Value', idx_uL);
 
 handles.ukfdata.x0 = [-pi/9;0];
 set(handles.state_ic, 'String', mat2str(handles.ukfdata.x0));
@@ -303,7 +306,7 @@ function StateTransitionFcn_Callback(hObject, eventdata, handles)
 %     set(hObject, 'String', 0);
 %     errordlg('Input must be a number','Error');
 % end
-% 
+%
 % % Save the new Ryy_value value
 % handles.ukfdata.StateFcn = StateFcn;
 % guidata(hObject,handles)
@@ -720,6 +723,31 @@ function state_ic_CreateFcn(hObject, eventdata, handles)
 % handles    empty - handles not created until after all CreateFcns called
 
 % Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in sys_input_len.
+function sys_input_len_Callback(hObject, eventdata, handles)
+% hObject    handle to sys_input_len (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns sys_input_len contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from sys_input_len
+contents = cellstr(get(hObject,'String'));
+handles.ukfdata.uL = str2double(contents{get(hObject,'Value')});
+guidata(hObject,handles)
+
+% --- Executes during object creation, after setting all properties.
+function sys_input_len_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to sys_input_len (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
