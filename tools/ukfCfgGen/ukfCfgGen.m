@@ -14,13 +14,14 @@ measFcn = eval(measFcn{:});
 [xL,~] = size(discreteStateFcn);
 [yL,~] = size(measFcn);
 sL = 2*xL+1;
-uL= 2;
+uL = handles.ukfdata.uL;
 
 alpha = handles.ukfdata.alpha; %str2double(get(handles.alphaEdit,'String'));
 betha = handles.ukfdata.betha;
 kappa = handles.ukfdata.kappa;
 
-Ryy0 = zeros(yL,yL);
+%ToDo: Check size compatability before assignment!
+Ryy0 = handles.ukfdata.Ryy;%zeros(yL,yL);
 Pxx0 = handles.ukfdata.Pxx; % diag(ones(1,xL)*0.01);
 Qxx = handles.ukfdata.Qxx; %diag(ones(1,xL)*0.01);
 x0 = handles.ukfdata.x0;
@@ -31,8 +32,8 @@ ukfMatrix={
 {'<Sc_vector>' ,[1,3],[alpha,betha,kappa],true}
 {'<Wm_weight_vector>' ,[1,sL],zeros(1,sL),true}
 {'<Wc_weight_vector>' ,[1,sL],zeros(1,sL),true}
-{'<u_system_input>' ,[uL,1],zeros(uL,1),false}
-{'<u_prev_system_input>' ,[uL,1],zeros(uL,1),false}
+{'<u_system_input>' ,[uL,1],zeros(uL,1),uL>0}
+{'<u_prev_system_input>' ,[uL,1],zeros(uL,1),uL>0}
 {'<y_meas>' ,[yL,1],zeros(yL,1),true}
 {'<y_predicted_mean>' ,[yL,1],zeros(yL,1),true}
 {'<x_system_states>',[xL,1],zeros(xL,1),true}
@@ -63,7 +64,10 @@ for mIdx=1:xL
     
     for nIdx=1:xL
         sourceStateFcn(mIdx) = {['  ' strrep(sourceStateFcn{mIdx},['x(' num2str(nIdx) ')' ], [ 'pX_p->val[nCol*' num2str(nIdx-1) '+sigmaIdx]' ])]};
-    end;
+        for uIdx=1:uL
+            sourceStateFcn(mIdx) = {['' strrep(sourceStateFcn{mIdx},['u(' num2str(uIdx) ')' ], [ 'pu_p->val[' num2str(uIdx-1) ']' ])]};
+        end
+    end
 end
 
 sourceMeasFcn = cell(yL,1);
@@ -124,7 +128,7 @@ tmp2 = cell(1,length(c))';
 tmp2(:) = {num2str(sL)};
 c = cellfun(@strrep,c,tmp1,tmp2,'UniformOutput',false);
 
-%put defines for yL:input size
+%put defines for uL:input size
 tmp1 = cell(1,length(c))';
 tmp1(:) = {'<uL>'};
 
@@ -296,4 +300,3 @@ str = ['{' str(1:end-1) '}'];
 str = str(~isspace(str));
 str = regexprep(str,',}}','}}');
 end
-
