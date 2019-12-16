@@ -19,7 +19,7 @@ if (NOT CONFIGURED_ONCE)
 endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -std=c99")
-add_executable (kalman ../cfg/ukfCfg.c ../cfg/ukfCfg1.c ../lib/ukfLib.c test2.c ../lib/mtxLib.c)
+add_executable (kalman ../cfg/ukfCfg.c ../cfg/ukfCfg1.c ../lib/ukfLib.c ukfTest.c ../lib/mtxLib.c)
 target_link_libraries(kalman m)
 
 
