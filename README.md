@@ -1,4 +1,6 @@
 # ukfLib: Unscented Kalman filter C library
+Посвещавам тази работа на моите любими деца! Приятно пътуване във времето на динозаврите, когато бяхте съвсем мънички! Обичам ви толкова много, Тати!
+
 The idea of the library is to deliver free open source C implementation on UKF with different examples, documentation and GUI for easy filter configuration. Currently there are two available examples. They show how to use code and how to import and test it as s-function in Simulink(optional). My wish is to extend and test UKF library with more examples from different areas in order to be useful for more people. Any ideas, feedback and help are welcome.
 
 What is included:
