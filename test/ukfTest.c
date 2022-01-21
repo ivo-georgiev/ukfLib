@@ -1,8 +1,8 @@
 #include "../cfg/ukfCfg.h"
 #include "../cfg/ukfCfg1.h"
 
-#define cfg0 (uint8)0
-#define cfg1 (uint8)1
+#define cfg0 (uint8_t)0
+#define cfg1 (uint8_t)1
 
 /*---------------------------------------------*/
 /*           Function Prototype                */
@@ -78,7 +78,7 @@ void ukf_test(void)
     _Bool tfInitCfg0 = 0;
     _Bool tfInitCfg1 = 0;
     tUKF ukfIo[2];
-    uint32 simLoop;
+    uint32_t simLoop;
 
     //UKF filter measurement input(data log is generated in matlab and used for UKF simulation for 15 iteration) 
     static const float64 yt[2][15]=
