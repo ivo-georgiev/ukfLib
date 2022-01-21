@@ -11,9 +11,11 @@ void show_matrix_obj(tMatrix A);
 void show_matrix(float64 * A, int n,int m);
 void ukf_test(void);
 void mtxlib_test(void);
+void report_compiler(void);
 
 int main(void)
 {
+	report_compiler();
 
     //generic matrix operation test
     mtxlib_test();
@@ -306,3 +308,9 @@ void mtxlib_test(void)
     //mtx_transp_dest_f64(&myTestMatx,&oTestMatrixDest_3x2);
     //show_matrix_obj(oTestMatrixDest_3x2);*/
 }
+
+void report_compiler(void)
+{
+	fprintf(stderr, "sizeof float = %d\nsizeof double = %d\nsizeof long double = %d\n", 8 * __SIZEOF_FLOAT__, 8 *  __SIZEOF_DOUBLE__, 8 * __SIZEOF_LONG_DOUBLE__);
+}
+
