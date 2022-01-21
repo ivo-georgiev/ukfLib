@@ -50,7 +50,7 @@ static float64 y_predicted_mean[1][1] = {{0}};
 static float64 x_system_states[2][1] = {{0},{0}};
 static float64 x_system_states_ic[2][1] = {{-3.14/9},{0}};
 static float64 x_system_states_limits[2][3] = {{0,0,0.000001},{0,0,0.000001}};
-static boolean x_system_states_limits_enable[2][1] = {{0},{0}};
+static _Bool x_system_states_limits_enable[2][1] = {{0},{0}};
 static float64 x_system_states_correction[2][1] = {{0},{0}};
 static float64 X_sigma_points[2][5]=
 {/*  s1  s2  s3  s4  s5}       */

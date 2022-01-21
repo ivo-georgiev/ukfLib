@@ -61,10 +61,10 @@ typedef struct sMatrixBool
     uint16 nelem;
     uint8 nrow;
     uint8 ncol;
-    boolean* val;
+    _Bool* val;
 }tMatrixBool;
 
-extern enum mtxResultInfo mtx_init_bool(tMatrixBool * const pSrc, boolean * const pValue, const uint8 nrow, const uint8 ncol,const uint16 nelem);
+extern enum mtxResultInfo mtx_init_bool(tMatrixBool * const pSrc, _Bool * const pValue, const uint8 nrow, const uint8 ncol,const uint16 nelem);
 extern enum mtxResultInfo mtx_init_f64(tMatrix * const pSrc, float64 * const pValue,const uint8 nrow,const uint8 ncol,const uint16 nelem);
 extern enum mtxResultInfo mtx_mul_f64(tMatrix const * const pSrc1, tMatrix const * const pSrc2, tMatrix * const pDst);
 extern enum mtxResultInfo mtx_transp_square_f64(tMatrix * const pSrc);

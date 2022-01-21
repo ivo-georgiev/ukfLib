@@ -119,5 +119,5 @@ typedef struct uKF
 
 #endif
 
-extern boolean ukf_init(tUKF * const pUkf, tUkfMatrix * pUkfMatrix);
+extern _Bool ukf_init(tUKF * const pUkf, tUkfMatrix * pUkfMatrix);
 extern void ukf_step(tUKF * const pUkf);

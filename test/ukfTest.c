@@ -75,8 +75,8 @@ void show_matrix(float64 * A, int n,int m)
 \******************************************************************************************************************************************************************************************************/
 void ukf_test(void)
 {
-    boolean tfInitCfg0 = 0;
-    boolean tfInitCfg1 = 0;
+    _Bool tfInitCfg0 = 0;
+    _Bool tfInitCfg1 = 0;
     tUKF ukfIo[2];
     uint32 simLoop;
 

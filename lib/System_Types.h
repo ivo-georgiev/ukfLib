@@ -13,18 +13,9 @@
   DEFINES
 \*----------------------------------------------------------------------------*/ 
 
-/* Definitions for TRUE and FALSE. */
-#ifndef TRUE
-#define TRUE 1 
-#endif 
-#ifndef FALSE
-#define FALSE 0 
-#endif 
 /*----------------------------------------------------------------------------*\
   TYPEDEFS
 \*----------------------------------------------------------------------------*/
-
-typedef unsigned char boolean;
 
 /* Integer data types. */
 typedef unsigned char uint8;
@@ -37,6 +28,10 @@ typedef signed long int sint32;
 /* Floating point types. */
 typedef float float32;
 typedef double float64;
+union ac_check_sizeof_floats_u {
+	int nfloat64__ [1 - 2 * !(sizeof(float64) == 8)];
+	int nfloat32__ [1 - 2 * !(sizeof(float32) == 4)];
+};
 /*----------------------------------------------------------------------------*\
   ENUMS
 \*----------------------------------------------------------------------------*/
