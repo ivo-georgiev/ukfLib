@@ -44,7 +44,7 @@
  ***  SETTINGS:
  ***
 \******************************************************************************************************************************************************************************************************/
-enum mtxResultInfo mtx_init_bool(tMatrixBool * const pSrc, boolean * const pValue, const uint8 nrow, const uint8 ncol,const uint16 nelem)
+enum mtxResultInfo mtx_init_bool(tMatrixBool * const pSrc, _Bool * const pValue, const uint8 nrow, const uint8 ncol,const uint16 nelem)
 {
     pSrc->val = pValue;
     pSrc->ncol = ncol;

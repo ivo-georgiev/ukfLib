@@ -29,19 +29,19 @@
 
 #include "ukfLib.h"
 
-boolean ukf_dimension_check(tUKF * const pUkf);
-boolean ukf_init(tUKF * const pUkf, tUkfMatrix * pUkfMatrix);
+_Bool ukf_dimension_check(tUKF * const pUkf);
+_Bool ukf_init(tUKF * const pUkf, tUkfMatrix * pUkfMatrix);
 void ukf_step(tUKF * const pUkf);
 void ukf_meas_update(tUKF * const pUkf);
 void ukf_sigmapoint(tUKF * const pUkf);
 void ukf_mean_pred_state(tUKF * const pUkf);
 void ukf_mean_pred_output(tUKF * const pUkf);
 void ukf_calc_covariances(tUKF * const pUkf);
-float64 ukf_state_limiter(const float64 state,const float64 min,const float64 max,const boolean enbl);
+float64 ukf_state_limiter(const float64 state,const float64 min,const float64 max,const _Bool enbl);
 
 /******************************************************************************************************************************************************************************************************\
  ***  FUNCTION:
- ***      float64 ukf_state_limiter(const float64 State,const float64 minLimit,const float64 maxLimit,const boolean enbl)
+ ***      float64 ukf_state_limiter(const float64 State,const float64 minLimit,const float64 maxLimit,const _Bool enbl)
  *** 
  ***  DESCRIPTION:
  ***      Clamp system states in permitted range     
@@ -52,13 +52,13 @@ float64 ukf_state_limiter(const float64 state,const float64 min,const float64 ma
  ***      const float64      state                                state value which should be clamped
  ***      const float64      min                                  lower state range
  ***      const float64      max                                  higher state range 
- ***      const boolean      enbl                                 limiter enable flag
+ ***      const _Bool      enbl                                 limiter enable flag
  ***  RETURNS:
  ***      float64            clamp
  ***  SETTINGS:
  ***
 \******************************************************************************************************************************************************************************************************/
-float64 ukf_state_limiter(const float64 state,const float64 min,const float64 max,const boolean enbl)
+float64 ukf_state_limiter(const float64 state,const float64 min,const float64 max,const _Bool enbl)
 {
     float64 clamp = state;
     
@@ -81,7 +81,7 @@ float64 ukf_state_limiter(const float64 state,const float64 min,const float64 ma
 }
 /******************************************************************************************************************************************************************************************************\
  ***  FUNCTION:
- ***      boolean ukf_dimension_check(tUKF * const pUkf)
+ ***      _Bool ukf_dimension_check(tUKF * const pUkf)
  *** 
  ***  DESCRIPTION:
  ***      Check if working matrix size defined in ukfCfg.c match to defined system expectation(verification of all matrix is vs number of states xLen and number of measurements yLen)     
@@ -91,18 +91,18 @@ float64 ukf_state_limiter(const float64 state,const float64 min,const float64 ma
  ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  ***      tUKF * const       pUkf                                 UKF - Working structure with reference to all in,out,states,par
  ***  RETURNS:
- ***      boolean
+ ***      _Bool
  ***      0 - OK , 
  ***      1 - NOK
  ***  SETTINGS:
  ***
 \******************************************************************************************************************************************************************************************************/
-boolean ukf_dimension_check(tUKF * const pUkf)
+_Bool ukf_dimension_check(tUKF * const pUkf)
 {
     const uint8  stateLen = pUkf->par.xLen;
     //const uint8  measLen = pUkf->par.yLen;
     const uint8  sigmaLen = pUkf->par.sLen;
-    boolean Result = 0;
+    _Bool Result = 0;
 
     //check system input vector size if exist: (xLen x 1)
     if(NULL != pUkf->input.u.val && NULL != pUkf->prev.u_p.val)
@@ -295,12 +295,12 @@ boolean ukf_dimension_check(tUKF * const pUkf)
  ***      uint8              yLen                               UKF - Measurements vector length
  ***      tUkfMatrix *       pUkfMatrix                         UKF - Structure with all filter matrix
  ***  RETURNS:
- ***      boolean
+ ***      _Bool
  ***
  ***  SETTINGS:
  ***
 \******************************************************************************************************************************************************************************************************/
-boolean ukf_init(tUKF * const pUkf, tUkfMatrix * pUkfMatrix)
+_Bool ukf_init(tUKF * const pUkf, tUkfMatrix * pUkfMatrix)
 {
     uint8 xIdx;
     tUKFpar * const pPar = (tUKFpar *)&pUkf->par;
@@ -499,7 +499,7 @@ void ukf_sigmapoint(tUKF * const pUkf)
         {
             float64 xMin = 0;
             float64 xMax = 0;
-            boolean xLimEnbl = 0;
+            _Bool xLimEnbl = 0;
 
             if(NULL != pUkf->par.xLimEnbl.val && NULL != pUkf->par.xLim.val)
             {
@@ -520,7 +520,7 @@ void ukf_sigmapoint(tUKF * const pUkf)
             {
                 float64 xMin = 0;
                 float64 xMax = 0;
-                boolean xLimEnbl = 0;
+                _Bool xLimEnbl = 0;
 
                 if(NULL != pUkf->par.xLimEnbl.val && NULL != pUkf->par.xLim.val)
                 {
