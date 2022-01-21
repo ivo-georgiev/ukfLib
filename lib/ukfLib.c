@@ -487,7 +487,7 @@ void ukf_sigmapoint(tUKF * const pUkf)
     const uint8 xLen = pUkf->par.xLen;
     uint8 xIdx;
     uint8 sigmaIdx=0;
-    mtxResultInfo mtxResult;
+    enum mtxResultInfo mtxResult;
     
     //#1.1(begin/end) Calculate error covariance matrix square root
     mtxResult = mtx_chol_lower_f64(&pUkf->prev.Pxx_p);
