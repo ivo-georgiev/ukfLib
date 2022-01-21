@@ -39,25 +39,15 @@ void ukf_mean_pred_output(tUKF * const pUkf);
 void ukf_calc_covariances(tUKF * const pUkf);
 float64 ukf_state_limiter(const float64 state,const float64 min,const float64 max,const _Bool enbl);
 
-/******************************************************************************************************************************************************************************************************\
- ***  FUNCTION:
- ***      float64 ukf_state_limiter(const float64 State,const float64 minLimit,const float64 maxLimit,const _Bool enbl)
- *** 
- ***  DESCRIPTION:
- ***      Clamp system states in permitted range     
- ***            
- ***  PARAMETERS:
- ***      Type               Name              Range              Description
- ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ***      const float64      state                                state value which should be clamped
- ***      const float64      min                                  lower state range
- ***      const float64      max                                  higher state range 
- ***      const _Bool      enbl                                 limiter enable flag
- ***  RETURNS:
- ***      float64            clamp
- ***  SETTINGS:
- ***
-\******************************************************************************************************************************************************************************************************/
+/**
+ * Clamp system states in permitted range     
+ *
+ * @param state state value which should be clamped
+ * @param min   lower state range
+ * @param max   higher state range 
+ * @param enbl  limiter enable flag
+ * @return clamp
+ */
 float64 ukf_state_limiter(const float64 state,const float64 min,const float64 max,const _Bool enbl)
 {
     float64 clamp = state;
@@ -79,24 +69,13 @@ float64 ukf_state_limiter(const float64 state,const float64 min,const float64 ma
     
     return clamp;
 }
-/******************************************************************************************************************************************************************************************************\
- ***  FUNCTION:
- ***      _Bool ukf_dimension_check(tUKF * const pUkf)
- *** 
- ***  DESCRIPTION:
- ***      Check if working matrix size defined in ukfCfg.c match to defined system expectation(verification of all matrix is vs number of states xLen and number of measurements yLen)     
- ***            
- ***  PARAMETERS:
- ***      Type               Name              Range              Description
- ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ***      tUKF * const       pUkf                                 UKF - Working structure with reference to all in,out,states,par
- ***  RETURNS:
- ***      _Bool
- ***      0 - OK , 
- ***      1 - NOK
- ***  SETTINGS:
- ***
-\******************************************************************************************************************************************************************************************************/
+/**
+ * Check if working matrix size defined in ukfCfg.c match to defined system expectation(verification of all matrix is vs number of states xLen and number of measurements yLen)     
+ *            
+ * @param pUkf UKF - Working structure with reference to all in,out,states,par
+ * @return       0 - OK, 1 - NOK
+ *
+ */
 _Bool ukf_dimension_check(tUKF * const pUkf)
 {
     const uint8_t  stateLen = pUkf->par.xLen;
@@ -280,26 +259,16 @@ _Bool ukf_dimension_check(tUKF * const pUkf)
 
     return Result;
 }
-/******************************************************************************************************************************************************************************************************\
- ***  FUNCTION:
- ***      ukf_init
- *** 
- ***  DESCRIPTION:
- ***      Unscented Kalman filter initialization. Calculate some filter parameter and initialize matrix pointers with real working arrays. Check matrix/array size consistency  
- *** 
- ***  PARAMETERS:
- ***      Type               Name                     Lim       Description
- ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ***      tUKF * const       pUkf                               UKF - Working structure with all in,out,par
- ***      uint8_t              xLen                     1-127     UKF - State vector length
- ***      uint8_t              yLen                               UKF - Measurements vector length
- ***      tUkfMatrix *       pUkfMatrix                         UKF - Structure with all filter matrix
- ***  RETURNS:
- ***      _Bool
- ***
- ***  SETTINGS:
- ***
-\******************************************************************************************************************************************************************************************************/
+/**
+ *  Unscented Kalman filter initialization. Calculate some filter parameter and initialize matrix pointers with real working arrays. Check matrix/array size consistency  
+ *
+ *
+ * @param      pUkf                               UKF - Working structure with all in,out,par
+ * @param      xLen                               UKF - State vector length in range 1-127
+ * @param      yLen                               UKF - Measurements vector length
+ * @param      pUkfMatrix                         UKF - Structure with all filter matrix
+ * @return     dimension check result:  0 - OK, 1 - NOK
+ */
 _Bool ukf_init(tUKF * const pUkf, tUkfMatrix * pUkfMatrix)
 {
     uint8_t xIdx;
@@ -416,25 +385,15 @@ _Bool ukf_init(tUKF * const pUkf, tUkfMatrix * pUkfMatrix)
 
     return ukf_dimension_check(pUkf);  
 }
-/******************************************************************************************************************************************************************************************************\
- ***  FUNCTION:
- ***      ukf_step(tUKF * const pUkf)
- *** 
- ***  DESCRIPTION:
- ***      Unscented Kalman filter periodic task. All new inputs(measurements, system inputs) should be updated periodicaly before execution of ukf_step().
- ***      UKF processing is separated on two sub-steps
- ***      - Predict
- ***      - Measurement update
- ***  PARAMETERS:
- ***      Type               Name              Range              Description
- ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ***      tUKF * const       pUkf                                 UKF - Working structure with reference to all in,out,states,par
- ***  RETURNS:
- ***      void
- ***
- ***  SETTINGS:
- ***
-\******************************************************************************************************************************************************************************************************/
+/**
+ * Unscented Kalman filter periodic task. All new inputs(measurements, system inputs) should be updated periodicaly before execution of ukf_step().
+ * UKF processing is separated on two sub-steps
+ * - Predict
+ * - Measurement update
+ *
+ *
+ * @param pUkf UKF - Working structure with reference to all in,out,states,par
+ */
 void ukf_step(tUKF * const pUkf)
 {
     ukf_sigmapoint(pUkf);
@@ -458,25 +417,13 @@ void ukf_step(tUKF * const pUkf)
     }
 }
 
-/******************************************************************************************************************************************************************************************************\
- ***  FUNCTION:
- ***      void ukf_sigmapoint(tUKF * const pUkf)
- *** 
- ***  DESCRIPTION:
- ***      Step 1:  Generate the Sigma-Points
- ***      # 1.1 Calculate error covariance matrix square root : sqrt(Pxx_p) = chol(Pxx_p) 
- ***      # 1.2 Calculate the sigma-points                    : X_p[L][2L+1] == X(k-1) ,wher L is number of system states xLen      
- ***            
- ***  PARAMETERS:
- ***      Type               Name              Range              Description
- ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ***      tUKF * const       pUkf                                 UKF - Working structure with reference to all in,out,states,par
- ***  RETURNS:
- ***      void
- ***
- ***  SETTINGS:
- ***
-\******************************************************************************************************************************************************************************************************/
+/**
+ * Step 1:  Generate the Sigma-Points
+ * # 1.1 Calculate error covariance matrix square root : sqrt(Pxx_p) = chol(Pxx_p) 
+ * # 1.2 Calculate the sigma-points                    : X_p[L][2L+1] == X(k-1) ,wher L is number of system states xLen      
+ *            
+ * @param pUkf  UKF - Working structure with reference to all in,out,states,par
+ */
 void ukf_sigmapoint(tUKF * const pUkf)
 {
     float64 * const pPxx_p = pUkf->prev.Pxx_p.val;
@@ -545,24 +492,13 @@ void ukf_sigmapoint(tUKF * const pUkf)
     {
     }
 }
-/******************************************************************************************************************************************************************************************************\
- ***  FUNCTION:
- ***      void ukf_mean_pred_state(tUKF * const pUkf)
- *** 
- ***  DESCRIPTION:
- ***      Step 2: Prediction Transformation (APPENDIX A:IMPLEMENTATION OF THE ADDITIVE NOISE UKF)
- ***      # 2.1 Propagate each sigma-point through prediction  : X_m = f(X_p, u_p)
- ***      # 2.2 Calculate mean of predicted state              : x_m = sum(Wm(i)*X_m(i)) , i=0,..2L
- ***            
- ***  PARAMETERS:
- ***      Type               Name              Range              Description
- ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ***      tUKF * const       pUkf                                 UKF - Working structure with reference to all in,out,states,par
- ***  RETURNS:
- ***      void
- ***  SETTINGS:
- ***
-\******************************************************************************************************************************************************************************************************/ 
+/**
+ *  Step 2: Prediction Transformation (APPENDIX A:IMPLEMENTATION OF THE ADDITIVE NOISE UKF)
+ *  # 2.1 Propagate each sigma-point through prediction  : X_m = f(X_p, u_p)
+ *  # 2.2 Calculate mean of predicted state              : x_m = sum(Wm(i)*X_m(i)) , i=0,..2L
+ *        
+ * @param pUkf UKF - Working structure with reference to all in,out,states,par
+ */
 void ukf_mean_pred_state(tUKF * const pUkf)
 {
     tUKFpar const * const pPar = (tUKFpar *)&pUkf->par;
@@ -589,25 +525,15 @@ void ukf_mean_pred_state(tUKF * const pUkf)
         }
     }
 }
-/******************************************************************************************************************************************************************************************************\
- ***  FUNCTION:
- ***      void ukf_mean_pred_output(tUKF * const pUkf)
- *** 
- ***  DESCRIPTION:
- ***      Step 3: Observation Transformation (APPENDIX A:IMPLEMENTATION OF THE ADDITIVE NOISE UKF)
- ***      # 2.3 Calculate covariance of predicted state        : P_m = Wc(sigmaIdx)*(X_m-x_m)*(X_m-x_m)'    P(k|k-1)
- ***      # 3.1 Propagate each sigma-point through observation : Y_m = h(X_m, u)
- ***      # 3.2 Calculate mean of predicted output             : y_m = sum(Wm(i)*Y_m(i))
- ***            
- ***  PARAMETERS:
- ***      Type               Name              Range              Description
- ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ***      tUKF * const       pUkf                                 UKF - Working structure with reference to all in,out,states,par
- ***  RETURNS:
- ***      void
- ***  SETTINGS:
- ***
-\******************************************************************************************************************************************************************************************************/
+/**
+ *
+ * Step 3: Observation Transformation (APPENDIX A:IMPLEMENTATION OF THE ADDITIVE NOISE UKF)
+ * # 2.3 Calculate covariance of predicted state        : P_m = Wc(sigmaIdx)*(X_m-x_m)*(X_m-x_m)'    P(k|k-1)
+ * # 3.1 Propagate each sigma-point through observation : Y_m = h(X_m, u)
+ * # 3.2 Calculate mean of predicted output             : y_m = sum(Wm(i)*Y_m(i))
+ *       
+ * @param pUkf UKF - Working structure with reference to all in,out,states,par
+ */
 void ukf_mean_pred_output(tUKF * const pUkf)
 {
     tUKFpar const * const pPar = (tUKFpar *)&pUkf->par;
@@ -660,23 +586,13 @@ void ukf_mean_pred_output(tUKF * const pUkf)
         }
     }
 }
-/******************************************************************************************************************************************************************************************************\
- ***  FUNCTION:
- ***      void ukf_calc_covariances(tUKF * const pUkf)
- *** 
- ***  DESCRIPTION:
- ***      # 3.3 Calculate covariance of predicted output       : Pyy = Wc(sigmaIdx)*(Y_m-y_m)*(Y_m-y_m)'
- ***      # 3.4 Calculate cross-covariance of state and output : Pxy = Q + sum(Wc*()*()')
- ***            
- ***  PARAMETERS:
- ***      Type               Name              Range              Description
- ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ***      tUKF * const       pUkf                                 UKF - Working structure with reference to all in,out,states,par
- ***  RETURNS:
- ***      void
- ***  SETTINGS:
- ***
-\******************************************************************************************************************************************************************************************************/ 
+/**
+ *   
+ * # 3.3 Calculate covariance of predicted output       : Pyy = Wc(sigmaIdx)*(Y_m-y_m)*(Y_m-y_m)'
+ * # 3.4 Calculate cross-covariance of state and output : Pxy = Q + sum(Wc*()*()')
+ *       
+ * @param pUkf UKF - Working structure with reference to all in,out,states,par
+ */
 void ukf_calc_covariances(tUKF * const pUkf)
 {
     tUKFpar const * const pPar = (tUKFpar *)&pUkf->par;
@@ -725,25 +641,14 @@ void ukf_calc_covariances(tUKF * const pUkf)
         }
     }
 }
-/******************************************************************************************************************************************************************************************************\
- ***  FUNCTION:
- ***      void ukf_meas_update(tUKF * const pUkf)
- *** 
- ***  DESCRIPTION:
- ***      Step 4: Measurement Update (APPENDIX A:IMPLEMENTATION OF THE ADDITIVE NOISE UKF)
- ***      # 4.1 Calculate Kalman gain          : K = Pxy*inv(Pyy)
- ***      # 4.2 Update state estimate          : x = x_m + K(y - y_m)
- ***      # 4.3 Update error covariance        : Pxx = Pxx_m - K*Pyy*K'
- ***            
- ***  PARAMETERS:
- ***      Type               Name              Range              Description
- ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ***      tUKF * const       pUkf                                 UKF - Working structure with reference to all in,out,states,par
- ***  RETURNS:
- ***      void
- ***  SETTINGS:
- ***
-\******************************************************************************************************************************************************************************************************/
+/**
+ * Step 4: Measurement Update (APPENDIX A:IMPLEMENTATION OF THE ADDITIVE NOISE UKF)
+ * # 4.1 Calculate Kalman gain          : K = Pxy*inv(Pyy)
+ * # 4.2 Update state estimate          : x = x_m + K(y - y_m)
+ * # 4.3 Update error covariance        : Pxx = Pxx_m - K*Pyy*K'
+ *       
+ * @param pUkf UKF - Working structure with reference to all in,out,states,par
+ */
 void ukf_meas_update(tUKF * const pUkf)
 {
     tUKFupdate * const pUpdate = (tUKFupdate*)&pUkf->update;
