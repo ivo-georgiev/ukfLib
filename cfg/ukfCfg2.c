@@ -31,19 +31,19 @@
 #include "../cfg/ukfCfg2.h"
 
 //<DEFINES:BEGIN>
-#define xL (uint8)2
-#define yL (uint8)1
-#define sL (uint8)5
-#define uL (uint8)0
+#define xL (uint8_t)2
+#define yL (uint8_t)1
+#define sL (uint8_t)5
+#define uL (uint8_t)0
 //<DEFINES:END>
 
 //<STATE TRANSITION PROTOTYPE:BEGIN>
-static void Fx1(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 dT);
-static void Fx2(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 dT);
+static void Fx1(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8_t sigmaIdx, float64 dT);
+static void Fx2(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8_t sigmaIdx, float64 dT);
 //<STATE TRANSITION PROTOTYPE:END>
 
 //<MEASUREMENT PROTOTYPE:BEGIN>
-static void Hy1(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx);
+static void Hy1(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8_t sigmaIdx);
 //<MEASUREMENT PROTOTYPE:END>
 
 //<STATE TRANSITION PTR ARRAY:BEGIN>
@@ -114,22 +114,22 @@ tUkfMatrix UkfMatrixCfg2 =
 };
 
 //<STATE TRANSITION:BEGIN>
-void Fx1(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 dT)
+void Fx1(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8_t sigmaIdx, float64 dT)
 {
-    const uint8 nCol = pX_m->ncol;
+    const uint8_t nCol = pX_m->ncol;
     pX_m->val[nCol*0+sigmaIdx] = pX_p->val[nCol*0+sigmaIdx] +pX_p->val[nCol*1+sigmaIdx]*dT;
 }
-void Fx2(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 dT)
+void Fx2(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8_t sigmaIdx, float64 dT)
 {
-    const uint8 nCol = pX_m->ncol;
+    const uint8_t nCol = pX_m->ncol;
     pX_m->val[nCol*1+sigmaIdx] = pX_p->val[nCol*1+sigmaIdx]+(1-pX_p->val[nCol*0+sigmaIdx]*pX_p->val[nCol*0+sigmaIdx])*pX_p->val[nCol*1+sigmaIdx]*dT-pX_p->val[nCol*0+sigmaIdx]*dT;
 }
 //<STATE TRANSITION:END>
 
 //<MEASUREMENT FUNCTION:BEGIN>
-void Hy1(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx)
+void Hy1(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8_t sigmaIdx)
 {
-    const uint8 nCol = pY_m->ncol;
+    const uint8_t nCol = pY_m->ncol;
     pY_m->val[nCol*0+sigmaIdx] = pX_m->val[nCol*0+sigmaIdx];
 }
 //<MEASUREMENT FUNCTION:END>

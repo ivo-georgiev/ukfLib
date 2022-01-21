@@ -6,16 +6,16 @@
 #ifndef UKFLIB_FILE
 #define UKFLIB_FILE
 
-#define xMinIdx (uint8)0
-#define xMaxIdx (uint8)1
-#define xEpsIdx (uint8)2
+#define xMinIdx (uint8_t)0
+#define xMaxIdx (uint8_t)1
+#define xEpsIdx (uint8_t)2
 
-#define alphaIdx   (uint8)0
-#define bethaIdx   (uint8)1
-#define kappaIdx   (uint8)2
+#define alphaIdx   (uint8_t)0
+#define bethaIdx   (uint8_t)1
+#define kappaIdx   (uint8_t)2
 
-typedef void (* tPredictFcn) (tMatrix * pu_p, tMatrix * px_p, tMatrix * pX_m,uint8 sigmaIdx, float64 dT);
-typedef void (* tObservFcn) (tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx);
+typedef void (* tPredictFcn) (tMatrix * pu_p, tMatrix * px_p, tMatrix * pX_m,uint8_t sigmaIdx, float64 dT);
+typedef void (* tObservFcn) (tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8_t sigmaIdx);
 
 typedef struct ukfMatrix
 {
@@ -52,9 +52,9 @@ typedef struct ukfMatrix
 
 typedef struct uKFpar
 {
-    uint8 xLen;//length of state vector
-    uint8 yLen;//length of measurement vector
-    uint8 sLen;//length of sigma point
+    uint8_t xLen;//length of state vector
+    uint8_t yLen;//length of measurement vector
+    uint8_t sLen;//length of sigma point
     float64 alpha;//Range:[10e-4 : 1].Smaller alpha leads to a tighter (closer) selection of sigma-points,
     float64 betha;//Contain information about the prior distribution (for Gaussian, beta = 2 is optimal).
     float64 kappa; //tertiary scaling parameter, usual value 0.
