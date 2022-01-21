@@ -29,7 +29,7 @@
 #define MTXLIB_FILE
 
 #include "System_Types.h"
-#include<math.h>
+#include <math.h>
 /*---------------------------------------------*/
 /*         Macros definiton                    */
 /*---------------------------------------------*/
@@ -40,28 +40,28 @@
 enum mtxResultInfo mtx_chol1_f64(float64* A, float64* L,uint8_t size);
 
 enum mtxResultInfo {
- MTX_OPERATION_OK = 0,
- MTX_SINGULAR = 251,
- MTX_SIZE_MISMATCH = 252,
- MTX_NOT_SQUARE = 253,
- MTX_NOT_POS_DEFINED = 254,
- MTX_OPERATION_ERROR = 255,
+	MTX_OPERATION_OK = 0,
+	MTX_SINGULAR = 251,
+	MTX_SIZE_MISMATCH = 252,
+	MTX_NOT_SQUARE = 253,
+	MTX_NOT_POS_DEFINED = 254,
+	MTX_OPERATION_ERROR = 255,
 };
 
 typedef struct sMatrix
 {
-    uint16_t nelem;
-    uint8_t nrow;
-    uint8_t ncol;
-    float64* val;
+	uint16_t nelem;
+	uint8_t nrow;
+	uint8_t ncol;
+	float64* val;
 }tMatrix;
 
 typedef struct sMatrixBool
 {
-    uint16_t nelem;
-    uint8_t nrow;
-    uint8_t ncol;
-    _Bool* val;
+	uint16_t nelem;
+	uint8_t nrow;
+	uint8_t ncol;
+	_Bool* val;
 }tMatrixBool;
 
 extern enum mtxResultInfo mtx_init_bool(tMatrixBool * const pSrc, _Bool * const pValue, const uint8_t nrow, const uint8_t ncol,const uint16_t nelem);
