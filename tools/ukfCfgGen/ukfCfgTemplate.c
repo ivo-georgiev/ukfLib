@@ -77,7 +77,7 @@ static float64 K_kalman_gain[xL][yL]= <K_kalman_gain>;
 static float64 Pxx_covariance_correction[xL][xL]= <Pxx_covariance_correction>;
 static float64 I_identity_matrix[yL][yL]= <I_identity_matrix>;
 
-tUkfMatrix UkfMatrixCfg<cfgId> = 
+UkfMatrix64_t UkfMatrixCfg<cfgId> = 
 {
     {COLXROW(Sc_vector),NROWS(Sc_vector),NCOL(Sc_vector),&Sc_vector[0][0]},
     {COLXROW(Wm_weight_vector),NROWS(Wm_weight_vector),NCOL(Wm_weight_vector),&Wm_weight_vector[0][0]},

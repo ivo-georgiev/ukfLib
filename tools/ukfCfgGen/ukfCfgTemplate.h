@@ -33,7 +33,7 @@
 
 #include "../lib/ukfLib.h"
 
-extern tUkfMatrix UkfMatrixCfg<cfgId>;
+extern UkfMatrix64_t UkfMatrixCfg<cfgId>;
 
 #endif /* UKFCFG<cfgId>_H */
 

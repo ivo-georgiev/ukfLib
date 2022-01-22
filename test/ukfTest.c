@@ -77,7 +77,7 @@ void ukf_test(void)
 {
     _Bool tfInitCfg0 = 0;
     _Bool tfInitCfg1 = 0;
-    tUKF ukfIo[2];
+    UKF64_t ukfIo[2];
     uint32_t simLoop;
 
     //UKF filter measurement input(data log is generated in matlab and used for UKF simulation for 15 iteration) 
