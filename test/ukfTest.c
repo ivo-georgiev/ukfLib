@@ -55,24 +55,11 @@ void show_matrix(float64 * A, int n,int m)
     }
     printf("\n");
 }
-/******************************************************************************************************************************************************************************************************\
- ***  FUNCTION:
- ***      void ukf_test(void)
- *** 
- ***  DESCRIPTION:
- ***      Initialize and test UKF C implementation against expected result. Filter is tested in the loop from 15 steps. 
- ***      Total root square error is accumulated in the same loop for each state in order to show deviation from reference matlab solution.      
- ***            
- ***  PARAMETERS:
- ***      Type               Name              Range              Description
- ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ***      void
- ***  RETURNS:
- ***      void
- ***
- ***  SETTINGS:
- ***
-\******************************************************************************************************************************************************************************************************/
+/**
+ *
+ * Initialize and test UKF C implementation against expected result. Filter is tested in the loop from 15 steps. 
+ * Total root square error is accumulated in the same loop for each state in order to show deviation from reference matlab solution.      
+ */
 void ukf_test(void)
 {
     _Bool tfInitCfg0 = 0;
@@ -199,23 +186,11 @@ void ukf_test(void)
         //TBD
     }
 }
-/******************************************************************************************************************************************************************************************************\
- ***  FUNCTION:
- ***      void mtxlib_test(void)
- *** 
- ***  DESCRIPTION:
- ***      Test some generic matrix operations from mtxLib.c      
- ***            
- ***  PARAMETERS:
- ***      Type               Name              Range              Description
- ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ***      void
- ***  RETURNS:
- ***      void
- ***
- ***  SETTINGS:
- ***
-\******************************************************************************************************************************************************************************************************/
+/**
+ *
+ * Test some generic matrix operations from mtxLib.c      
+ *       
+ */
 void mtxlib_test(void)
 {
     /*------------------------------------------------*/
@@ -309,8 +284,12 @@ void mtxlib_test(void)
     //show_matrix_obj(oTestMatrixDest_3x2);*/
 }
 
+/**
+ * prints the size of the floating point types
+ *
+ */
 void report_compiler(void)
 {
-	fprintf(stderr, "sizeof float = %d\nsizeof double = %d\nsizeof long double = %d\n", 8 * __SIZEOF_FLOAT__, 8 *  __SIZEOF_DOUBLE__, 8 * __SIZEOF_LONG_DOUBLE__);
+	fprintf(stderr, "sizeof float = %d bits\nsizeof double = %d bits\nsizeof long double = %d bits\n", 8 * __SIZEOF_FLOAT__, 8 *  __SIZEOF_DOUBLE__, 8 * __SIZEOF_LONG_DOUBLE__);
 }
 
