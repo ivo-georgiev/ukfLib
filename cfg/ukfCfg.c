@@ -42,13 +42,13 @@
 \******************************************************************************************************************************************************************************************************/
 #include "../cfg/ukfCfg.h"
 
-static void Fx1(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8_t sigmaIdx, float64 dT);
-static void Fx2(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8_t sigmaIdx, float64 dT);
-static void Fx3(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8_t sigmaIdx, float64 dT);
-static void Fx4(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8_t sigmaIdx, float64 dT);
+static void Fx1(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaIdx, float64 dT);
+static void Fx2(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaIdx, float64 dT);
+static void Fx3(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaIdx, float64 dT);
+static void Fx4(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaIdx, float64 dT);
 
-static void Hy1(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8_t sigmaIdx);
-static void Hy2(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8_t sigmaIdx);
+static void Hy1(Matrix64_t * pu, Matrix64_t * pX_m, Matrix64_t * pY_m,uint8_t sigmaIdx);
+static void Hy2(Matrix64_t * pu, Matrix64_t * pX_m, Matrix64_t * pY_m,uint8_t sigmaIdx);
 
 static tPredictFcn PredictFcn[4] = {&Fx1,&Fx2,&Fx3,&Fx4};
 static tObservFcn  ObservFcn[2] = {&Hy1,&Hy2};
@@ -204,7 +204,7 @@ tUkfMatrix UkfMatrixCfg0 =
 };
 /******************************************************************************************************************************************************************************************************\
  ***  FUNCTION:
- ***      void Fx1(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8_t sigmaIdx)
+ ***      void Fx1(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaIdx)
  *** 
  ***  DESCRIPTION:
  ***       Calculate predicted state 0 for each sigma point. Note  that  this  problem  has  a  linear  prediction stage 
@@ -213,16 +213,16 @@ tUkfMatrix UkfMatrixCfg0 =
  ***  PARAMETERS:
  ***      Type               Name              Range              Description
  ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ***      tMatrix *          pu_p                                 NULL for this system, be sure that is not used in calc
- ***      tMatrix *          pX_p                                 Pointer to the sigma points array at (k-1) moment 
- ***      tMatrix *          pX_m                                 Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
+ ***      Matrix64_t *          pu_p                                 NULL for this system, be sure that is not used in calc
+ ***      Matrix64_t *          pX_p                                 Pointer to the sigma points array at (k-1) moment 
+ ***      Matrix64_t *          pX_m                                 Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
  ***      uint8_t              sigmaIdx                             Sigma point index.
  ***  RETURNS:
  ***           
  ***  SETTINGS:
  ***
 \******************************************************************************************************************************************************************************************************/
-void Fx1(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8_t sigmaIdx, float64 dT)
+void Fx1(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaIdx, float64 dT)
 {
     const uint8_t nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
 
@@ -232,7 +232,7 @@ void Fx1(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8_t sigmaIdx, float6
 }
 /******************************************************************************************************************************************************************************************************\
  ***  FUNCTION:
- ***      void Fx2(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8_t sigmaIdx)
+ ***      void Fx2(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaIdx)
  *** 
  ***  DESCRIPTION:
  ***       Calculate predicted state 1 for each sigma point. Note  that  this  problem  has  a  linear  prediction stage 
@@ -241,16 +241,16 @@ void Fx1(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8_t sigmaIdx, float6
  ***  PARAMETERS:
  ***      Type               Name              Range              Description
  ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ***      tMatrix *          pu_p                                 NULL for this system, be sure that is not used in calc
- ***      tMatrix *          pX_p                                 Pointer to the sigma points array at (k-1) moment 
- ***      tMatrix *          pX_m                                 Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
+ ***      Matrix64_t *          pu_p                                 NULL for this system, be sure that is not used in calc
+ ***      Matrix64_t *          pX_p                                 Pointer to the sigma points array at (k-1) moment 
+ ***      Matrix64_t *          pX_m                                 Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
  ***      uint8_t              sigmaIdx                             Sigma point index.
  ***  RETURNS:
  ***           
  ***  SETTINGS:
  ***
 \******************************************************************************************************************************************************************************************************/
-void Fx2(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8_t sigmaIdx, float64 dT)
+void Fx2(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaIdx, float64 dT)
 {
     const uint8_t nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
    
@@ -260,7 +260,7 @@ void Fx2(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8_t sigmaIdx, float6
 }
 /******************************************************************************************************************************************************************************************************\
  ***  FUNCTION:
- ***      void Fx3(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8_t sigmaIdx)
+ ***      void Fx3(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaIdx)
  *** 
  ***  DESCRIPTION:
  ***       Calculate predicted state 2 for each sigma point. Note  that  this  problem  has  a  linear  prediction stage 
@@ -269,16 +269,16 @@ void Fx2(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8_t sigmaIdx, float6
  ***  PARAMETERS:
  ***      Type               Name              Range              Description
  ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ***      tMatrix *          pu_p                                 NULL for this system, be sure that is not used in calc
- ***      tMatrix *          pX_p                                 Pointer to the sigma points array at (k-1) moment 
- ***      tMatrix *          pX_m                                 Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
+ ***      Matrix64_t *          pu_p                                 NULL for this system, be sure that is not used in calc
+ ***      Matrix64_t *          pX_p                                 Pointer to the sigma points array at (k-1) moment 
+ ***      Matrix64_t *          pX_m                                 Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
  ***      uint8_t              sigmaIdx                             Sigma point index.
  ***  RETURNS:
  ***           
  ***  SETTINGS:
  ***
 \******************************************************************************************************************************************************************************************************/
-void Fx3(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8_t sigmaIdx, float64 dT)
+void Fx3(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaIdx, float64 dT)
 {
     const uint8_t nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
     
@@ -289,7 +289,7 @@ void Fx3(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8_t sigmaIdx, float6
 }
 /******************************************************************************************************************************************************************************************************\
  ***  FUNCTION:
- ***      void Fx4(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8_t sigmaIdx)
+ ***      void Fx4(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaIdx)
  *** 
  ***  DESCRIPTION:
  ***       Calculate predicted state 3 for each sigma point. Note  that  this  problem  has  a  linear  prediction stage 
@@ -298,16 +298,16 @@ void Fx3(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8_t sigmaIdx, float6
  ***  PARAMETERS:
  ***      Type               Name              Range              Description
  ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ***      tMatrix *          pu_p                                 NULL for this system, be sure that is not used in calc
- ***      tMatrix *          pX_p                                 Pointer to the sigma points array at (k-1) moment 
- ***      tMatrix *          pX_m                                 Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
+ ***      Matrix64_t *          pu_p                                 NULL for this system, be sure that is not used in calc
+ ***      Matrix64_t *          pX_p                                 Pointer to the sigma points array at (k-1) moment 
+ ***      Matrix64_t *          pX_m                                 Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
  ***      uint8_t              sigmaIdx                             Sigma point index.
  ***  RETURNS:
  ***           
  ***  SETTINGS:
  ***
 \******************************************************************************************************************************************************************************************************/
-void Fx4(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8_t sigmaIdx, float64 dT)
+void Fx4(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaIdx, float64 dT)
 {
     const uint8_t nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
     
@@ -318,7 +318,7 @@ void Fx4(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8_t sigmaIdx, float6
 }
 /******************************************************************************************************************************************************************************************************\
  ***  FUNCTION:
- ***      void Hy1(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8_t sigmaIdx)
+ ***      void Hy1(Matrix64_t * pu, Matrix64_t * pX_m, Matrix64_t * pY_m,uint8_t sigmaIdx)
  *** 
  ***  DESCRIPTION:
  ***       Calculate predicted state 3 for each sigma point. This problem has a nonlinear observation 
@@ -327,16 +327,16 @@ void Fx4(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8_t sigmaIdx, float6
  ***  PARAMETERS:
  ***      Type               Name              Range              Description
  ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ***      tMatrix *          pu                                   NULL for this system, be sure that is not used in calc
- ***      tMatrix *          pY_m                                 Pointer to the predicted output at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
- ***      tMatrix *          pX_m                                 Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
+ ***      Matrix64_t *          pu                                   NULL for this system, be sure that is not used in calc
+ ***      Matrix64_t *          pY_m                                 Pointer to the predicted output at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
+ ***      Matrix64_t *          pX_m                                 Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
  ***      uint8_t              sigmaIdx                             Sigma point index.
  ***  RETURNS:
  ***           
  ***  SETTINGS:
  ***
 \******************************************************************************************************************************************************************************************************/
-void Hy1(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8_t sigmaIdx)
+void Hy1(Matrix64_t * pu, Matrix64_t * pX_m, Matrix64_t * pY_m,uint8_t sigmaIdx)
 {
     static const float64 N1 = 20;
     static const float64 E1 = 0;
@@ -356,7 +356,7 @@ void Hy1(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8_t sigmaIdx)
 }
 /******************************************************************************************************************************************************************************************************\
  ***  FUNCTION:
- ***      void Hy2(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8_t sigmaIdx)
+ ***      void Hy2(Matrix64_t * pu, Matrix64_t * pX_m, Matrix64_t * pY_m,uint8_t sigmaIdx)
  *** 
  ***  DESCRIPTION:
  ***       Calculate predicted state 3 for each sigma point. This problem has a nonlinear observation 
@@ -365,16 +365,16 @@ void Hy1(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8_t sigmaIdx)
  ***  PARAMETERS:
  ***      Type               Name              Range              Description
  ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ***      tMatrix *          pu                                   NULL for this system, be sure that is not used in calc
- ***      tMatrix *          pY_m                                 Pointer to the predicted output at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
- ***      tMatrix *          pX_m                                 Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
+ ***      Matrix64_t *          pu                                   NULL for this system, be sure that is not used in calc
+ ***      Matrix64_t *          pY_m                                 Pointer to the predicted output at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
+ ***      Matrix64_t *          pX_m                                 Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
  ***      uint8_t              sigmaIdx                             Sigma point index.
  ***  RETURNS:
  ***           
  ***  SETTINGS:
  ***
 \******************************************************************************************************************************************************************************************************/
-void Hy2(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8_t sigmaIdx)
+void Hy2(Matrix64_t * pu, Matrix64_t * pX_m, Matrix64_t * pY_m,uint8_t sigmaIdx)
 {
     static const float64 N2 = 0;
     static const float64 E2 = 20;

@@ -28,7 +28,7 @@
 
 #include "mtxLib.h"
 
-enum mtxResultInfo mtx_init_bool(tMatrixBool * const pSrc, _Bool * const pValue, const uint8_t nrow, const uint8_t ncol,const uint16_t nelem)
+enum mtxResultInfo mtx_init_bool(MatrixBool64_t * const pSrc, _Bool * const pValue, const uint8_t nrow, const uint8_t ncol,const uint16_t nelem)
 {
     pSrc->val = pValue;
     pSrc->ncol = ncol;
@@ -36,7 +36,7 @@ enum mtxResultInfo mtx_init_bool(tMatrixBool * const pSrc, _Bool * const pValue,
     pSrc->nelem = nelem;
     return MTX_OPERATION_OK; 
 }
-enum mtxResultInfo mtx_init_f64(tMatrix * const pSrc, float64 * const pValue, const uint8_t nrow, const uint8_t ncol,const uint16_t nelem)
+enum mtxResultInfo mtx_init_f64(Matrix64_t * const pSrc, float64 * const pValue, const uint8_t nrow, const uint8_t ncol,const uint16_t nelem)
 {
     pSrc->val = pValue;
     pSrc->ncol = ncol;
@@ -47,7 +47,7 @@ enum mtxResultInfo mtx_init_f64(tMatrix * const pSrc, float64 * const pValue, co
 /**
  * For square matrix only
  */
-enum mtxResultInfo mtx_diagsum_f64(tMatrix * pSrc, float64 * diagsum)
+enum mtxResultInfo mtx_diagsum_f64(Matrix64_t * pSrc, float64 * diagsum)
 {
     enum mtxResultInfo Result = MTX_OPERATION_OK;
     float64 const * const pSrcL = (float64 *)pSrc->val;
@@ -77,7 +77,7 @@ enum mtxResultInfo mtx_diagsum_f64(tMatrix * pSrc, float64 * diagsum)
 /**
  * @brief  \f$A=A'\f$ or \f$A=A^{\tau}\f$
  */
-enum mtxResultInfo mtx_transp_square_f64(tMatrix * const pSrc)
+enum mtxResultInfo mtx_transp_square_f64(Matrix64_t * const pSrc)
 {
     enum mtxResultInfo ResultL = MTX_OPERATION_OK;
     const uint8_t nrow = pSrc->nrow;
@@ -108,7 +108,7 @@ enum mtxResultInfo mtx_transp_square_f64(tMatrix * const pSrc)
 
     return ResultL;
 }
-enum mtxResultInfo mtx_transp_dest_f64(tMatrix const * const pSrc,tMatrix * const pDst)
+enum mtxResultInfo mtx_transp_dest_f64(Matrix64_t const * const pSrc,Matrix64_t * const pDst)
 {
     enum mtxResultInfo ResultL = MTX_OPERATION_OK;
     float64 const * const pSrcL = (float64 *)pSrc->val;
@@ -142,7 +142,7 @@ return ResultL;
  * Matrix multiplication
  *
  */
-enum mtxResultInfo mtx_mul_f64(tMatrix const * const pSrc1, tMatrix const * const pSrc2, tMatrix * const pDst)
+enum mtxResultInfo mtx_mul_f64(Matrix64_t const * const pSrc1, Matrix64_t const * const pSrc2, Matrix64_t * const pDst)
 {
     enum mtxResultInfo ResultL = MTX_OPERATION_OK;
     float64 const * const pSrc1L = (float64 *)pSrc1->val;
@@ -180,7 +180,7 @@ enum mtxResultInfo mtx_mul_f64(tMatrix const * const pSrc1, tMatrix const * cons
  *  Src2 matrix. Be sure that array size are suitable for multiplication after
  *  Src2 transpose  
  */
-enum mtxResultInfo mtx_mul_src2tr_f64(tMatrix const * const pSrc1, tMatrix const * const pSrc2, tMatrix * const pDst)
+enum mtxResultInfo mtx_mul_src2tr_f64(Matrix64_t const * const pSrc1, Matrix64_t const * const pSrc2, Matrix64_t * const pDst)
 {
     enum mtxResultInfo ResultL = MTX_OPERATION_OK;
     float64 const * const pSrc1L = (float64 *)pSrc1->val;
@@ -211,7 +211,7 @@ enum mtxResultInfo mtx_mul_src2tr_f64(tMatrix const * const pSrc1, tMatrix const
     
     return ResultL;
 }
-enum mtxResultInfo mtx_chol_lower_f64(tMatrix * const pSrc)
+enum mtxResultInfo mtx_chol_lower_f64(Matrix64_t * const pSrc)
 {
     enum mtxResultInfo ResultL = MTX_OPERATION_OK;
     float64 * const pSrcL = pSrc->val;
@@ -253,7 +253,7 @@ enum mtxResultInfo mtx_chol_lower_f64(tMatrix * const pSrc)
     
     return ResultL;
 }
-enum mtxResultInfo mtx_chol_upper_f64(tMatrix * const pSrc)
+enum mtxResultInfo mtx_chol_upper_f64(Matrix64_t * const pSrc)
 {
     enum mtxResultInfo ResultL = MTX_OPERATION_OK;
     float64 * const pSrcL = pSrc->val;
@@ -344,7 +344,7 @@ enum mtxResultInfo mtx_chol1_f64(float64* A, float64* L,uint8_t size)
  * @param pDst At the begining should point to identity matrix!!
  * @param pSrc Square matrix
  */
-enum mtxResultInfo mtx_inv_f64(tMatrix * const pSrc, tMatrix * const pDst)
+enum mtxResultInfo mtx_inv_f64(Matrix64_t * const pSrc, Matrix64_t * const pDst)
 {
     enum mtxResultInfo Result = MTX_OPERATION_OK;
     const uint8_t nrow = pSrc->nrow;
@@ -411,7 +411,7 @@ enum mtxResultInfo mtx_inv_f64(tMatrix * const pSrc, tMatrix * const pDst)
     return Result;
     
 }
-enum mtxResultInfo mtx_add_f64(tMatrix * const pDst,tMatrix const * const pSrc)
+enum mtxResultInfo mtx_add_f64(Matrix64_t * const pDst,Matrix64_t const * const pSrc)
 {
     uint8_t Result = MTX_OPERATION_OK;
     float64 * const pDstL= (float64 *)pDst->val;
@@ -432,7 +432,7 @@ enum mtxResultInfo mtx_add_f64(tMatrix * const pDst,tMatrix const * const pSrc)
     
     return Result;
 }
-enum mtxResultInfo mtx_sub_f64(tMatrix * const pDst,tMatrix const * const pSrc)
+enum mtxResultInfo mtx_sub_f64(Matrix64_t * const pDst,Matrix64_t const * const pSrc)
 {
     uint8_t Result = MTX_OPERATION_OK;
     float64 * const pDstL= (float64 *)pDst->val;
@@ -453,7 +453,7 @@ enum mtxResultInfo mtx_sub_f64(tMatrix * const pDst,tMatrix const * const pSrc)
     
     return Result;
 }
-enum mtxResultInfo mtx_mul_scalar_f64(tMatrix * const pSrc,const float64 scalar)
+enum mtxResultInfo mtx_mul_scalar_f64(Matrix64_t * const pSrc,const float64 scalar)
 {
     enum mtxResultInfo Result = MTX_OPERATION_OK;
     float64 * const pDst= pSrc->val;    
@@ -466,7 +466,7 @@ enum mtxResultInfo mtx_mul_scalar_f64(tMatrix * const pSrc,const float64 scalar)
     
     return Result;
 }
-enum mtxResultInfo mtx_sub_scalar_f64(tMatrix * const pSrc,const float64 scalar)
+enum mtxResultInfo mtx_sub_scalar_f64(Matrix64_t * const pSrc,const float64 scalar)
 {
     enum mtxResultInfo Result = MTX_OPERATION_OK;
     float64 * const pDst= pSrc->val;    
@@ -479,7 +479,7 @@ enum mtxResultInfo mtx_sub_scalar_f64(tMatrix * const pSrc,const float64 scalar)
     
     return Result;
 }
-enum mtxResultInfo mtx_add_scalar_f64(tMatrix * const pSrc,const float64 scalar)
+enum mtxResultInfo mtx_add_scalar_f64(Matrix64_t * const pSrc,const float64 scalar)
 {
     enum mtxResultInfo Result = MTX_OPERATION_OK;
     float64 * const pDst= pSrc->val;    
@@ -492,7 +492,7 @@ enum mtxResultInfo mtx_add_scalar_f64(tMatrix * const pSrc,const float64 scalar)
     
     return Result;
 }
-enum mtxResultInfo mtx_cpy_f64(tMatrix * const pDst,tMatrix const * const pSrc)
+enum mtxResultInfo mtx_cpy_f64(Matrix64_t * const pDst,Matrix64_t const * const pSrc)
 {
     enum mtxResultInfo Result = MTX_OPERATION_OK;
     float64 * const pDstL = pDst->val;
@@ -514,7 +514,7 @@ enum mtxResultInfo mtx_cpy_f64(tMatrix * const pDst,tMatrix const * const pSrc)
     return Result;
 
 }
-enum mtxResultInfo mtx_identity_f64(tMatrix * const pSrc)
+enum mtxResultInfo mtx_identity_f64(Matrix64_t * const pSrc)
 {
     enum mtxResultInfo Result = MTX_OPERATION_OK;
     float64 * const pDst= (float64 *)pSrc->val;    
@@ -539,7 +539,7 @@ enum mtxResultInfo mtx_identity_f64(tMatrix * const pSrc)
 
     return Result;
 }
-enum mtxResultInfo mtx_zeros_f64(tMatrix * const pSrc)
+enum mtxResultInfo mtx_zeros_f64(Matrix64_t * const pSrc)
 {
     enum mtxResultInfo Result = MTX_OPERATION_OK;
     float64 * const pDst = (float64 *)pSrc->val;

@@ -7,7 +7,7 @@
 /*---------------------------------------------*/
 /*           Function Prototype                */
 /*---------------------------------------------*/
-void show_matrix_obj(tMatrix A);
+void show_matrix_obj(Matrix64_t A);
 void show_matrix(float64 * A, int n,int m);
 void ukf_test(void);
 void mtxlib_test(void);
@@ -26,7 +26,7 @@ int main(void)
     return 0;
 }
 
-void show_matrix_obj(tMatrix A)
+void show_matrix_obj(Matrix64_t A)
 {
     int i,j;
     
@@ -270,12 +270,12 @@ void mtxlib_test(void)
         {0,0},
         {0,0}  
     };
-    tMatrix myFactMatrix;
-    tMatrix myTestMatx={0,0,0,NULL};
-    tMatrix myChol={0,0,0,NULL};
-    tMatrix Im={0,0,0,NULL};
-    tMatrix oTestMatrix_0_4x4={0,0,0,NULL};
-    tMatrix oTestMatrixDest_3x2={0,0,0,NULL};
+    Matrix64_t myFactMatrix;
+    Matrix64_t myTestMatx={0,0,0,NULL};
+    Matrix64_t myChol={0,0,0,NULL};
+    Matrix64_t Im={0,0,0,NULL};
+    Matrix64_t oTestMatrix_0_4x4={0,0,0,NULL};
+    Matrix64_t oTestMatrixDest_3x2={0,0,0,NULL};
     
     mtx_init_f64(&myTestMatx,&TestMatrix_1_2x3[0][0],NROWS(TestMatrix_1_2x3),NCOL(TestMatrix_1_2x3),COLXROW(TestMatrix_1_2x3));
     mtx_init_f64(&myChol,&symMtxChol[0][0],NROWS(symMtxChol),NCOL(symMtxChol),COLXROW(symMtxChol));
