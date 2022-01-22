@@ -29,6 +29,15 @@
 
 #include "ukfLib.h"
 
+
+const uint8_t xMinIdx = 0;
+const uint8_t xMaxIdx = 1;
+const uint8_t xEpsIdx = 2;
+
+const uint8_t alphaIdx = 0;
+const uint8_t bethaIdx = 1;
+const uint8_t kappaIdx = 2;
+
 _Bool ukf_dimension_check(UKF64_t * const pUkf);
 _Bool ukf_init(UKF64_t * const pUkf, UkfMatrix64_t * pUkfMatrix);
 void ukf_step(UKF64_t * const pUkf);
