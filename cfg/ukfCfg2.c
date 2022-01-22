@@ -38,12 +38,12 @@
 //<DEFINES:END>
 
 //<STATE TRANSITION PROTOTYPE:BEGIN>
-static void Fx1(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8_t sigmaIdx, float64 dT);
-static void Fx2(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8_t sigmaIdx, float64 dT);
+static void Fx1(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaIdx, float64 dT);
+static void Fx2(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaIdx, float64 dT);
 //<STATE TRANSITION PROTOTYPE:END>
 
 //<MEASUREMENT PROTOTYPE:BEGIN>
-static void Hy1(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8_t sigmaIdx);
+static void Hy1(Matrix64_t * pu, Matrix64_t * pX_m, Matrix64_t * pY_m,uint8_t sigmaIdx);
 //<MEASUREMENT PROTOTYPE:END>
 
 //<STATE TRANSITION PTR ARRAY:BEGIN>
@@ -114,12 +114,12 @@ tUkfMatrix UkfMatrixCfg2 =
 };
 
 //<STATE TRANSITION:BEGIN>
-void Fx1(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8_t sigmaIdx, float64 dT)
+void Fx1(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaIdx, float64 dT)
 {
     const uint8_t nCol = pX_m->ncol;
     pX_m->val[nCol*0+sigmaIdx] = pX_p->val[nCol*0+sigmaIdx] +pX_p->val[nCol*1+sigmaIdx]*dT;
 }
-void Fx2(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8_t sigmaIdx, float64 dT)
+void Fx2(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaIdx, float64 dT)
 {
     const uint8_t nCol = pX_m->ncol;
     pX_m->val[nCol*1+sigmaIdx] = pX_p->val[nCol*1+sigmaIdx]+(1-pX_p->val[nCol*0+sigmaIdx]*pX_p->val[nCol*0+sigmaIdx])*pX_p->val[nCol*1+sigmaIdx]*dT-pX_p->val[nCol*0+sigmaIdx]*dT;
@@ -127,7 +127,7 @@ void Fx2(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8_t sigmaIdx, float6
 //<STATE TRANSITION:END>
 
 //<MEASUREMENT FUNCTION:BEGIN>
-void Hy1(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8_t sigmaIdx)
+void Hy1(Matrix64_t * pu, Matrix64_t * pX_m, Matrix64_t * pY_m,uint8_t sigmaIdx)
 {
     const uint8_t nCol = pY_m->ncol;
     pY_m->val[nCol*0+sigmaIdx] = pX_m->val[nCol*0+sigmaIdx];
