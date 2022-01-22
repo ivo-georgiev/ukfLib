@@ -45,7 +45,7 @@ typedef struct ukfMatrix
     Matrix64_t K_kalman_gain_transp;
 #endif
     Matrix64_t I_identity_matrix;
-    Matrix64_t Pxx_covariance_correction; 
+    Matrix64_t Pxx_covariance_correction;
     PredictFcn_t * fcnPredict;
     ObservFcn_t * fcnObserve;
     float64 dT;
@@ -100,7 +100,7 @@ typedef struct uKFpredict /**< p(previous)==k-1, m(minus)=(k|k-1) */
 typedef struct uKFupdate
 {
     Matrix64_t Pyy;    /**< Calculate covariance of predicted output */
-    Matrix64_t Pyy_cpy; 
+    Matrix64_t Pyy_cpy;
     Matrix64_t Pxy;     /**< Calculate cross-covariance of state and output */
     Matrix64_t K;       /**< \f$K_{k}\f$ Calculate gain */
     Matrix64_t x;       /**< \f$x_{k}\f$ Update state estimate */
