@@ -106,12 +106,16 @@ static float64 Pxx0_init_error_covariance[4][4]=
     {0,  0,  0,  1}, /* x4 */
 };
 
-//Process noise covariance Q : initial noise assumptions
-/* Matthew B Rhudy : Q matrix corresponds to the uncertainty that you expect in your state equations.
-  This could include modeling errors or other uncertainties in the equations themselves.
-  Some formulations consider input measurements in the state equations which introduces process noise.
-  If you are very confident in your equations, you could set Q to zero. If you do that the filter will use
-  the noise free model to predict the state vector and will ignore any measurement data since your model is assumed perfect. */
+/** @brief Process noise covariance Q : initial noise assumptions
+ *
+ * Matthew B Rhudy : Q matrix corresponds to the uncertainty that you expect in
+ * your state equations.  This could include modeling errors or other
+ * uncertainties in the equations themselves.  Some formulations consider input
+ * measurements in the state equations which introduces process noise.  If you
+ * are very confident in your equations, you could set Q to zero. If you do
+ * that the filter will use the noise free model to predict the state vector
+ * and will ignore any measurement data since your model is assumed perfect.
+ */
 static float64 Qxx_process_noise_cov[4][4]=
 {/*  x1, x2, x3, x4        */
     {0,  0,  0,  0}, /* x1 */
@@ -120,14 +124,18 @@ static float64 Qxx_process_noise_cov[4][4]=
     {0,  0,  0,  4}, /* x4 */
 };
 
-//Output noise covariance: initial noise assumptions
+/**
+ * Output noise covariance: initial noise assumptions
+ */
 static float64 Ryy0_init_out_covariance[2][2]=
 {/*  y1, y2         */
     {1,  0},  /* y1 */
     {0,  1},  /* y2 */
 };
 
-//Output covariance Pyy = R (initial assumption)
+/**
+ * Output covariance Pyy = R (initial assumption)
+ */
 static float64 Pyy_out_covariance[2][2]=
 {/*  y1, y2         */
     {0,  0},  /* y1 */
@@ -140,7 +148,9 @@ static float64 Pyy_out_covariance_copy[2][2]=
     {0,  0},  /* y2 */
 };
 
-//cross-covariance of state and output
+/**
+ * cross-covariance of state and output
+ */
 static float64 Pxy_cross_covariance[4][2]=
 {/*  y1, y2         */
     {0,  0},  /* x1 */
@@ -149,7 +159,9 @@ static float64 Pxy_cross_covariance[4][2]=
     {0,  0},  /* x4 */
 };
 
-//Kalman gain matrix
+/**
+ * Kalman gain matrix
+ */
 static float64 K_kalman_gain[4][2]=
 {  
     {0, 0},
@@ -202,26 +214,14 @@ UkfMatrix64_t UkfMatrixCfg0 =
     &ObservFcn[0],
     0.1
 };
-/******************************************************************************************************************************************************************************************************\
- ***  FUNCTION:
- ***      void Fx1(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaIdx)
- *** 
- ***  DESCRIPTION:
- ***       Calculate predicted state 0 for each sigma point. Note  that  this  problem  has  a  linear  prediction stage 
- ***       X_m[0][sigmaIdx] = f(X_p, u_p) = n(k)  = n(k-1) + dT * ndot(k-1)    
- ***            
- ***  PARAMETERS:
- ***      Type               Name              Range              Description
- ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ***      Matrix64_t *          pu_p                                 NULL for this system, be sure that is not used in calc
- ***      Matrix64_t *          pX_p                                 Pointer to the sigma points array at (k-1) moment 
- ***      Matrix64_t *          pX_m                                 Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
- ***      uint8_t              sigmaIdx                             Sigma point index.
- ***  RETURNS:
- ***           
- ***  SETTINGS:
- ***
-\******************************************************************************************************************************************************************************************************/
+/**
+ *    Calculate predicted state 0 for each sigma point. Note  that  this  problem  has  a  linear  prediction stage 
+ *    X_m[0][sigmaIdx] = f(X_p, u_p) = n(k)  = n(k-1) + dT * ndot(k-1)    
+ * @param pu_p      NULL for this system, be sure that is not used in calc
+ * @param pX_p      Pointer to the sigma points array at (k-1) moment 
+ * @param pX_m      Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
+ * @param sigmaIdx  Sigma point index.
+ */
 void Fx1(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaIdx, float64 dT)
 {
     const uint8_t nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
@@ -230,26 +230,16 @@ void Fx1(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaId
 
     pu_p = pu_p;
 }
-/******************************************************************************************************************************************************************************************************\
- ***  FUNCTION:
- ***      void Fx2(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaIdx)
- *** 
- ***  DESCRIPTION:
- ***       Calculate predicted state 1 for each sigma point. Note  that  this  problem  has  a  linear  prediction stage 
- ***       X_m[1][sigmaIdx] = f(X_p, u_p) = e(k)  = e(k-1) + dT * edot(k-1)    
- ***            
- ***  PARAMETERS:
- ***      Type               Name              Range              Description
- ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ***      Matrix64_t *          pu_p                                 NULL for this system, be sure that is not used in calc
- ***      Matrix64_t *          pX_p                                 Pointer to the sigma points array at (k-1) moment 
- ***      Matrix64_t *          pX_m                                 Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
- ***      uint8_t              sigmaIdx                             Sigma point index.
- ***  RETURNS:
- ***           
- ***  SETTINGS:
- ***
-\******************************************************************************************************************************************************************************************************/
+/**
+ *
+ *  Calculate predicted state 1 for each sigma point. Note  that  this  problem  has  a  linear  prediction stage 
+ *  X_m[1][sigmaIdx] = f(X_p, u_p) = e(k)  = e(k-1) + dT * edot(k-1)    
+ *       
+ * @param pu_p     NULL for this system, be sure that is not used in calc
+ * @param pX_p     Pointer to the sigma points array at (k-1) moment 
+ * @param pX_m     Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
+ * @param sigmaIdx Sigma point index.
+ */
 void Fx2(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaIdx, float64 dT)
 {
     const uint8_t nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
@@ -258,26 +248,15 @@ void Fx2(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaId
 
     pu_p = pu_p;
 }
-/******************************************************************************************************************************************************************************************************\
- ***  FUNCTION:
- ***      void Fx3(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaIdx)
- *** 
- ***  DESCRIPTION:
- ***       Calculate predicted state 2 for each sigma point. Note  that  this  problem  has  a  linear  prediction stage 
- ***       X_m[2][sigmaIdx] = f(X_p, u_p) = ndot(k)  = ndot(k-1)    
- ***            
- ***  PARAMETERS:
- ***      Type               Name              Range              Description
- ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ***      Matrix64_t *          pu_p                                 NULL for this system, be sure that is not used in calc
- ***      Matrix64_t *          pX_p                                 Pointer to the sigma points array at (k-1) moment 
- ***      Matrix64_t *          pX_m                                 Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
- ***      uint8_t              sigmaIdx                             Sigma point index.
- ***  RETURNS:
- ***           
- ***  SETTINGS:
- ***
-\******************************************************************************************************************************************************************************************************/
+/**
+ *  Calculate predicted state 2 for each sigma point. Note  that  this  problem  has  a  linear  prediction stage 
+ *  X_m[2][sigmaIdx] = f(X_p, u_p) = ndot(k)  = ndot(k-1)    
+ *       
+ * @param pu_p      for this system, be sure that is not used in calc
+ * @param pX_p      to the sigma points array at (k-1) moment 
+ * @param pX_m      to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
+ * @param sigmaIdx  point index.
+ */
 void Fx3(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaIdx, float64 dT)
 {
     const uint8_t nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
@@ -287,26 +266,15 @@ void Fx3(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaId
     pu_p = pu_p;
     dT = dT;
 }
-/******************************************************************************************************************************************************************************************************\
- ***  FUNCTION:
- ***      void Fx4(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaIdx)
- *** 
- ***  DESCRIPTION:
- ***       Calculate predicted state 3 for each sigma point. Note  that  this  problem  has  a  linear  prediction stage 
- ***       X_m[3][sigmaIdx] = f(X_p, u_p) = edot(k)  = edot(k-1)    
- ***            
- ***  PARAMETERS:
- ***      Type               Name              Range              Description
- ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ***      Matrix64_t *          pu_p                                 NULL for this system, be sure that is not used in calc
- ***      Matrix64_t *          pX_p                                 Pointer to the sigma points array at (k-1) moment 
- ***      Matrix64_t *          pX_m                                 Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
- ***      uint8_t              sigmaIdx                             Sigma point index.
- ***  RETURNS:
- ***           
- ***  SETTINGS:
- ***
-\******************************************************************************************************************************************************************************************************/
+/**
+ *  Calculate predicted state 3 for each sigma point. Note  that  this  problem  has  a  linear  prediction stage 
+ *  X_m[3][sigmaIdx] = f(X_p, u_p) = edot(k)  = edot(k-1)    
+ *
+ * @param pu_p     NULL for this system, be sure that is not used in calc
+ * @param pX_p     Pointer to the sigma points array at (k-1) moment 
+ * @param pX_m     Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
+ * @param sigmaIdx Sigma point index.
+ */
 void Fx4(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaIdx, float64 dT)
 {
     const uint8_t nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
@@ -316,26 +284,15 @@ void Fx4(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaId
     pu_p = pu_p;
     dT = dT;
 }
-/******************************************************************************************************************************************************************************************************\
- ***  FUNCTION:
- ***      void Hy1(Matrix64_t * pu, Matrix64_t * pX_m, Matrix64_t * pY_m,uint8_t sigmaIdx)
- *** 
- ***  DESCRIPTION:
- ***       Calculate predicted state 3 for each sigma point. This problem has a nonlinear observation 
- ***       Y_m[0][sigmaIdx] = h1(X_m, u) = y1(k)  = sqrt((n(k)-N1)^2+(e(k)-E1)^2)    
- ***            
- ***  PARAMETERS:
- ***      Type               Name              Range              Description
- ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ***      Matrix64_t *          pu                                   NULL for this system, be sure that is not used in calc
- ***      Matrix64_t *          pY_m                                 Pointer to the predicted output at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
- ***      Matrix64_t *          pX_m                                 Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
- ***      uint8_t              sigmaIdx                             Sigma point index.
- ***  RETURNS:
- ***           
- ***  SETTINGS:
- ***
-\******************************************************************************************************************************************************************************************************/
+/**
+ *  Calculate predicted state 3 for each sigma point. This problem has a nonlinear observation 
+ *  Y_m[0][sigmaIdx] = h1(X_m, u) = y1(k)  = sqrt((n(k)-N1)^2+(e(k)-E1)^2)    
+ *       
+ * @param pu NULL for this system, be sure that is not used in calc
+ * @param pY_m Pointer to the predicted output at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
+ * @param pX_m Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
+ * @param sigmaIdx Sigma point index.
+ */
 void Hy1(Matrix64_t * pu, Matrix64_t * pX_m, Matrix64_t * pY_m,uint8_t sigmaIdx)
 {
     static const float64 N1 = 20;
@@ -354,26 +311,16 @@ void Hy1(Matrix64_t * pu, Matrix64_t * pX_m, Matrix64_t * pY_m,uint8_t sigmaIdx)
 
     pu = pu;
 }
-/******************************************************************************************************************************************************************************************************\
- ***  FUNCTION:
- ***      void Hy2(Matrix64_t * pu, Matrix64_t * pX_m, Matrix64_t * pY_m,uint8_t sigmaIdx)
- *** 
- ***  DESCRIPTION:
- ***       Calculate predicted state 3 for each sigma point. This problem has a nonlinear observation 
- ***       Y_m[1][sigmaIdx] = h2(X_m[0&1][sigmaIdx], u) = y2(k)  = sqrt( (n(k) - N2)^2 + (e(k) - E2)^2 )    
- ***            
- ***  PARAMETERS:
- ***      Type               Name              Range              Description
- ***      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ***      Matrix64_t *          pu                                   NULL for this system, be sure that is not used in calc
- ***      Matrix64_t *          pY_m                                 Pointer to the predicted output at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
- ***      Matrix64_t *          pX_m                                 Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
- ***      uint8_t              sigmaIdx                             Sigma point index.
- ***  RETURNS:
- ***           
- ***  SETTINGS:
- ***
-\******************************************************************************************************************************************************************************************************/
+/**
+ *
+ * Calculate predicted state 3 for each sigma point. This problem has a nonlinear observation 
+ * Y_m[1][sigmaIdx] = h2(X_m[0&1][sigmaIdx], u) = y2(k)  = sqrt( (n(k) - N2)^2 + (e(k) - E2)^2 )    
+ *      
+ * @param pu NULL for this system, be sure that is not used in calc
+ * @param pY_m Pointer to the predicted output at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
+ * @param pX_m Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
+ * @param sigmaIdx Sigma point index.
+ */
 void Hy2(Matrix64_t * pu, Matrix64_t * pX_m, Matrix64_t * pY_m,uint8_t sigmaIdx)
 {
     static const float64 N2 = 0;
