@@ -6,13 +6,13 @@
 #ifndef UKFLIB_FILE
 #define UKFLIB_FILE
 
-#define xMinIdx (uint8_t)0
-#define xMaxIdx (uint8_t)1
-#define xEpsIdx (uint8_t)2
+extern const uint8_t xMinIdx;
+extern const uint8_t xMaxIdx;
+extern const uint8_t xEpsIdx;
 
-#define alphaIdx   (uint8_t)0
-#define bethaIdx   (uint8_t)1
-#define kappaIdx   (uint8_t)2
+extern const uint8_t alphaIdx;
+extern const uint8_t bethaIdx;
+extern const uint8_t kappaIdx;
 
 typedef void (* PredictFcn_t) (Matrix64_t * pu_p, Matrix64_t * px_p, Matrix64_t * pX_m,uint8_t sigmaIdx, float64 dT);
 typedef void (* ObservFcn_t) (Matrix64_t * pu, Matrix64_t * pX_m, Matrix64_t * pY_m,uint8_t sigmaIdx);
