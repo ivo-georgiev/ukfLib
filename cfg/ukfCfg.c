@@ -50,8 +50,8 @@ static void Fx4(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t 
 static void Hy1(Matrix64_t * pu, Matrix64_t * pX_m, Matrix64_t * pY_m,uint8_t sigmaIdx);
 static void Hy2(Matrix64_t * pu, Matrix64_t * pX_m, Matrix64_t * pY_m,uint8_t sigmaIdx);
 
-static tPredictFcn PredictFcn[4] = {&Fx1,&Fx2,&Fx3,&Fx4};
-static tObservFcn  ObservFcn[2] = {&Hy1,&Hy2};
+static PredictFcn_t PredictFcn[4] = {&Fx1,&Fx2,&Fx3,&Fx4};
+static ObservFcn_t  ObservFcn[2] = {&Hy1,&Hy2};
 
 //-----------------------
 //UKF Processing matrix
@@ -172,7 +172,7 @@ static float64 I_identity_matrix[2][2]=
     {0,  0},
 };
 
-tUkfMatrix UkfMatrixCfg0 = 
+UkfMatrix64_t UkfMatrixCfg0 = 
 {
     {COLXROW(Sc_vector),NROWS(Sc_vector),NCOL(Sc_vector),&Sc_vector[0][0]},
     {COLXROW(Wm_weight_vector),NROWS(Wm_weight_vector),NCOL(Wm_weight_vector),&Wm_weight_vector[0][0]},

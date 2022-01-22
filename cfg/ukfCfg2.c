@@ -47,11 +47,11 @@ static void Hy1(Matrix64_t * pu, Matrix64_t * pX_m, Matrix64_t * pY_m,uint8_t si
 //<MEASUREMENT PROTOTYPE:END>
 
 //<STATE TRANSITION PTR ARRAY:BEGIN>
-static tPredictFcn PredictFcn[xL] = {&Fx1,&Fx2};
+static PredictFcn_t PredictFcn[xL] = {&Fx1,&Fx2};
 //<STATE TRANSITION PTR ARRAY:END>
 
 //<MEASUREMENT PTR ARRAY:BEGIN>
-static tObservFcn  ObservFcn[yL] = {&Hy1};
+static ObservFcn_t  ObservFcn[yL] = {&Hy1};
 //<MEASUREMENT PTR ARRAY:END>
 
 //-----------------------
@@ -82,7 +82,7 @@ static float64 K_kalman_gain[xL][yL]= {{0},{0}};
 static float64 Pxx_covariance_correction[xL][xL]= {{0,0,},{0,0}};
 static float64 I_identity_matrix[yL][yL]= {{0}};
 
-tUkfMatrix UkfMatrixCfg2 = 
+UkfMatrix64_t UkfMatrixCfg2 = 
 {
 {COLXROW(Sc_vector),NROWS(Sc_vector),NCOL(Sc_vector),&Sc_vector[0][0]},
 {COLXROW(Wm_weight_vector),NROWS(Wm_weight_vector),NCOL(Wm_weight_vector),&Wm_weight_vector[0][0]},

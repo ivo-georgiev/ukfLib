@@ -14,8 +14,8 @@
 #define bethaIdx   (uint8_t)1
 #define kappaIdx   (uint8_t)2
 
-typedef void (* tPredictFcn) (Matrix64_t * pu_p, Matrix64_t * px_p, Matrix64_t * pX_m,uint8_t sigmaIdx, float64 dT);
-typedef void (* tObservFcn) (Matrix64_t * pu, Matrix64_t * pX_m, Matrix64_t * pY_m,uint8_t sigmaIdx);
+typedef void (* PredictFcn_t) (Matrix64_t * pu_p, Matrix64_t * px_p, Matrix64_t * pX_m,uint8_t sigmaIdx, float64 dT);
+typedef void (* ObservFcn_t) (Matrix64_t * pu, Matrix64_t * pX_m, Matrix64_t * pY_m,uint8_t sigmaIdx);
 
 typedef struct ukfMatrix
 {
@@ -46,11 +46,11 @@ typedef struct ukfMatrix
 #endif
     Matrix64_t I_identity_matrix;
     Matrix64_t Pxx_covariance_correction; 
-    tPredictFcn * fcnPredict;
-    tObservFcn * fcnObserve;
+    PredictFcn_t * fcnPredict;
+    ObservFcn_t * fcnObserve;
     float64 dT;
 
-}tUkfMatrix;
+}UkfMatrix64_t;
 
 typedef struct uKFpar
 {
@@ -70,13 +70,13 @@ typedef struct uKFpar
     Matrix64_t x0;
     Matrix64_t xLim;
     MatrixBool64_t xLimEnbl;
-}tUKFpar;
+}UKFpar64_t;
 
 typedef struct uKFin
 {
     Matrix64_t u;    /**< \f$ u_k\f$   Current inputs */
     Matrix64_t y;    /**< \f$ y_k\f$   Current measurement */
-}tUKFin;
+}UKFin64_t;
 
 typedef struct uKFprev
 {
@@ -84,7 +84,7 @@ typedef struct uKFprev
     Matrix64_t x_p;    /**< \f$ x_{k-1}\f$   Previous states */
     Matrix64_t X_p;    /**< \f$ X_{k-1}\f$   Calculate the sigma-points */
     Matrix64_t Pxx_p;  /**< \f$ P_{k-1}\f$   Previous error covariance  */
-}tUKFprev;
+}UKFprev64_t;
 
 typedef struct uKFpredict /**< p(previous)==k-1, m(minus)=(k|k-1) */
 {
@@ -93,9 +93,9 @@ typedef struct uKFpredict /**< p(previous)==k-1, m(minus)=(k|k-1) */
     Matrix64_t P_m;    /**< \f$P_{k|k-1}\f$ Calculate covariance of predicted state   */
     Matrix64_t Y_m;    /**< \f$Y_{k|k-1}\f$ Propagate each sigma-point through observation */
     Matrix64_t y_m;    /**< \f$y_{k|k-1}\f$ Calculate mean of predicted output */
-    tPredictFcn * pFcnPredict;
-    tObservFcn * pFcnObserv;
-}tUKFpredict;
+    PredictFcn_t * pFcnPredict;
+    ObservFcn_t * pFcnObserv;
+}UKFpredict64_t;
 
 typedef struct uKFupdate
 {
@@ -108,18 +108,18 @@ typedef struct uKFupdate
     Matrix64_t Pxx;     /**< \f$P_{k}\f$ Update error covariance */
     Matrix64_t Pxx_corr;
     Matrix64_t Iyy;     /**< tmp buffer initialized as identity matrix stor result from inversion and other operation   */
-}tUKFupdate;
+}UKFupdate64_t;
 
 typedef struct uKF
 {
-    tUKFpar     par;
-    tUKFprev    prev;
-    tUKFin      input;
-    tUKFpredict predict;
-    tUKFupdate  update;
-}tUKF;
+    UKFpar64_t     par;
+    UKFprev64_t    prev;
+    UKFin64_t      input;
+    UKFpredict64_t predict;
+    UKFupdate64_t  update;
+}UKF64_t;
 
 #endif
 
-extern _Bool ukf_init(tUKF * const pUkf, tUkfMatrix * pUkfMatrix);
-extern void ukf_step(tUKF * const pUkf);
+extern _Bool ukf_init(UKF64_t * const pUkf, UkfMatrix64_t * pUkfMatrix);
+extern void ukf_step(UKF64_t * const pUkf);
