@@ -74,25 +74,25 @@ typedef struct uKFpar
 
 typedef struct uKFin
 {
-    tMatrix u;    /**<  u(k)   Current inputs */
-    tMatrix y;    /**<  y(k)   Current measurement */
+    tMatrix u;    /**< \f$ u_k\f$   Current inputs */
+    tMatrix y;    /**< \f$ y_k\f$   Current measurement */
 }tUKFin;
 
 typedef struct uKFprev
 {
-    tMatrix u_p;    /**<  u(k-1)   Previous inputs */
-    tMatrix x_p;    /**<  x(k-1)   Previous states */
-    tMatrix X_p;    /**<  X(k-1)   Calculate the sigma-points */
-    tMatrix Pxx_p;  /**<  P(k-1)    Previous error covariance  */
+    tMatrix u_p;    /**< \f$ u_{k-1}\f$   Previous inputs */
+    tMatrix x_p;    /**< \f$ x_{k-1}\f$   Previous states */
+    tMatrix X_p;    /**< \f$ X_{k-1}\f$   Calculate the sigma-points */
+    tMatrix Pxx_p;  /**< \f$ P_{k-1}\f$   Previous error covariance  */
 }tUKFprev;
 
 typedef struct uKFpredict /**< p(previous)==k-1, m(minus)=(k|k-1) */
 {
-    tMatrix X_m;    /**< X(k|k-1) Propagate each sigma-point through prediction f(Chi) */
-    tMatrix x_m;    /**< x(k|k-1) Calculate mean of predicted state */
-    tMatrix P_m;    /**< P(k|k-1) Calculate covariance of predicted state   */
-    tMatrix Y_m;    /**< Y(k|k-1) Propagate each sigma-point through observation */
-    tMatrix y_m;    /**< y(k|k-1) Calculate mean of predicted output */
+    tMatrix X_m;    /**< \f$X_{k|k-1}\f$ Propagate each sigma-point through prediction \f$f(\chi)\f$ */
+    tMatrix x_m;    /**< \f$x_{k|k-1}\f$ Calculate mean of predicted state */
+    tMatrix P_m;    /**< \f$P_{k|k-1}\f$ Calculate covariance of predicted state   */
+    tMatrix Y_m;    /**< \f$Y_{k|k-1}\f$ Propagate each sigma-point through observation */
+    tMatrix y_m;    /**< \f$y_{k|k-1}\f$ Calculate mean of predicted output */
     tPredictFcn * pFcnPredict;
     tObservFcn * pFcnObserv;
 }tUKFpredict;
@@ -102,10 +102,10 @@ typedef struct uKFupdate
     tMatrix Pyy;    /**< Calculate covariance of predicted output */
     tMatrix Pyy_cpy; 
     tMatrix Pxy;     /**< Calculate cross-covariance of state and output */
-    tMatrix K;       /**< K(k) Calculate gain */
-    tMatrix x;       /**< x(k) Update state estimate */
+    tMatrix K;       /**< \f$K_{k}\f$ Calculate gain */
+    tMatrix x;       /**< \f$x_{k}\f$ Update state estimate */
     tMatrix x_corr;
-    tMatrix Pxx;     /**< P(k) Update error covariance */
+    tMatrix Pxx;     /**< \f$P_{k}\f$ Update error covariance */
     tMatrix Pxx_corr;
     tMatrix Iyy;     /**< tmp buffer initialized as identity matrix stor result from inversion and other operation   */
 }tUKFupdate;
