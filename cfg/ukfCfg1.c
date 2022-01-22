@@ -1,5 +1,5 @@
  /******************************************************************************************************************************************************************************************************\
- *** 
+ ***
  *** Description       : IMPLEMENTATION OF THE ADDITIVE NOISE UKF: Damped pendulum.
  *** Codefile          : ukfCfg1.c
  *** Documentation     : https://github.com/ivo-georgiev/ukfLib/wiki/Damped-pendulum:-CFG1
@@ -8,17 +8,17 @@
  *** MIT License
  ***
  *** Copyright (c) 2017 ivo-georgiev
- ***  
+ ***
  *** Permission is hereby granted, free of charge, to any person obtaining a copy
  *** of this software and associated documentation files (the "Software"), to deal
  *** in the Software without restriction, including without limitation the rights
  *** to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *** copies of the Software, and to permit persons to whom the Software is
  *** furnished to do so, subject to the following conditions:
- ***    
+ ***
  *** The above copyright notice and this permission notice shall be included in all
  *** copies or substantial portions of the Software.
- ***      
+ ***
  *** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *** IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *** FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -43,7 +43,7 @@ static ObservFcn_t  ObservFcn[1] = {&Hy1};
 static float64 Sc_vector[1][3] = {{0.1,2,0}};
 static float64 Wm_weight_vector[1][5] = {{0,0,0,0,0}};
 static float64 Wc_weight_vector[1][5] = {{0,0,0,0,0}};
-//static float64 u_system_input[2][1] = {{0},{0}}; 
+//static float64 u_system_input[2][1] = {{0},{0}};
 //static float64 u_prev_system_input[2][1] = {{0},{0}};
 static float64 y_meas[1][1] = {{0}};
 static float64 y_predicted_mean[1][1] = {{0}};
@@ -64,25 +64,25 @@ static float64 Y_sigma_points[1][5]=
     {0,  0,  0,  0,  0}, /* y1 */
 };
 
-//State covariance  P(k|k-1) = P_m, P(k)= P  
+//State covariance  P(k|k-1) = P_m, P(k)= P
 static float64 Pxx_error_covariance[2][2]=
 {/*  x1, x2       */
     {0,  0}, /* x1 */
-    {0,  0}, /* x2 */ 
+    {0,  0}, /* x2 */
 };
 
 //State covariance initial values
 static float64 Pxx0_init_error_covariance[2][2]=
 {/*  x1,    x2         */
     {100,    0}, /* x1 */
-    {0  ,  100}, /* x2 */  
+    {0  ,  100}, /* x2 */
 };
 
 //Process noise covariance Q : initial noise assumptions
 static float64 Qxx_process_noise_cov[2][2]=
 {/*  x1,  x2,        */
     {0.1,  0}, /* x1 */
-    {0,  0.1}, /* x2 */   
+    {0,  0.1}, /* x2 */
 };
 
 //Output noise covariance: initial noise assumptions
@@ -115,12 +115,12 @@ static float64 K_kalman_gain[2][1]= {{0},{0}};
 static float64 Pxx_covariance_correction[2][2]=
 {/*  x1, x2,       */
     {0,  0}, /* x1 */
-    {0,  0}, /* x2 */   
+    {0,  0}, /* x2 */
 };
 
 static float64 I_identity_matrix[1][1]={{0}};
 
-UkfMatrix64_t UkfMatrixCfg1 = 
+UkfMatrix64_t UkfMatrixCfg1 =
 {
     {COLXROW(Sc_vector),NROWS(Sc_vector),NCOL(Sc_vector),&Sc_vector[0][0]},
     {COLXROW(Wm_weight_vector),NROWS(Wm_weight_vector),NCOL(Wm_weight_vector),&Wm_weight_vector[0][0]},
@@ -134,7 +134,7 @@ UkfMatrix64_t UkfMatrixCfg1 =
     {0,0,0,NULL},//{COLXROW(u_prev_system_input),NROWS(u_prev_system_input),NCOL(u_prev_system_input),&u_prev_system_input[0][0]},
     {COLXROW(X_sigma_points),NROWS(X_sigma_points),NCOL(X_sigma_points),&X_sigma_points[0][0]},
     {COLXROW(Y_sigma_points),NROWS(Y_sigma_points),NCOL(Y_sigma_points),&Y_sigma_points[0][0]},
-    {COLXROW(y_predicted_mean),NROWS(y_predicted_mean),NCOL(y_predicted_mean),&y_predicted_mean[0][0]},   
+    {COLXROW(y_predicted_mean),NROWS(y_predicted_mean),NCOL(y_predicted_mean),&y_predicted_mean[0][0]},
     {COLXROW(y_meas),NROWS(y_meas),NCOL(y_meas),&y_meas[0][0]},
     {COLXROW(Pyy_out_covariance),NROWS(Pyy_out_covariance),NCOL(Pyy_out_covariance),&Pyy_out_covariance[0][0]},
     {COLXROW(Pyy_out_covariance_copy),NROWS(Pyy_out_covariance_copy),NCOL(Pyy_out_covariance_copy),&Pyy_out_covariance_copy[0][0]},
@@ -144,8 +144,8 @@ UkfMatrix64_t UkfMatrixCfg1 =
     {COLXROW(Pxx0_init_error_covariance),NROWS(Pxx0_init_error_covariance),NCOL(Pxx0_init_error_covariance),&Pxx0_init_error_covariance[0][0]},
     {COLXROW(Qxx_process_noise_cov),NROWS(Qxx_process_noise_cov),NCOL(Qxx_process_noise_cov),&Qxx_process_noise_cov[0][0]},
     {COLXROW(K_kalman_gain),NROWS(K_kalman_gain),NCOL(K_kalman_gain),&K_kalman_gain[0][0]},
-    {COLXROW(I_identity_matrix),NROWS(I_identity_matrix),NCOL(I_identity_matrix),&I_identity_matrix[0][0]},  
-    {COLXROW(Pxx_covariance_correction),NROWS(Pxx_covariance_correction),NCOL(Pxx_covariance_correction),&Pxx_covariance_correction[0][0]},   
+    {COLXROW(I_identity_matrix),NROWS(I_identity_matrix),NCOL(I_identity_matrix),&I_identity_matrix[0][0]},
+    {COLXROW(Pxx_covariance_correction),NROWS(Pxx_covariance_correction),NCOL(Pxx_covariance_correction),&Pxx_covariance_correction[0][0]},
     &PredictFcn[0],
     &ObservFcn[0],
     0.0001
@@ -153,39 +153,39 @@ UkfMatrix64_t UkfMatrixCfg1 =
 
 /**
  * @brief
- *       Calculate predicted state 0 for each sigma point.  
- *       X_m[0][sigmaIdx] = f(X_p, u_p) =   
- *            
+ *       Calculate predicted state 0 for each sigma point.
+ *       X_m[0][sigmaIdx] = f(X_p, u_p) =
+ *
  * @param pu_p NULL for this system, be sure that is not used in calc
- * @param pX_p  Pointer to the sigma points array at (k-1) moment 
+ * @param pX_p  Pointer to the sigma points array at (k-1) moment
  * @param pX_m  Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
  * @param sigmaIdx Sigma point index.
  */
 void Fx1(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaIdx, float64 dT)
 {
-    const uint8_t nCol = pX_m->ncol; 
+    const uint8_t nCol = pX_m->ncol;
 
     pX_m->val[nCol*0+sigmaIdx] = pX_p->val[nCol*0+sigmaIdx]+ dT*pX_p->val[nCol*1+sigmaIdx];
 
     pu_p = pu_p;
 }
 /**
- *       Calculate predicted state 1 for each sigma point.  
- *       X_m[1][sigmaIdx] = f(X_p, u_p) = e(k)  =     
+ *       Calculate predicted state 1 for each sigma point.
+ *       X_m[1][sigmaIdx] = f(X_p, u_p) = e(k)  =
  *
  * @param pu_p     NULL for this system, be sure that is not used in calc
- * @param pX_p     Pointer to the sigma points array at (k-1) moment 
+ * @param pX_p     Pointer to the sigma points array at (k-1) moment
  * @param pX_m     Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
  * @param sigmaIdx Sigma point index.
  */
 void Fx2(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaIdx, float64 dT)
 {
     const uint8_t nCol = pX_m->ncol;
-    const float64 B = 0.05; //kg*s/m 
+    const float64 B = 0.05; //kg*s/m
     const float64 l = 0.613;
     const float64 m = 0.5;
-    const float64 g = 9.81;	
-   
+    const float64 g = 9.81;
+
     pX_m->val[nCol*1 + sigmaIdx] = (1-((dT*B)/m))*pX_p->val[nCol*1 + sigmaIdx] - ((dT*g)/l)*sin(pX_p->val[nCol*0 + sigmaIdx]);
 
     pu_p = pu_p;
@@ -193,8 +193,8 @@ void Fx2(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaId
 
 /**
  *
- *       Calculate predicted state 3 for each sigma point.  
- *       Y_m[0][sigmaIdx] = h1(X_m, u) = y1(k)  =     
+ *       Calculate predicted state 3 for each sigma point.
+ *       Y_m[0][sigmaIdx] = h1(X_m, u) = y1(k)  =
  *
  * @param pu       NULL for this system, be sure that is not used in calc
  * @param pY_m     Pointer to the predicted output at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
@@ -202,7 +202,7 @@ void Fx2(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaId
  * @param sigmaIdx Sigma point index.
  */
 void Hy1(Matrix64_t * pu, Matrix64_t * pX_m, Matrix64_t * pY_m,uint8_t sigmaIdx)
-{ 
+{
     pY_m->val[sigmaIdx] = pX_m->val[sigmaIdx];
 
     pu = pu;

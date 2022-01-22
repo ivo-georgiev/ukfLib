@@ -1,5 +1,5 @@
 /******************************************************************************************************************************************************************************************************\
- *** 
+ ***
  *** Description       : IMPLEMENTATION OF THE ADDITIVE NOISE UKF
  *** Codefile          : ukfLib.c
  *** Documentation     : https://web.statler.wvu.edu/%7Eirl/IRL_WVU_Online_UKF_Implementation_V1.0_06_28_2013.pdf
@@ -7,17 +7,17 @@
  *** MIT License
  ***
  *** Copyright (c) 2017 ivo-georgiev
- ***  
+ ***
  *** Permission is hereby granted, free of charge, to any person obtaining a copy
  *** of this software and associated documentation files (the "Software"), to deal
  *** in the Software without restriction, including without limitation the rights
  *** to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *** copies of the Software, and to permit persons to whom the Software is
  *** furnished to do so, subject to the following conditions:
- ***    
+ ***
  *** The above copyright notice and this permission notice shall be included in all
  *** copies or substantial portions of the Software.
- ***      
+ ***
  *** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *** IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *** FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -49,38 +49,38 @@ void ukf_calc_covariances(UKF64_t * const pUkf);
 float64 ukf_state_limiter(const float64 state,const float64 min,const float64 max,const _Bool enbl);
 
 /**
- * Clamp system states in permitted range     
+ * Clamp system states in permitted range
  *
  * @param state state value which should be clamped
  * @param min   lower state range
- * @param max   higher state range 
+ * @param max   higher state range
  * @param enbl  limiter enable flag
  * @return clamp
  */
 float64 ukf_state_limiter(const float64 state,const float64 min,const float64 max,const _Bool enbl)
 {
     float64 clamp = state;
-    
+
     if(0 != enbl)
     {
         if(min > state)
         {
             clamp = min;
-        }  
-        else 
+        }
+        else
         {
-            if( max < state) 
+            if( max < state)
             {
                 clamp = max;
-            }    
+            }
         }
     }
-    
+
     return clamp;
 }
 /**
- * Check if working matrix size defined in ukfCfg.c match to defined system expectation(verification of all matrix is vs number of states xLen and number of measurements yLen)     
- *            
+ * Check if working matrix size defined in ukfCfg.c match to defined system expectation(verification of all matrix is vs number of states xLen and number of measurements yLen)
+ *
  * @param pUkf UKF - Working structure with reference to all in,out,states,par
  * @return       0 - OK, 1 - NOK
  *
@@ -103,23 +103,23 @@ _Bool ukf_dimension_check(UKF64_t * const pUkf)
     }
     else
     {
-        //input and system input prev arrays are NOT MANDATORY for system description in CFG file!!  
+        //input and system input prev arrays are NOT MANDATORY for system description in CFG file!!
     }
- 
-    
+
+
     if(NULL != pUkf->input.y.val)
     {
         //check measurement vector size: (yLen x 1)
         if(pUkf->input.y.nrow != pUkf->par.yLen || pUkf->input.y.ncol != 1)
         {
             Result |= 1;
-        } 
+        }
     }
     else
     {
         Result |= 1;
     }
- 
+
     if(NULL != pUkf->par.Wm.val && NULL != pUkf->par.Wc.val)
     {
         //check Wm,Wc sigma weight matrix size: (1 x sLen)
@@ -133,7 +133,7 @@ _Bool ukf_dimension_check(UKF64_t * const pUkf)
     {
         Result |= 1;
     }
-    
+
     if(NULL != pUkf->par.Pxx0.val)
     {
         //check initial covariance matrix size: (xLen x xLen)
@@ -214,7 +214,7 @@ _Bool ukf_dimension_check(UKF64_t * const pUkf)
 
     if(NULL != pUkf->update.Pyy.val && NULL != pUkf->update.Pyy_cpy.val)
     {
-        //check Output covariance and it's copy size 
+        //check Output covariance and it's copy size
         if((pUkf->update.Pyy.nrow != pUkf->par.yLen || pUkf->update.Pyy.ncol != pUkf->par.yLen) &&
             (pUkf->update.Pyy_cpy.nrow != pUkf->par.yLen || pUkf->update.Pyy_cpy.ncol != pUkf->par.yLen))
         {
@@ -269,7 +269,7 @@ _Bool ukf_dimension_check(UKF64_t * const pUkf)
     return Result;
 }
 /**
- *  Unscented Kalman filter initialization. Calculate some filter parameter and initialize matrix pointers with real working arrays. Check matrix/array size consistency  
+ *  Unscented Kalman filter initialization. Calculate some filter parameter and initialize matrix pointers with real working arrays. Check matrix/array size consistency
  *
  *
  * @param      pUkf                               UKF - Working structure with all in,out,par
@@ -285,7 +285,7 @@ _Bool ukf_init(UKF64_t * const pUkf, UkfMatrix64_t * pUkfMatrix)
     UKFprev64_t * const pPrev = (UKFprev64_t *)&pUkf->prev;
     const uint8_t WmLen = pUkfMatrix->Wm_weight_vector.ncol;
     const uint8_t WcLen = pUkfMatrix->Wc_weight_vector.ncol;
-    
+
     pPar->xLim = pUkfMatrix->x_system_states_limits;
     pPar->xLimEnbl = pUkfMatrix->x_system_states_limits_enable;
     pPar->x0 = pUkfMatrix->x_system_states_ic;
@@ -297,7 +297,7 @@ _Bool ukf_init(UKF64_t * const pUkf, UkfMatrix64_t * pUkfMatrix)
     pPar->alpha = pUkfMatrix->Sc_vector.val[alphaIdx];
     pPar->betha = pUkfMatrix->Sc_vector.val[bethaIdx];
     pPar->kappa = pUkfMatrix->Sc_vector.val[kappaIdx];
-    pPar->xLen = pUkfMatrix->x_system_states.nrow; 
+    pPar->xLen = pUkfMatrix->x_system_states.nrow;
     pPar->yLen = pUkfMatrix->y_predicted_mean.nrow;
     pPar->sLen = 2*pPar->xLen+1;
     pPar->dT = pUkfMatrix->dT;
@@ -309,7 +309,7 @@ _Bool ukf_init(UKF64_t * const pUkf, UkfMatrix64_t * pUkfMatrix)
             const float64 xMin = pPar->xLim.val[pPar->xLim.ncol*xIdx + xMinIdx];
             const float64 xMax = pPar->xLim.val[pPar->xLim.ncol*xIdx + xMaxIdx];
             const float64 xEps = pPar->xLim.val[pPar->xLim.ncol*xIdx + xEpsIdx];
-            
+
             if(0 != pPar->xLimEnbl.val[xIdx] && ((xMin + xEps) > xMax))
             {
                 //limiter range too low -> disable limiter for this state
@@ -327,7 +327,7 @@ _Bool ukf_init(UKF64_t * const pUkf, UkfMatrix64_t * pUkfMatrix)
     pPar->lambda *= (float64)(pPar->xLen + pPar->kappa);
     pPar->lambda -= (float64)pPar->xLen;
     //#1.3'(end) Calculate scaling parameter
-    
+
     //#1.2'(begin) Calculate weight vectors
     if(WmLen == pPar->sLen && WcLen == WmLen)
     {
@@ -345,7 +345,7 @@ _Bool ukf_init(UKF64_t * const pUkf, UkfMatrix64_t * pUkfMatrix)
     }
     else
     {
-        //UKF init fail 
+        //UKF init fail
     }
     //#1.2'(end) Calculate weight vectors
 
@@ -375,24 +375,24 @@ _Bool ukf_init(UKF64_t * const pUkf, UkfMatrix64_t * pUkfMatrix)
     pUkf->update.x_corr = pUkfMatrix->x_system_states_correction;
     pUkf->update.Pxx_corr = pUkfMatrix->Pxx_covariance_correction;
 
-    mtx_cpy_f64(&pUkf->prev.Pxx_p, &pPar->Pxx0);//init also P_m, Pxx   
+    mtx_cpy_f64(&pUkf->prev.Pxx_p, &pPar->Pxx0);//init also P_m, Pxx
     mtx_cpy_f64(&pUkf->prev.x_p, &pPar->x0);
     /*mtx_cpy_f64(&pUkf->update.Pyy, &pPar->Ryy0);
     mtx_zeros_f64(&pUkf->prev.X_p);//inti also X_m
-    mtx_zeros_f64(&pUkf->prev.u_p); 
+    mtx_zeros_f64(&pUkf->prev.u_p);
     mtx_zeros_f64(&pUkf->predict.y_m);
     mtx_zeros_f64(&pUkf->predict.Y_m);
     mtx_zeros_f64(&pUkf->update.Iyy);
     mtx_zeros_f64(&pUkf->update.K);
     mtx_zeros_f64(&pUkf->update.Kt);
-    mtx_zeros_f64(&pUkf->update.Pxy);  
+    mtx_zeros_f64(&pUkf->update.Pxy);
     mtx_zeros_f64(&pUkf->update.Pyy_cpy);
     mtx_zeros_f64(&pUkf->update.x_corr);
-    mtx_zeros_f64(&pUkf->update.Pxx_corr);     
+    mtx_zeros_f64(&pUkf->update.Pxx_corr);
     mtx_zeros_f64(&pUkf->input.u);
     mtx_zeros_f64(&pUkf->input.y);*/
 
-    return ukf_dimension_check(pUkf);  
+    return ukf_dimension_check(pUkf);
 }
 /**
  * Unscented Kalman filter periodic task. All new inputs(measurements, system inputs) should be updated periodicaly before execution of ukf_step().
@@ -410,7 +410,7 @@ void ukf_step(UKF64_t * const pUkf)
     ukf_mean_pred_output(pUkf);
     ukf_calc_covariances(pUkf);
     ukf_meas_update(pUkf);
-    
+
     if(NULL != pUkf->input.u.val && NULL != pUkf->prev.u_p.val)
     {
         float64 * const pu_p = pUkf->prev.u_p.val;
@@ -428,9 +428,9 @@ void ukf_step(UKF64_t * const pUkf)
 
 /**
  * Step 1:  Generate the Sigma-Points
- * # 1.1 Calculate error covariance matrix square root : sqrt(Pxx_p) = chol(Pxx_p) 
- * # 1.2 Calculate the sigma-points                    : X_p[L][2L+1] == X(k-1) ,wher L is number of system states xLen      
- *            
+ * # 1.1 Calculate error covariance matrix square root : sqrt(Pxx_p) = chol(Pxx_p)
+ * # 1.2 Calculate the sigma-points                    : X_p[L][2L+1] == X(k-1) ,wher L is number of system states xLen
+ *
  * @param pUkf  UKF - Working structure with reference to all in,out,states,par
  */
 void ukf_sigmapoint(UKF64_t * const pUkf)
@@ -444,12 +444,12 @@ void ukf_sigmapoint(UKF64_t * const pUkf)
     uint8_t xIdx;
     uint8_t sigmaIdx=0;
     enum mtxResultInfo mtxResult;
-    
+
     //#1.1(begin/end) Calculate error covariance matrix square root
     mtxResult = mtx_chol_lower_f64(&pUkf->prev.Pxx_p);
 
     if(MTX_OPERATION_OK == mtxResult)
-    {       
+    {
         //#1.2(begin) Calculate the sigma-points
         for(xIdx=0;xIdx<xLen;xIdx++)
         {
@@ -463,13 +463,13 @@ void ukf_sigmapoint(UKF64_t * const pUkf)
                 xMax = pUkf->par.xLim.val[pUkf->par.xLim.ncol*xIdx + xMaxIdx];
                 xLimEnbl = pUkf->par.xLimEnbl.val[xIdx];
             }
-            
+
             //first column of sigma point matrix is equal of previous state value
             pX_p[sLen*xIdx + sigmaIdx] = ukf_state_limiter(px_p[xIdx], xMin, xMax, xLimEnbl);
         }
-        
+
         (void)mtx_mul_scalar_f64(&pUkf->prev.Pxx_p, sqrt(xLen + lambda));
-        
+
         for(sigmaIdx=1;sigmaIdx < sLen;sigmaIdx++)
         {
             for(xIdx=0;xIdx<xLen;xIdx++)
@@ -505,7 +505,7 @@ void ukf_sigmapoint(UKF64_t * const pUkf)
  *  Step 2: Prediction Transformation (APPENDIX A:IMPLEMENTATION OF THE ADDITIVE NOISE UKF)
  *  # 2.1 Propagate each sigma-point through prediction  : X_m = f(X_p, u_p)
  *  # 2.2 Calculate mean of predicted state              : x_m = sum(Wm(i)*X_m(i)) , i=0,..2L
- *        
+ *
  * @param pUkf UKF - Working structure with reference to all in,out,states,par
  */
 void ukf_mean_pred_state(UKF64_t * const pUkf)
@@ -521,15 +521,15 @@ void ukf_mean_pred_state(UKF64_t * const pUkf)
     for(xIdx=0;xIdx<xLen;xIdx++)
     {
         px_m[xIdx] = 0;
-        
+
         for(sigmaIdx=0;sigmaIdx<sigmaLen;sigmaIdx++)
-        {                     
+        {
             if(pUkf->predict.pFcnPredict[xIdx] != NULL)
             {
                 //#2.1 Propagate each sigma-point through prediction
                 pUkf->predict.pFcnPredict[xIdx](&pUkf->prev.u_p, &pUkf->prev.X_p, &pUkf->predict.X_m,sigmaIdx, pUkf->par.dT);
             }
-            //#2.2 Calculate mean of predicted state 
+            //#2.2 Calculate mean of predicted state
             px_m[xIdx] += pWm[sigmaIdx] * pX_m[sigmaLen*xIdx + sigmaIdx];
         }
     }
@@ -540,7 +540,7 @@ void ukf_mean_pred_state(UKF64_t * const pUkf)
  * # 2.3 Calculate covariance of predicted state        : P_m = Wc(sigmaIdx)*(X_m-x_m)*(X_m-x_m)'    P(k|k-1)
  * # 3.1 Propagate each sigma-point through observation : Y_m = h(X_m, u)
  * # 3.2 Calculate mean of predicted output             : y_m = sum(Wm(i)*Y_m(i))
- *       
+ *
  * @param pUkf UKF - Working structure with reference to all in,out,states,par
  */
 void ukf_mean_pred_output(UKF64_t * const pUkf)
@@ -557,32 +557,32 @@ void ukf_mean_pred_output(UKF64_t * const pUkf)
     const uint8_t xLen = pPar->xLen;
     const uint8_t yLen= pPar->yLen;
     uint8_t sigmaIdx,xIdx,xTrIdx,yIdx;
-  
+
     mtx_zeros_f64(&pUkf->predict.y_m);
-    
+
     //P(k|k-1) = Q(k-1)
     mtx_cpy_f64(&pUkf->predict.P_m, &pUkf->par.Qxx);
-    
+
     for(sigmaIdx=0;sigmaIdx<sigmaLen;sigmaIdx++)
-    {             
+    {
         for(xIdx=0;xIdx<xLen;xIdx++)
-        {                                 
+        {
             for(xTrIdx=0;xTrIdx<xLen;xTrIdx++)
-            { 
+            {
                 float64 term1 = (pX_m[sigmaLen*xIdx + sigmaIdx] - px_m[xIdx]);
                 float64 term2 = (pX_m[sigmaLen*xTrIdx + sigmaIdx] - px_m[xTrIdx]);
-                
+
                 //#2.3 Calculate covariance of predicted state
                 //Perform multiplication with accumulation for each covariance matrix index
                 pP_m[xLen*xIdx + xTrIdx] += pWc[sigmaIdx]*term1*term2;
-            }           
-        } 
-        
+            }
+        }
+
         for(yIdx=0;yIdx<yLen;yIdx++)
         {
             if(pUkf->predict.pFcnObserv[yIdx] != NULL)
             {
-                //#3.1 Propagate each sigma-point through observation             
+                //#3.1 Propagate each sigma-point through observation
                 pUkf->predict.pFcnObserv[yIdx](&pUkf->input.u, &pUkf->predict.X_m, &pUkf->predict.Y_m,sigmaIdx);
             }
             else
@@ -590,16 +590,16 @@ void ukf_mean_pred_output(UKF64_t * const pUkf)
                 //assign 0 if observation function is not specified
                 pY_m[sigmaLen*sigmaIdx + yIdx]=0;
             }
-            //#3.2 Calculate mean of predicted output 
+            //#3.2 Calculate mean of predicted output
             py_m[yIdx] += pWm[sigmaIdx] * pY_m[sigmaLen*yIdx + sigmaIdx];
         }
     }
 }
 /**
- *   
+ *
  * # 3.3 Calculate covariance of predicted output       : Pyy = Wc(sigmaIdx)*(Y_m-y_m)*(Y_m-y_m)'
  * # 3.4 Calculate cross-covariance of state and output : Pxy = Q + sum(Wc*()*()')
- *       
+ *
  * @param pUkf UKF - Working structure with reference to all in,out,states,par
  */
 void ukf_calc_covariances(UKF64_t * const pUkf)
@@ -620,30 +620,30 @@ void ukf_calc_covariances(UKF64_t * const pUkf)
     mtx_cpy_f64(&pUkf->update.Pyy, &pPar->Ryy0);//Pyy(k|k-1) = R(k)
 
     mtx_zeros_f64(&pUkf->update.Pxy);
-    
+
     for(sigmaIdx=0;sigmaIdx<sigmaLen;sigmaIdx++)
-    {              
+    {
         for(yIdx=0;yIdx<yLen;yIdx++)
-        {                      
+        {
             for(yTrIdx=0;yTrIdx<yLen;yTrIdx++)
             {
-                //loop col of COV[L][:]                
+                //loop col of COV[L][:]
                 float64 term1 = (pY_m[sigmaLen*yIdx + sigmaIdx] - py_m[yIdx]);
                 float64 term2 = (pY_m[sigmaLen*yTrIdx + sigmaIdx] - py_m[yTrIdx]);
-                
+
                 //#3.3 Calculate covariance of predicted output
-                //Perform multiplication with accumulation for each covariance matrix index 
-                pPyy[yLen*yIdx + yTrIdx] += pWc[sigmaIdx]*term1*term2;            
-            }           
+                //Perform multiplication with accumulation for each covariance matrix index
+                pPyy[yLen*yIdx + yTrIdx] += pWc[sigmaIdx]*term1*term2;
+            }
         }
-        
+
         for(xIdx=0;xIdx<xLen;xIdx++)
         {
             for(yTrIdx=0;yTrIdx<yLen;yTrIdx++)
             {
                 float64 term1 = (pX_m[sigmaLen*xIdx + sigmaIdx] - px_m[xIdx]);
                 float64 term2 = (pY_m[sigmaLen*yTrIdx + sigmaIdx] - py_m[yTrIdx]);
-                
+
                 //#3.4 Calculate cross-covariance of state and output
                 pPxy[yLen*xIdx + yTrIdx] += pWc[sigmaIdx]*term1*term2;
             }
@@ -655,7 +655,7 @@ void ukf_calc_covariances(UKF64_t * const pUkf)
  * # 4.1 Calculate Kalman gain          : K = Pxy*inv(Pyy)
  * # 4.2 Update state estimate          : x = x_m + K(y - y_m)
  * # 4.3 Update error covariance        : Pxx = Pxx_m - K*Pyy*K'
- *       
+ *
  * @param pUkf UKF - Working structure with reference to all in,out,states,par
  */
 void ukf_meas_update(UKF64_t * const pUkf)
@@ -664,7 +664,7 @@ void ukf_meas_update(UKF64_t * const pUkf)
 
     //#4.1(begin) Calculate Kalman gain:
     (void)mtx_identity_f64(&pUpdate->Iyy);
-    
+
     (void)mtx_cpy_f64(&pUpdate->Pyy_cpy, &pUpdate->Pyy);
 
     //inv(Pyy_cpy)
@@ -678,7 +678,7 @@ void ukf_meas_update(UKF64_t * const pUkf)
     // y = y - y_m
     (void)mtx_sub_f64(&pUkf->input.y,&pUkf->predict.y_m);
 
-    // K*(y - y_m) states correction 
+    // K*(y - y_m) states correction
     (void)mtx_mul_f64(&pUpdate->K, &pUkf->input.y, &pUkf->update.x_corr);
 
     // x = x_m + K*(y - y_m)
