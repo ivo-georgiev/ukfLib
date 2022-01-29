@@ -56,18 +56,18 @@ enum mtxResultInfo mtx_diagsum(Matrix_t *pSrc, double *diagsum)
 	double sum = pSrcL[0];
 
 	if (pSrc->nrow == ncol)
+	{
+		for (eIdx = 1; eIdx < pSrc->nelem; eIdx++)
 		{
-			for (eIdx = 1; eIdx < pSrc->nelem; eIdx++)
-				{
-					const uint16_t cmpLeft = (uint16_t)(eIdx / ncol);
+			const uint16_t cmpLeft = (uint16_t)(eIdx / ncol);
 
-					sum += eIdx < ncol ? 0 : cmpLeft == eIdx % (cmpLeft * ncol) ? pSrcL[eIdx] : 0;
-				}
+			sum += eIdx < ncol ? 0 : cmpLeft == eIdx % (cmpLeft * ncol) ? pSrcL[eIdx] : 0;
 		}
+	}
 	else
-		{
-			Result = MTX_SIZE_MISMATCH;
-		}
+	{
+		Result = MTX_SIZE_MISMATCH;
+	}
 
 	*diagsum = sum;
 
@@ -86,24 +86,24 @@ enum mtxResultInfo mtx_transp_square(Matrix_t *const pSrc)
 	double temp;
 
 	if (nrow == ncol)
+	{
+		for (row = 0; row < nrow; row++)
 		{
-			for (row = 0; row < nrow; row++)
+			for (col = 0; col < ncol; col++)
+			{
+				if (row != col && row < col)
 				{
-					for (col = 0; col < ncol; col++)
-						{
-							if (row != col && row < col)
-								{
-									temp = pSrcL[nrow * row + col];
-									pSrcL[ncol * row + col] = pSrcL[ncol * col + row];
-									pSrcL[ncol * col + row] = temp;
-								}
-						}
+					temp = pSrcL[nrow * row + col];
+					pSrcL[ncol * row + col] = pSrcL[ncol * col + row];
+					pSrcL[ncol * col + row] = temp;
 				}
+			}
 		}
+	}
 	else
-		{
-			ResultL = MTX_NOT_SQUARE;
-		}
+	{
+		ResultL = MTX_NOT_SQUARE;
+	}
 
 	return ResultL;
 }
@@ -119,19 +119,19 @@ enum mtxResultInfo mtx_transp_dest(Matrix_t const *const pSrc, Matrix_t *const p
 	uint8_t row, col;
 
 	if (nRowSrcL == nColDstL || nColSrcL == nRowDstL)
+	{
+		for (row = 0; row < nRowDstL; row++)
 		{
-			for (row = 0; row < nRowDstL; row++)
-				{
-					for (col = 0; col < nColDstL; col++)
-						{
-							pDstL[nColDstL * row + col] = pSrcL[nColSrcL * col + row];
-						}
-				}
+			for (col = 0; col < nColDstL; col++)
+			{
+				pDstL[nColDstL * row + col] = pSrcL[nColSrcL * col + row];
+			}
 		}
+	}
 	else
-		{
-			ResultL = MTX_SIZE_MISMATCH;
-		}
+	{
+		ResultL = MTX_SIZE_MISMATCH;
+	}
 
 	return ResultL;
 }
@@ -151,24 +151,24 @@ enum mtxResultInfo mtx_mul(Matrix_t const *const pSrc1, Matrix_t const *const pS
 	double sum;
 
 	if (pSrc1->ncol == pSrc2->nrow)
+	{
+		for (row = 0; row < pSrc1->nrow; row++)
 		{
-			for (row = 0; row < pSrc1->nrow; row++)
+			for (col = 0; col < pSrc2->ncol; col++)
+			{
+				sum = 0;
+				for (k = 0; k < pSrc1->ncol; k++)
 				{
-					for (col = 0; col < pSrc2->ncol; col++)
-						{
-							sum = 0;
-							for (k = 0; k < pSrc1->ncol; k++)
-								{
-									sum += pSrc1L[pSrc1->ncol * row + k] * pSrc2L[pSrc2->ncol * k + col];
-								}
-							pDstL[pDst->ncol * row + col] = sum;
-						}
+					sum += pSrc1L[pSrc1->ncol * row + k] * pSrc2L[pSrc2->ncol * k + col];
 				}
+				pDstL[pDst->ncol * row + col] = sum;
+			}
 		}
+	}
 	else
-		{
-			ResultL = MTX_SIZE_MISMATCH;
-		}
+	{
+		ResultL = MTX_SIZE_MISMATCH;
+	}
 
 	return ResultL;
 }
@@ -189,24 +189,24 @@ enum mtxResultInfo mtx_mul_src2tr(Matrix_t const *const pSrc1, Matrix_t const *c
 	double sum;
 
 	if (pSrc1->ncol == pSrc2->ncol)
+	{
+		for (rowSrc1 = 0; rowSrc1 < pSrc1->nrow; rowSrc1++)
 		{
-			for (rowSrc1 = 0; rowSrc1 < pSrc1->nrow; rowSrc1++)
+			for (rowSrc2 = 0; rowSrc2 < pSrc2->nrow; rowSrc2++)
+			{
+				sum = 0;
+				for (k = 0; k < pSrc1->ncol; k++)
 				{
-					for (rowSrc2 = 0; rowSrc2 < pSrc2->nrow; rowSrc2++)
-						{
-							sum = 0;
-							for (k = 0; k < pSrc1->ncol; k++)
-								{
-									sum += pSrc1L[pSrc1->ncol * rowSrc1 + k] * pSrc2L[pSrc2->ncol * rowSrc2 + k];
-								}
-							pDstL[pDst->ncol * rowSrc1 + rowSrc2] = sum;
-						}
+					sum += pSrc1L[pSrc1->ncol * rowSrc1 + k] * pSrc2L[pSrc2->ncol * rowSrc2 + k];
 				}
+				pDstL[pDst->ncol * rowSrc1 + rowSrc2] = sum;
+			}
 		}
+	}
 	else
-		{
-			ResultL = MTX_SIZE_MISMATCH;
-		}
+	{
+		ResultL = MTX_SIZE_MISMATCH;
+	}
 
 	return ResultL;
 }
@@ -221,33 +221,33 @@ enum mtxResultInfo mtx_chol_lower(Matrix_t *const pSrc)
 	double sum = 0;
 
 	if (ncol == nrow)
-		{
-			const uint8_t mtxSize = nrow;
+	{
+		const uint8_t mtxSize = nrow;
 
-			for (col = 0; col < mtxSize; col++)
+		for (col = 0; col < mtxSize; col++)
+		{
+			for (row = 0; row < mtxSize; row++)
+			{
+				sum = pSrcL[mtxSize * col + row];
+
+				for (tmp = (int8_t)(col - 1); tmp >= 0; tmp--)
 				{
-					for (row = 0; row < mtxSize; row++)
-						{
-							sum = pSrcL[mtxSize * col + row];
-
-							for (tmp = (int8_t)(col - 1); tmp >= 0; tmp--)
-								{
-									sum -= pSrcL[mtxSize * row + tmp] * pSrcL[mtxSize * col + tmp];
-								}
-
-							pSrcL[ncol * row + col] = (row == col) ? sqrt(sum) : (row > col) ? (sum / pSrcL[ncol * col + col]) : 0;
-
-							if ((row == col) && (sum <= 0))
-								{
-									ResultL = MTX_NOT_POS_DEFINED;
-								}
-						}
+					sum -= pSrcL[mtxSize * row + tmp] * pSrcL[mtxSize * col + tmp];
 				}
+
+				pSrcL[ncol * row + col] = (row == col) ? sqrt(sum) : (row > col) ? (sum / pSrcL[ncol * col + col]) : 0;
+
+				if ((row == col) && (sum <= 0))
+				{
+					ResultL = MTX_NOT_POS_DEFINED;
+				}
+			}
 		}
+	}
 	else
-		{
-			ResultL = MTX_NOT_SQUARE;
-		}
+	{
+		ResultL = MTX_NOT_SQUARE;
+	}
 
 	return ResultL;
 }
@@ -262,31 +262,31 @@ enum mtxResultInfo mtx_chol_upper(Matrix_t *const pSrc)
 	double sum = 0;
 
 	if (ncol == nrow)
+	{
+		for (row = 0; row < nrow; row++)
 		{
-			for (row = 0; row < nrow; row++)
+			for (col = 0; col < ncol; col++)
+			{
+				sum = pSrcL[ncol * row + col];
+
+				for (tmp = (int8_t)(row - 1); tmp >= 0; tmp--) // tmp could be calc negative
 				{
-					for (col = 0; col < ncol; col++)
-						{
-							sum = pSrcL[ncol * row + col];
-
-							for (tmp = (int8_t)(row - 1); tmp >= 0; tmp--) // tmp could be calc negative
-								{
-									sum -= pSrcL[ncol * tmp + row] * pSrcL[ncol * tmp + col];
-								}
-
-							pSrcL[ncol * row + col] = (row == col) ? sqrt(sum) : (row < col) ? (sum / pSrcL[ncol * row + row]) : 0;
-
-							if ((row == col) && (sum <= 0))
-								{
-									ResultL = MTX_NOT_POS_DEFINED;
-								}
-						}
+					sum -= pSrcL[ncol * tmp + row] * pSrcL[ncol * tmp + col];
 				}
+
+				pSrcL[ncol * row + col] = (row == col) ? sqrt(sum) : (row < col) ? (sum / pSrcL[ncol * row + row]) : 0;
+
+				if ((row == col) && (sum <= 0))
+				{
+					ResultL = MTX_NOT_POS_DEFINED;
+				}
+			}
 		}
+	}
 	else
-		{
-			ResultL = MTX_NOT_SQUARE;
-		}
+	{
+		ResultL = MTX_NOT_SQUARE;
+	}
 
 	return ResultL;
 }
@@ -301,37 +301,37 @@ enum mtxResultInfo mtx_chol1(double *A, double *L, uint8_t size)
 	double sum = 0;
 
 	for (row = 0; row < size; row++)
+	{
+		for (col = 0; col < size; col++)
 		{
-			for (col = 0; col < size; col++)
+			sum = A[size * row + col];
+
+			for (tmp = (int8_t)(row - 1); tmp >= 0; tmp--)
+			{
+				sum -= L[size * tmp + row] * L[size * tmp + col];
+			}
+
+			if (row == col)
+			{
+				if (sum > 0)
 				{
-					sum = A[size * row + col];
-
-					for (tmp = (int8_t)(row - 1); tmp >= 0; tmp--)
-						{
-							sum -= L[size * tmp + row] * L[size * tmp + col];
-						}
-
-					if (row == col)
-						{
-							if (sum > 0)
-								{
-									L[size * row + col] = sqrt(sum);
-								}
-							else
-								{
-									Result = MTX_NOT_POS_DEFINED;
-								}
-						}
-					else if (row < col)
-						{
-							L[size * row + col] = sum / L[size * row + row]; // sum/Lii(diag)
-						}
-					else
-						{
-							L[size * row + col] = 0;
-						}
+					L[size * row + col] = sqrt(sum);
 				}
+				else
+				{
+					Result = MTX_NOT_POS_DEFINED;
+				}
+			}
+			else if (row < col)
+			{
+				L[size * row + col] = sum / L[size * row + row]; // sum/Lii(diag)
+			}
+			else
+			{
+				L[size * row + col] = 0;
+			}
 		}
+	}
 
 	return Result;
 }
@@ -353,57 +353,57 @@ enum mtxResultInfo mtx_inv(Matrix_t *const pSrc, Matrix_t *const pDst)
 	double t = 0;
 
 	if (nrow == ncol)
+	{
+		for (j = 0; j < nrow; j++)
 		{
-			for (j = 0; j < nrow; j++)
+			for (i = j; i < nrow; i++)
+			{
+				if (0 != pSrc->val[ncol * i + j])
 				{
-					for (i = j; i < nrow; i++)
+					for (k = 0; k < nrow; k++)
+					{
+						s = pSrc->val[ncol * j + k];
+						pSrc->val[ncol * j + k] = pSrc->val[ncol * i + k];
+						pSrc->val[ncol * i + k] = s;
+
+						s = pDst->val[ncol * j + k];
+						pDst->val[ncol * j + k] = pDst->val[ncol * i + k];
+						pDst->val[ncol * i + k] = s;
+					}
+
+					t = 1 / pSrc->val[ncol * j + j];
+
+					for (k = 0; k < nrow; k++)
+					{
+						pSrc->val[ncol * j + k] = t * pSrc->val[ncol * j + k];
+						pDst->val[ncol * j + k] = t * pDst->val[ncol * j + k];
+					}
+
+					for (l = 0; l < nrow; l++)
+					{
+						if (l != j)
 						{
-							if (0 != pSrc->val[ncol * i + j])
-								{
-									for (k = 0; k < nrow; k++)
-										{
-											s = pSrc->val[ncol * j + k];
-											pSrc->val[ncol * j + k] = pSrc->val[ncol * i + k];
-											pSrc->val[ncol * i + k] = s;
-
-											s = pDst->val[ncol * j + k];
-											pDst->val[ncol * j + k] = pDst->val[ncol * i + k];
-											pDst->val[ncol * i + k] = s;
-										}
-
-									t = 1 / pSrc->val[ncol * j + j];
-
-									for (k = 0; k < nrow; k++)
-										{
-											pSrc->val[ncol * j + k] = t * pSrc->val[ncol * j + k];
-											pDst->val[ncol * j + k] = t * pDst->val[ncol * j + k];
-										}
-
-									for (l = 0; l < nrow; l++)
-										{
-											if (l != j)
-												{
-													t = -pSrc->val[ncol * l + j];
-													for (k = 0; k < nrow; k++)
-														{
-															pSrc->val[ncol * l + k] += t * pSrc->val[ncol * j + k];
-															pDst->val[ncol * l + k] += t * pDst->val[ncol * j + k];
-														}
-												}
-										}
-								}
-							break;
+							t = -pSrc->val[ncol * l + j];
+							for (k = 0; k < nrow; k++)
+							{
+								pSrc->val[ncol * l + k] += t * pSrc->val[ncol * j + k];
+								pDst->val[ncol * l + k] += t * pDst->val[ncol * j + k];
+							}
 						}
-					if (0 == pSrc->val[ncol * l + k])
-						{
-							Result = MTX_SINGULAR;
-						}
+					}
 				}
+				break;
+			}
+			if (0 == pSrc->val[ncol * l + k])
+			{
+				Result = MTX_SINGULAR;
+			}
 		}
+	}
 	else
-		{
-			Result = MTX_SIZE_MISMATCH;
-		}
+	{
+		Result = MTX_SIZE_MISMATCH;
+	}
 
 	return Result;
 }
@@ -415,16 +415,16 @@ enum mtxResultInfo mtx_add(Matrix_t *const pDst, Matrix_t const *const pSrc)
 	uint16_t eIdx;
 
 	if (pDst->ncol == pSrc->ncol && pDst->nrow == pSrc->nrow)
+	{
+		for (eIdx = 0; eIdx < pSrc->nelem; eIdx++)
 		{
-			for (eIdx = 0; eIdx < pSrc->nelem; eIdx++)
-				{
-					pDstL[eIdx] += pSrcL[eIdx];
-				}
+			pDstL[eIdx] += pSrcL[eIdx];
 		}
+	}
 	else
-		{
-			Result = MTX_SIZE_MISMATCH;
-		}
+	{
+		Result = MTX_SIZE_MISMATCH;
+	}
 
 	return Result;
 }
@@ -436,16 +436,16 @@ enum mtxResultInfo mtx_sub(Matrix_t *const pDst, Matrix_t const *const pSrc)
 	uint16_t eIdx;
 
 	if (pDst->ncol == pSrc->ncol && pDst->nrow == pSrc->nrow)
+	{
+		for (eIdx = 0; eIdx < pSrc->nelem; eIdx++)
 		{
-			for (eIdx = 0; eIdx < pSrc->nelem; eIdx++)
-				{
-					pDstL[eIdx] -= pSrcL[eIdx];
-				}
+			pDstL[eIdx] -= pSrcL[eIdx];
 		}
+	}
 	else
-		{
-			Result = MTX_SIZE_MISMATCH;
-		}
+	{
+		Result = MTX_SIZE_MISMATCH;
+	}
 
 	return Result;
 }
@@ -456,9 +456,9 @@ enum mtxResultInfo mtx_mul_scalar(Matrix_t *const pSrc, const double scalar)
 	uint16_t eIdx;
 
 	for (eIdx = 0; eIdx < pSrc->nelem; eIdx++)
-		{
-			pDst[eIdx] *= scalar;
-		}
+	{
+		pDst[eIdx] *= scalar;
+	}
 
 	return Result;
 }
@@ -469,9 +469,9 @@ enum mtxResultInfo mtx_sub_scalar(Matrix_t *const pSrc, const double scalar)
 	uint16_t eIdx;
 
 	for (eIdx = 0; eIdx < pSrc->nelem; eIdx++)
-		{
-			pDst[eIdx] -= scalar;
-		}
+	{
+		pDst[eIdx] -= scalar;
+	}
 
 	return Result;
 }
@@ -482,9 +482,9 @@ enum mtxResultInfo mtx_add_scalar(Matrix_t *const pSrc, const double scalar)
 	uint16_t eIdx;
 
 	for (eIdx = 0; eIdx < pSrc->nelem; eIdx++)
-		{
-			pDst[eIdx] += scalar;
-		}
+	{
+		pDst[eIdx] += scalar;
+	}
 
 	return Result;
 }
@@ -496,16 +496,16 @@ enum mtxResultInfo mtx_cpy(Matrix_t *const pDst, Matrix_t const *const pSrc)
 	uint16_t eIdx;
 
 	if (pDst->ncol == pSrc->ncol && pDst->nrow == pSrc->nrow)
+	{
+		for (eIdx = 0; eIdx < pSrc->nelem; eIdx++)
 		{
-			for (eIdx = 0; eIdx < pSrc->nelem; eIdx++)
-				{
-					pDstL[eIdx] = pSrcL[eIdx];
-				}
+			pDstL[eIdx] = pSrcL[eIdx];
 		}
+	}
 	else
-		{
-			Result = MTX_SIZE_MISMATCH;
-		}
+	{
+		Result = MTX_SIZE_MISMATCH;
+	}
 
 	return Result;
 }
@@ -517,20 +517,20 @@ enum mtxResultInfo mtx_identity(Matrix_t *const pSrc)
 	uint16_t eIdx;
 
 	if (pSrc->nrow == nCol)
+	{
+		pDst[0] = 1;
+
+		for (eIdx = 1; eIdx < pSrc->nelem; eIdx++)
 		{
-			pDst[0] = 1;
+			const uint16_t cmpLeft = (uint16_t)(eIdx / nCol);
 
-			for (eIdx = 1; eIdx < pSrc->nelem; eIdx++)
-				{
-					const uint16_t cmpLeft = (uint16_t)(eIdx / nCol);
-
-					pDst[eIdx] = eIdx < nCol ? 0 : cmpLeft == eIdx % (cmpLeft * nCol) ? 1 : 0;
-				}
+			pDst[eIdx] = eIdx < nCol ? 0 : cmpLeft == eIdx % (cmpLeft * nCol) ? 1 : 0;
 		}
+	}
 	else
-		{
-			Result = MTX_SIZE_MISMATCH;
-		}
+	{
+		Result = MTX_SIZE_MISMATCH;
+	}
 
 	return Result;
 }
@@ -541,9 +541,9 @@ enum mtxResultInfo mtx_zeros(Matrix_t *const pSrc)
 	uint16_t eIdx;
 
 	for (eIdx = 0; eIdx < pSrc->nelem; eIdx++)
-		{
-			pDst[eIdx] = 0;
-		}
+	{
+		pDst[eIdx] = 0;
+	}
 
 	return Result;
 }
