@@ -29,10 +29,10 @@
 \******************************************************************************************************************************************************************************************************/
 #include "../cfg/ukfCfg1.h"
 
-static void Fx1(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaIdx, float64 dT);
-static void Fx2(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaIdx, float64 dT);
+static void Fx1(Matrix_t * pu_p, Matrix_t * pX_p, Matrix_t * pX_m,uint8_t sigmaIdx, double dT);
+static void Fx2(Matrix_t * pu_p, Matrix_t * pX_p, Matrix_t * pX_m,uint8_t sigmaIdx, double dT);
 
-static void Hy1(Matrix64_t * pu, Matrix64_t * pX_m, Matrix64_t * pY_m,uint8_t sigmaIdx);
+static void Hy1(Matrix_t * pu, Matrix_t * pX_m, Matrix_t * pY_m,uint8_t sigmaIdx);
 
 static PredictFcn_t PredictFcn[2] = {&Fx1,&Fx2};
 static ObservFcn_t  ObservFcn[1] = {&Hy1};
@@ -40,87 +40,87 @@ static ObservFcn_t  ObservFcn[1] = {&Hy1};
 //-----------------------
 //UKF Processing matrix
 //-----------------------
-static float64 Sc_vector[1][3] = {{0.1,2,0}};
-static float64 Wm_weight_vector[1][5] = {{0,0,0,0,0}};
-static float64 Wc_weight_vector[1][5] = {{0,0,0,0,0}};
-//static float64 u_system_input[2][1] = {{0},{0}};
-//static float64 u_prev_system_input[2][1] = {{0},{0}};
-static float64 y_meas[1][1] = {{0}};
-static float64 y_predicted_mean[1][1] = {{0}};
-static float64 x_system_states[2][1] = {{0},{0}};
-static float64 x_system_states_ic[2][1] = {{-3.14/9},{0}};
-static float64 x_system_states_limits[2][3] = {{0,0,0.000001},{0,0,0.000001}};
+static double Sc_vector[1][3] = {{0.1,2,0}};
+static double Wm_weight_vector[1][5] = {{0,0,0,0,0}};
+static double Wc_weight_vector[1][5] = {{0,0,0,0,0}};
+//static double u_system_input[2][1] = {{0},{0}};
+//static double u_prev_system_input[2][1] = {{0},{0}};
+static double y_meas[1][1] = {{0}};
+static double y_predicted_mean[1][1] = {{0}};
+static double x_system_states[2][1] = {{0},{0}};
+static double x_system_states_ic[2][1] = {{-3.14/9},{0}};
+static double x_system_states_limits[2][3] = {{0,0,0.000001},{0,0,0.000001}};
 static _Bool x_system_states_limits_enable[2][1] = {{0},{0}};
-static float64 x_system_states_correction[2][1] = {{0},{0}};
-static float64 X_sigma_points[2][5]=
+static double x_system_states_correction[2][1] = {{0},{0}};
+static double X_sigma_points[2][5]=
 {/*  s1  s2  s3  s4  s5}       */
     {0,  0,  0,  0,  0}, /* x1 */
     {0,  0,  0,  0,  0}, /* x2 */
 };
 
 //Sigma points Y(k|k-1) = y_m
-static float64 Y_sigma_points[1][5]=
+static double Y_sigma_points[1][5]=
 {/*  s1  s2  s3  s4  s5  */
     {0,  0,  0,  0,  0}, /* y1 */
 };
 
 //State covariance  P(k|k-1) = P_m, P(k)= P
-static float64 Pxx_error_covariance[2][2]=
+static double Pxx_error_covariance[2][2]=
 {/*  x1, x2       */
     {0,  0}, /* x1 */
     {0,  0}, /* x2 */
 };
 
 //State covariance initial values
-static float64 Pxx0_init_error_covariance[2][2]=
+static double Pxx0_init_error_covariance[2][2]=
 {/*  x1,    x2         */
     {100,    0}, /* x1 */
     {0  ,  100}, /* x2 */
 };
 
 //Process noise covariance Q : initial noise assumptions
-static float64 Qxx_process_noise_cov[2][2]=
+static double Qxx_process_noise_cov[2][2]=
 {/*  x1,  x2,        */
     {0.1,  0}, /* x1 */
     {0,  0.1}, /* x2 */
 };
 
 //Output noise covariance: initial noise assumptions
-static float64 Ryy0_init_out_covariance[1][1]=
+static double Ryy0_init_out_covariance[1][1]=
 {/*  y1,      */
     {1} /* y1 */
 };
 
 //Output covariance Pyy = R (initial assumption)
-static float64 Pyy_out_covariance[1][1]=
+static double Pyy_out_covariance[1][1]=
 {/*  y1        */
     {0},  /* y1 */
 };
 
-static float64 Pyy_out_covariance_copy[1][1]=
+static double Pyy_out_covariance_copy[1][1]=
 {/*  y1         */
     {0},  /* y1 */
 };
 
 //cross-covariance of state and output
-static float64 Pxy_cross_covariance[2][1]=
+static double Pxy_cross_covariance[2][1]=
 {/*  y1        */
     {0},  /* x1 */
     {0},  /* x2 */
 };
 
 //Kalman gain matrix
-static float64 K_kalman_gain[2][1]= {{0},{0}};
+static double K_kalman_gain[2][1]= {{0},{0}};
 
-static float64 Pxx_covariance_correction[2][2]=
+static double Pxx_covariance_correction[2][2]=
 {/*  x1, x2,       */
     {0,  0}, /* x1 */
     {0,  0}, /* x2 */
 };
 
-static float64 I_identity_matrix[1][1]={{0}};
+static double I_identity_matrix[1][1]={{0}};
 
-UkfMatrix64_t UkfMatrixCfg1 =
+UkfMatrix_t UkfMatrixCfg1 =
 {
     {COLXROW(Sc_vector),NROWS(Sc_vector),NCOL(Sc_vector),&Sc_vector[0][0]},
     {COLXROW(Wm_weight_vector),NROWS(Wm_weight_vector),NCOL(Wm_weight_vector),&Wm_weight_vector[0][0]},
@@ -161,7 +161,7 @@ UkfMatrix64_t UkfMatrixCfg1 =
  * @param pX_m  Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
  * @param sigmaIdx Sigma point index.
  */
-void Fx1(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaIdx, float64 dT)
+void Fx1(Matrix_t * pu_p, Matrix_t * pX_p, Matrix_t * pX_m,uint8_t sigmaIdx, double dT)
 {
     const uint8_t nCol = pX_m->ncol;
 
@@ -178,13 +178,13 @@ void Fx1(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaId
  * @param pX_m     Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
  * @param sigmaIdx Sigma point index.
  */
-void Fx2(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaIdx, float64 dT)
+void Fx2(Matrix_t * pu_p, Matrix_t * pX_p, Matrix_t * pX_m,uint8_t sigmaIdx, double dT)
 {
     const uint8_t nCol = pX_m->ncol;
-    const float64 B = 0.05; //kg*s/m
-    const float64 l = 0.613;
-    const float64 m = 0.5;
-    const float64 g = 9.81;
+    const double B = 0.05; //kg*s/m
+    const double l = 0.613;
+    const double m = 0.5;
+    const double g = 9.81;
 
     pX_m->val[nCol*1 + sigmaIdx] = (1-((dT*B)/m))*pX_p->val[nCol*1 + sigmaIdx] - ((dT*g)/l)*sin(pX_p->val[nCol*0 + sigmaIdx]);
 
@@ -201,7 +201,7 @@ void Fx2(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaId
  * @param pX_m     Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
  * @param sigmaIdx Sigma point index.
  */
-void Hy1(Matrix64_t * pu, Matrix64_t * pX_m, Matrix64_t * pY_m,uint8_t sigmaIdx)
+void Hy1(Matrix_t * pu, Matrix_t * pX_m, Matrix_t * pY_m,uint8_t sigmaIdx)
 {
     pY_m->val[sigmaIdx] = pX_m->val[sigmaIdx];
 

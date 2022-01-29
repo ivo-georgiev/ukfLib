@@ -38,12 +38,12 @@
 //<DEFINES:END>
 
 //<STATE TRANSITION PROTOTYPE:BEGIN>
-static void Fx1(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaIdx, float64 dT);
-static void Fx2(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaIdx, float64 dT);
+static void Fx1(Matrix_t * pu_p, Matrix_t * pX_p, Matrix_t * pX_m,uint8_t sigmaIdx, double dT);
+static void Fx2(Matrix_t * pu_p, Matrix_t * pX_p, Matrix_t * pX_m,uint8_t sigmaIdx, double dT);
 //<STATE TRANSITION PROTOTYPE:END>
 
 //<MEASUREMENT PROTOTYPE:BEGIN>
-static void Hy1(Matrix64_t * pu, Matrix64_t * pX_m, Matrix64_t * pY_m,uint8_t sigmaIdx);
+static void Hy1(Matrix_t * pu, Matrix_t * pX_m, Matrix_t * pY_m,uint8_t sigmaIdx);
 //<MEASUREMENT PROTOTYPE:END>
 
 //<STATE TRANSITION PTR ARRAY:BEGIN>
@@ -57,32 +57,32 @@ static ObservFcn_t  ObservFcn[yL] = {&Hy1};
 //-----------------------
 //UKF Processing matrix
 //-----------------------
-static float64 Sc_vector[1][3] = {{0.1,2,0}};
-static float64 Wm_weight_vector[1][sL] = {{0,0,0,0,0}};
-static float64 Wc_weight_vector[1][sL] = {{0,0,0,0,0}};
+static double Sc_vector[1][3] = {{0.1,2,0}};
+static double Wm_weight_vector[1][sL] = {{0,0,0,0,0}};
+static double Wc_weight_vector[1][sL] = {{0,0,0,0,0}};
 
 
-static float64 y_meas[yL][1] = {{0}};
-static float64 y_predicted_mean[yL][1] = {{0}};
-static float64 x_system_states[xL][1] = {{0},{0}};
-static float64 x_system_states_ic[xL][1] = {{2},{0}};
+static double y_meas[yL][1] = {{0}};
+static double y_predicted_mean[yL][1] = {{0}};
+static double x_system_states[xL][1] = {{0},{0}};
+static double x_system_states_ic[xL][1] = {{2},{0}};
 
 
-static float64 x_system_states_correction[xL][1] = {{0},{0}};
-static float64 X_sigma_points[xL][sL]= {{0,0,0,0,0,},{0,0,0,0,0}};
-static float64 Y_sigma_points[yL][sL]= {{0,0,0,0,0}};
-static float64 Pxx_error_covariance[xL][xL]= {{0,0,},{0,0}};
-static float64 Pxx0_init_error_covariance[xL][xL]= {{1,0,},{0,1}};
-static float64 Qxx_process_noise_cov[xL][xL]= {{0.02,0,},{0,0.1}};
-static float64 Ryy0_init_out_covariance[yL][yL]= {{0.2}};
-static float64 Pyy_out_covariance[yL][yL]= {{0}};
-static float64 Pyy_out_covariance_copy[yL][yL]= {{0}};
-static float64 Pxy_cross_covariance[xL][yL]= {{0},{0}};
-static float64 K_kalman_gain[xL][yL]= {{0},{0}};
-static float64 Pxx_covariance_correction[xL][xL]= {{0,0,},{0,0}};
-static float64 I_identity_matrix[yL][yL]= {{0}};
+static double x_system_states_correction[xL][1] = {{0},{0}};
+static double X_sigma_points[xL][sL]= {{0,0,0,0,0,},{0,0,0,0,0}};
+static double Y_sigma_points[yL][sL]= {{0,0,0,0,0}};
+static double Pxx_error_covariance[xL][xL]= {{0,0,},{0,0}};
+static double Pxx0_init_error_covariance[xL][xL]= {{1,0,},{0,1}};
+static double Qxx_process_noise_cov[xL][xL]= {{0.02,0,},{0,0.1}};
+static double Ryy0_init_out_covariance[yL][yL]= {{0.2}};
+static double Pyy_out_covariance[yL][yL]= {{0}};
+static double Pyy_out_covariance_copy[yL][yL]= {{0}};
+static double Pxy_cross_covariance[xL][yL]= {{0},{0}};
+static double K_kalman_gain[xL][yL]= {{0},{0}};
+static double Pxx_covariance_correction[xL][xL]= {{0,0,},{0,0}};
+static double I_identity_matrix[yL][yL]= {{0}};
 
-UkfMatrix64_t UkfMatrixCfg2 =
+UkfMatrix_t UkfMatrixCfg2 =
 {
 {COLXROW(Sc_vector),NROWS(Sc_vector),NCOL(Sc_vector),&Sc_vector[0][0]},
 {COLXROW(Wm_weight_vector),NROWS(Wm_weight_vector),NCOL(Wm_weight_vector),&Wm_weight_vector[0][0]},
@@ -114,12 +114,12 @@ UkfMatrix64_t UkfMatrixCfg2 =
 };
 
 //<STATE TRANSITION:BEGIN>
-void Fx1(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaIdx, float64 dT)
+void Fx1(Matrix_t * pu_p, Matrix_t * pX_p, Matrix_t * pX_m,uint8_t sigmaIdx, double dT)
 {
     const uint8_t nCol = pX_m->ncol;
     pX_m->val[nCol*0+sigmaIdx] = pX_p->val[nCol*0+sigmaIdx] +pX_p->val[nCol*1+sigmaIdx]*dT;
 }
-void Fx2(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaIdx, float64 dT)
+void Fx2(Matrix_t * pu_p, Matrix_t * pX_p, Matrix_t * pX_m,uint8_t sigmaIdx, double dT)
 {
     const uint8_t nCol = pX_m->ncol;
     pX_m->val[nCol*1+sigmaIdx] = pX_p->val[nCol*1+sigmaIdx]+(1-pX_p->val[nCol*0+sigmaIdx]*pX_p->val[nCol*0+sigmaIdx])*pX_p->val[nCol*1+sigmaIdx]*dT-pX_p->val[nCol*0+sigmaIdx]*dT;
@@ -127,7 +127,7 @@ void Fx2(Matrix64_t * pu_p, Matrix64_t * pX_p, Matrix64_t * pX_m,uint8_t sigmaId
 //<STATE TRANSITION:END>
 
 //<MEASUREMENT FUNCTION:BEGIN>
-void Hy1(Matrix64_t * pu, Matrix64_t * pX_m, Matrix64_t * pY_m,uint8_t sigmaIdx)
+void Hy1(Matrix_t * pu, Matrix_t * pX_m, Matrix_t * pY_m,uint8_t sigmaIdx)
 {
     const uint8_t nCol = pY_m->ncol;
     pY_m->val[nCol*0+sigmaIdx] = pX_m->val[nCol*0+sigmaIdx];
