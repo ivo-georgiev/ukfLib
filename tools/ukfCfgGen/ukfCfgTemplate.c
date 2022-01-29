@@ -28,7 +28,7 @@
  *** OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *** SOFTWARE.
 \******************************************************************************************************************************************************************************************************/
-#include "../cfg/ukfCfg<cfgId>.h"
+#include "ukfCfg<cfgId>.h"
 
 //<DEFINES:BEGIN>
 #define xL (uint8_t)<xL>
