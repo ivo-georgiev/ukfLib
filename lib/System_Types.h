@@ -19,12 +19,15 @@
 
 #include <stdint.h>
 
+#if !defined(__DOXYGEN__)
+
 /* Floating point types. */
 union ac_check_sizeof_floats_u
 {
 	int nfloat64__[1 - 2 * !(sizeof(double) == 8)];
 	int nfloat32__[1 - 2 * !(sizeof(float) == 4)];
 };
+#endif	/* !__DOXYGEN__ */
 /*----------------------------------------------------------------------------*\
   ENUMS
 \*----------------------------------------------------------------------------*/
