@@ -84,53 +84,53 @@ static double I_identity_matrix[yL][yL]= {{0}};
 
 UkfMatrix_t UkfMatrixCfg2 =
 {
-{COLXROW(Sc_vector),NROWS(Sc_vector),NCOL(Sc_vector),&Sc_vector[0][0]},
-{COLXROW(Wm_weight_vector),NROWS(Wm_weight_vector),NCOL(Wm_weight_vector),&Wm_weight_vector[0][0]},
-{COLXROW(Wc_weight_vector),NROWS(Wc_weight_vector),NCOL(Wc_weight_vector),&Wc_weight_vector[0][0]},
-{COLXROW(x_system_states),NROWS(x_system_states),NCOL(x_system_states),&x_system_states[0][0]},
-{COLXROW(x_system_states_ic),NROWS(x_system_states_ic),NCOL(x_system_states_ic),&x_system_states_ic[0][0]},
-{0,0,0,NULL},
-{0,0,0,NULL},
-{COLXROW(x_system_states_correction),NROWS(x_system_states_correction),NCOL(x_system_states_correction),&x_system_states_correction[0][0]},
-{0,0,0,NULL},
-{0,0,0,NULL},
-{COLXROW(X_sigma_points),NROWS(X_sigma_points),NCOL(X_sigma_points),&X_sigma_points[0][0]},
-{COLXROW(Y_sigma_points),NROWS(Y_sigma_points),NCOL(Y_sigma_points),&Y_sigma_points[0][0]},
-{COLXROW(y_predicted_mean),NROWS(y_predicted_mean),NCOL(y_predicted_mean),&y_predicted_mean[0][0]},
-{COLXROW(y_meas),NROWS(y_meas),NCOL(y_meas),&y_meas[0][0]},
-{COLXROW(Pyy_out_covariance),NROWS(Pyy_out_covariance),NCOL(Pyy_out_covariance),&Pyy_out_covariance[0][0]},
-{COLXROW(Pyy_out_covariance_copy),NROWS(Pyy_out_covariance_copy),NCOL(Pyy_out_covariance_copy),&Pyy_out_covariance_copy[0][0]},
-{COLXROW(Ryy0_init_out_covariance),NROWS(Ryy0_init_out_covariance),NCOL(Ryy0_init_out_covariance),&Ryy0_init_out_covariance[0][0]},
-{COLXROW(Pxy_cross_covariance),NROWS(Pxy_cross_covariance),NCOL(Pxy_cross_covariance),&Pxy_cross_covariance[0][0]},
-{COLXROW(Pxx_error_covariance),NROWS(Pxx_error_covariance),NCOL(Pxx_error_covariance),&Pxx_error_covariance[0][0]},
-{COLXROW(Pxx0_init_error_covariance),NROWS(Pxx0_init_error_covariance),NCOL(Pxx0_init_error_covariance),&Pxx0_init_error_covariance[0][0]},
-{COLXROW(Qxx_process_noise_cov),NROWS(Qxx_process_noise_cov),NCOL(Qxx_process_noise_cov),&Qxx_process_noise_cov[0][0]},
-{COLXROW(K_kalman_gain),NROWS(K_kalman_gain),NCOL(K_kalman_gain),&K_kalman_gain[0][0]},
-{COLXROW(I_identity_matrix),NROWS(I_identity_matrix),NCOL(I_identity_matrix),&I_identity_matrix[0][0]},
-{COLXROW(Pxx_covariance_correction),NROWS(Pxx_covariance_correction),NCOL(Pxx_covariance_correction),&Pxx_covariance_correction[0][0]},
-&PredictFcn[0],
-&ObservFcn[0],
-0.05
+	{COLXROW(Sc_vector),NROWS(Sc_vector),NCOL(Sc_vector),&Sc_vector[0][0]},
+	{COLXROW(Wm_weight_vector),NROWS(Wm_weight_vector),NCOL(Wm_weight_vector),&Wm_weight_vector[0][0]},
+	{COLXROW(Wc_weight_vector),NROWS(Wc_weight_vector),NCOL(Wc_weight_vector),&Wc_weight_vector[0][0]},
+	{COLXROW(x_system_states),NROWS(x_system_states),NCOL(x_system_states),&x_system_states[0][0]},
+	{COLXROW(x_system_states_ic),NROWS(x_system_states_ic),NCOL(x_system_states_ic),&x_system_states_ic[0][0]},
+	{0,0,0,NULL},
+	{0,0,0,NULL},
+	{COLXROW(x_system_states_correction),NROWS(x_system_states_correction),NCOL(x_system_states_correction),&x_system_states_correction[0][0]},
+	{0,0,0,NULL},
+	{0,0,0,NULL},
+	{COLXROW(X_sigma_points),NROWS(X_sigma_points),NCOL(X_sigma_points),&X_sigma_points[0][0]},
+	{COLXROW(Y_sigma_points),NROWS(Y_sigma_points),NCOL(Y_sigma_points),&Y_sigma_points[0][0]},
+	{COLXROW(y_predicted_mean),NROWS(y_predicted_mean),NCOL(y_predicted_mean),&y_predicted_mean[0][0]},
+	{COLXROW(y_meas),NROWS(y_meas),NCOL(y_meas),&y_meas[0][0]},
+	{COLXROW(Pyy_out_covariance),NROWS(Pyy_out_covariance),NCOL(Pyy_out_covariance),&Pyy_out_covariance[0][0]},
+	{COLXROW(Pyy_out_covariance_copy),NROWS(Pyy_out_covariance_copy),NCOL(Pyy_out_covariance_copy),&Pyy_out_covariance_copy[0][0]},
+	{COLXROW(Ryy0_init_out_covariance),NROWS(Ryy0_init_out_covariance),NCOL(Ryy0_init_out_covariance),&Ryy0_init_out_covariance[0][0]},
+	{COLXROW(Pxy_cross_covariance),NROWS(Pxy_cross_covariance),NCOL(Pxy_cross_covariance),&Pxy_cross_covariance[0][0]},
+	{COLXROW(Pxx_error_covariance),NROWS(Pxx_error_covariance),NCOL(Pxx_error_covariance),&Pxx_error_covariance[0][0]},
+	{COLXROW(Pxx0_init_error_covariance),NROWS(Pxx0_init_error_covariance),NCOL(Pxx0_init_error_covariance),&Pxx0_init_error_covariance[0][0]},
+	{COLXROW(Qxx_process_noise_cov),NROWS(Qxx_process_noise_cov),NCOL(Qxx_process_noise_cov),&Qxx_process_noise_cov[0][0]},
+	{COLXROW(K_kalman_gain),NROWS(K_kalman_gain),NCOL(K_kalman_gain),&K_kalman_gain[0][0]},
+	{COLXROW(I_identity_matrix),NROWS(I_identity_matrix),NCOL(I_identity_matrix),&I_identity_matrix[0][0]},
+	{COLXROW(Pxx_covariance_correction),NROWS(Pxx_covariance_correction),NCOL(Pxx_covariance_correction),&Pxx_covariance_correction[0][0]},
+	&PredictFcn[0],
+	&ObservFcn[0],
+	0.05
 };
 
 //<STATE TRANSITION:BEGIN>
-void Fx1(Matrix_t * pu_p, Matrix_t * pX_p, Matrix_t * pX_m,uint8_t sigmaIdx, double dT)
+void Fx1(Matrix_t *pu_p, Matrix_t *pX_p, Matrix_t *pX_m, uint8_t sigmaIdx, double dT)
 {
-    const uint8_t nCol = pX_m->ncol;
-    pX_m->val[nCol*0+sigmaIdx] = pX_p->val[nCol*0+sigmaIdx] +pX_p->val[nCol*1+sigmaIdx]*dT;
+	const uint8_t nCol = pX_m->ncol;
+	pX_m->val[nCol * 0 + sigmaIdx] = pX_p->val[nCol * 0 + sigmaIdx] + pX_p->val[nCol * 1 + sigmaIdx] * dT;
 }
-void Fx2(Matrix_t * pu_p, Matrix_t * pX_p, Matrix_t * pX_m,uint8_t sigmaIdx, double dT)
+void Fx2(Matrix_t *pu_p, Matrix_t *pX_p, Matrix_t *pX_m, uint8_t sigmaIdx, double dT)
 {
-    const uint8_t nCol = pX_m->ncol;
-    pX_m->val[nCol*1+sigmaIdx] = pX_p->val[nCol*1+sigmaIdx]+(1-pX_p->val[nCol*0+sigmaIdx]*pX_p->val[nCol*0+sigmaIdx])*pX_p->val[nCol*1+sigmaIdx]*dT-pX_p->val[nCol*0+sigmaIdx]*dT;
+	const uint8_t nCol = pX_m->ncol;
+	pX_m->val[nCol * 1 + sigmaIdx] = pX_p->val[nCol * 1 + sigmaIdx] +
+		(1 - pX_p->val[nCol * 0 + sigmaIdx] * pX_p->val[nCol * 0 + sigmaIdx]) * pX_p->val[nCol * 1 + sigmaIdx] * dT - pX_p->val[nCol * 0 + sigmaIdx] * dT;
 }
 //<STATE TRANSITION:END>
 
 //<MEASUREMENT FUNCTION:BEGIN>
-void Hy1(Matrix_t * pu, Matrix_t * pX_m, Matrix_t * pY_m,uint8_t sigmaIdx)
+void Hy1(Matrix_t *pu, Matrix_t *pX_m, Matrix_t *pY_m, uint8_t sigmaIdx)
 {
-    const uint8_t nCol = pY_m->ncol;
-    pY_m->val[nCol*0+sigmaIdx] = pX_m->val[nCol*0+sigmaIdx];
+	const uint8_t nCol = pY_m->ncol;
+	pY_m->val[nCol * 0 + sigmaIdx] = pX_m->val[nCol * 0 + sigmaIdx];
 }
 //<MEASUREMENT FUNCTION:END>
-

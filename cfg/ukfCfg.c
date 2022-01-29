@@ -42,13 +42,13 @@
 \******************************************************************************************************************************************************************************************************/
 #include "../cfg/ukfCfg.h"
 
-static void Fx1(Matrix_t * pu_p, Matrix_t * pX_p, Matrix_t * pX_m,uint8_t sigmaIdx, double dT);
-static void Fx2(Matrix_t * pu_p, Matrix_t * pX_p, Matrix_t * pX_m,uint8_t sigmaIdx, double dT);
-static void Fx3(Matrix_t * pu_p, Matrix_t * pX_p, Matrix_t * pX_m,uint8_t sigmaIdx, double dT);
-static void Fx4(Matrix_t * pu_p, Matrix_t * pX_p, Matrix_t * pX_m,uint8_t sigmaIdx, double dT);
+static void Fx1(Matrix_t *pu_p, Matrix_t *pX_p, Matrix_t *pX_m, uint8_t sigmaIdx, double dT);
+static void Fx2(Matrix_t *pu_p, Matrix_t *pX_p, Matrix_t *pX_m, uint8_t sigmaIdx, double dT);
+static void Fx3(Matrix_t *pu_p, Matrix_t *pX_p, Matrix_t *pX_m, uint8_t sigmaIdx, double dT);
+static void Fx4(Matrix_t *pu_p, Matrix_t *pX_p, Matrix_t *pX_m, uint8_t sigmaIdx, double dT);
 
-static void Hy1(Matrix_t * pu, Matrix_t * pX_m, Matrix_t * pY_m,uint8_t sigmaIdx);
-static void Hy2(Matrix_t * pu, Matrix_t * pX_m, Matrix_t * pY_m,uint8_t sigmaIdx);
+static void Hy1(Matrix_t *pu, Matrix_t *pX_m, Matrix_t *pY_m, uint8_t sigmaIdx);
+static void Hy2(Matrix_t *pu, Matrix_t *pX_m, Matrix_t *pY_m, uint8_t sigmaIdx);
 
 static PredictFcn_t PredictFcn[4] = {&Fx1,&Fx2,&Fx3,&Fx4};
 static ObservFcn_t  ObservFcn[2] = {&Hy1,&Hy2};
