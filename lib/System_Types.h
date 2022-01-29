@@ -20,12 +20,10 @@
 #include <stdint.h>
 
 /* Floating point types. */
-typedef float float32;
-typedef double float64;
 union ac_check_sizeof_floats_u
 {
-	int nfloat64__[1 - 2 * !(sizeof(float64) == 8)];
-	int nfloat32__[1 - 2 * !(sizeof(float32) == 4)];
+	int nfloat64__[1 - 2 * !(sizeof(double) == 8)];
+	int nfloat32__[1 - 2 * !(sizeof(float) == 4)];
 };
 /*----------------------------------------------------------------------------*\
   ENUMS
