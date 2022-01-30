@@ -28,7 +28,7 @@
 
 #include "mtxLib.h"
 
-enum mtxResultInfo mtx_init_bool(MatrixBool_t *const pSrc, _Bool *const pValue, const uint8_t nrow, const uint8_t ncol, const ptrdiff_t nelem)
+enum mtxResultInfo mtx_init_bool(MatrixBool_t *const pSrc, _Bool *const pValue, const ptrdiff_t nrow, const ptrdiff_t ncol, const ptrdiff_t nelem)
 {
 	pSrc->val = pValue;
 	pSrc->ncol = ncol;
@@ -36,7 +36,7 @@ enum mtxResultInfo mtx_init_bool(MatrixBool_t *const pSrc, _Bool *const pValue, 
 	pSrc->nelem = nelem;
 	return MTX_OPERATION_OK;
 }
-enum mtxResultInfo mtx_init(Matrix_t *const pSrc, double *const pValue, const uint8_t nrow, const uint8_t ncol, const ptrdiff_t nelem)
+enum mtxResultInfo mtx_init(Matrix_t *const pSrc, double *const pValue, const ptrdiff_t nrow, const ptrdiff_t ncol, const ptrdiff_t nelem)
 {
 	pSrc->val = pValue;
 	pSrc->ncol = ncol;
@@ -51,7 +51,7 @@ enum mtxResultInfo mtx_diagsum(Matrix_t *pSrc, double *diagsum)
 {
 	enum mtxResultInfo Result = MTX_OPERATION_OK;
 	double const *const pSrcL = (double *)pSrc->val;
-	const uint8_t ncol = pSrc->ncol;
+	const ptrdiff_t ncol = pSrc->ncol;
 	ptrdiff_t eIdx;
 	double sum = pSrcL[0];
 
@@ -79,10 +79,10 @@ enum mtxResultInfo mtx_diagsum(Matrix_t *pSrc, double *diagsum)
 enum mtxResultInfo mtx_transp_square(Matrix_t *const pSrc)
 {
 	enum mtxResultInfo ResultL = MTX_OPERATION_OK;
-	const uint8_t nrow = pSrc->nrow;
-	const uint8_t ncol = pSrc->ncol;
+	const ptrdiff_t nrow = pSrc->nrow;
+	const ptrdiff_t ncol = pSrc->ncol;
 	double *const pSrcL = (double *)pSrc->val;
-	uint8_t row, col;
+	ptrdiff_t row, col;
 	double temp;
 
 	if (nrow == ncol)
@@ -112,11 +112,11 @@ enum mtxResultInfo mtx_transp_dest(Matrix_t const *const pSrc, Matrix_t *const p
 	enum mtxResultInfo ResultL = MTX_OPERATION_OK;
 	double const *const pSrcL = (double *)pSrc->val;
 	double *const pDstL = (double *)pDst->val;
-	const uint8_t nRowSrcL = pSrc->nrow;
-	const uint8_t nColSrcL = pSrc->ncol;
-	const uint8_t nRowDstL = pDst->nrow;
-	const uint8_t nColDstL = pDst->ncol;
-	uint8_t row, col;
+	const ptrdiff_t nRowSrcL = pSrc->nrow;
+	const ptrdiff_t nColSrcL = pSrc->ncol;
+	const ptrdiff_t nRowDstL = pDst->nrow;
+	const ptrdiff_t nColDstL = pDst->ncol;
+	ptrdiff_t row, col;
 
 	if (nRowSrcL == nColDstL || nColSrcL == nRowDstL)
 	{
@@ -147,7 +147,7 @@ enum mtxResultInfo mtx_mul(Matrix_t const *const pSrc1, Matrix_t const *const pS
 	double const *const pSrc1L = (double *)pSrc1->val;
 	double const *const pSrc2L = (double *)pSrc2->val;
 	double *const pDstL = (double *)pDst->val;
-	uint8_t row, col, k;
+	ptrdiff_t row, col, k;
 	double sum;
 
 	if (pSrc1->ncol == pSrc2->nrow)
@@ -185,7 +185,7 @@ enum mtxResultInfo mtx_mul_src2tr(Matrix_t const *const pSrc1, Matrix_t const *c
 	double const *const pSrc1L = (double *)pSrc1->val;
 	double const *const pSrc2L = (double *)pSrc2->val;
 	double *const pDstL = (double *)pDst->val;
-	uint8_t rowSrc1, rowSrc2, k;
+	ptrdiff_t rowSrc1, rowSrc2, k;
 	double sum;
 
 	if (pSrc1->ncol == pSrc2->ncol)
@@ -214,15 +214,15 @@ enum mtxResultInfo mtx_chol_lower(Matrix_t *const pSrc)
 {
 	enum mtxResultInfo ResultL = MTX_OPERATION_OK;
 	double *const pSrcL = pSrc->val;
-	const uint8_t nrow = pSrc->nrow;
-	const uint8_t ncol = pSrc->ncol;
-	uint8_t col, row;
+	const ptrdiff_t nrow = pSrc->nrow;
+	const ptrdiff_t ncol = pSrc->ncol;
+	ptrdiff_t col, row;
 	int8_t tmp;
 	double sum = 0;
 
 	if (ncol == nrow)
 	{
-		const uint8_t mtxSize = nrow;
+		const ptrdiff_t mtxSize = nrow;
 
 		for (col = 0; col < mtxSize; col++)
 		{
@@ -255,9 +255,9 @@ enum mtxResultInfo mtx_chol_upper(Matrix_t *const pSrc)
 {
 	enum mtxResultInfo ResultL = MTX_OPERATION_OK;
 	double *const pSrcL = pSrc->val;
-	const uint8_t nrow = pSrc->nrow;
-	const uint8_t ncol = pSrc->ncol;
-	uint8_t col, row;
+	const ptrdiff_t nrow = pSrc->nrow;
+	const ptrdiff_t ncol = pSrc->ncol;
+	ptrdiff_t col, row;
 	int8_t tmp;
 	double sum = 0;
 
@@ -293,10 +293,10 @@ enum mtxResultInfo mtx_chol_upper(Matrix_t *const pSrc)
 /**
  * Upper cholesky decomposition variant 1
  */
-enum mtxResultInfo mtx_chol1(double *A, double *L, size_t size)
+enum mtxResultInfo mtx_chol1(double *A, double *L, ptrdiff_t size)
 {
-	uint8_t Result = MTX_OPERATION_OK;
-	uint8_t col, row;
+	ptrdiff_t Result = MTX_OPERATION_OK;
+	ptrdiff_t col, row;
 	int8_t tmp;
 	double sum = 0;
 
@@ -344,11 +344,11 @@ enum mtxResultInfo mtx_chol1(double *A, double *L, size_t size)
 enum mtxResultInfo mtx_inv(Matrix_t *const pSrc, Matrix_t *const pDst)
 {
 	enum mtxResultInfo Result = MTX_OPERATION_OK;
-	const uint8_t nrow = pSrc->nrow;
-	const uint8_t ncol = pSrc->ncol;
-	uint8_t j, i;
-	uint8_t k = 0;
-	uint8_t l = 0;
+	const ptrdiff_t nrow = pSrc->nrow;
+	const ptrdiff_t ncol = pSrc->ncol;
+	ptrdiff_t j, i;
+	ptrdiff_t k = 0;
+	ptrdiff_t l = 0;
 	double s = 0;
 	double t = 0;
 
@@ -409,7 +409,7 @@ enum mtxResultInfo mtx_inv(Matrix_t *const pSrc, Matrix_t *const pDst)
 }
 enum mtxResultInfo mtx_add(Matrix_t *const pDst, Matrix_t const *const pSrc)
 {
-	uint8_t Result = MTX_OPERATION_OK;
+	ptrdiff_t Result = MTX_OPERATION_OK;
 	double *const pDstL = (double *)pDst->val;
 	double const *const pSrcL = (double *)pSrc->val;
 	ptrdiff_t eIdx;
@@ -430,7 +430,7 @@ enum mtxResultInfo mtx_add(Matrix_t *const pDst, Matrix_t const *const pSrc)
 }
 enum mtxResultInfo mtx_sub(Matrix_t *const pDst, Matrix_t const *const pSrc)
 {
-	uint8_t Result = MTX_OPERATION_OK;
+	ptrdiff_t Result = MTX_OPERATION_OK;
 	double *const pDstL = (double *)pDst->val;
 	double const *const pSrcL = (double *)pSrc->val;
 	ptrdiff_t eIdx;
@@ -513,7 +513,7 @@ enum mtxResultInfo mtx_identity(Matrix_t *const pSrc)
 {
 	enum mtxResultInfo Result = MTX_OPERATION_OK;
 	double *const pDst = (double *)pSrc->val;
-	const uint8_t nCol = pSrc->ncol;
+	const ptrdiff_t nCol = pSrc->ncol;
 	ptrdiff_t eIdx;
 
 	if (pSrc->nrow == nCol)

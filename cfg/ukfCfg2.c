@@ -31,19 +31,19 @@
 #include "ukfCfg2.h"
 
 //<DEFINES:BEGIN>
-#define xL (uint8_t)2
-#define yL (uint8_t)1
-#define sL (uint8_t)5
-#define uL (uint8_t)0
+#define xL (ptrdiff_t)2
+#define yL (ptrdiff_t)1
+#define sL (ptrdiff_t)5
+#define uL (ptrdiff_t)0
 //<DEFINES:END>
 
 //<STATE TRANSITION PROTOTYPE:BEGIN>
-static void Fx1(Matrix_t * pu_p, Matrix_t * pX_p, Matrix_t * pX_m,uint8_t sigmaIdx, double dT);
-static void Fx2(Matrix_t * pu_p, Matrix_t * pX_p, Matrix_t * pX_m,uint8_t sigmaIdx, double dT);
+static void Fx1(Matrix_t * pu_p, Matrix_t * pX_p, Matrix_t * pX_m,ptrdiff_t sigmaIdx, double dT);
+static void Fx2(Matrix_t * pu_p, Matrix_t * pX_p, Matrix_t * pX_m,ptrdiff_t sigmaIdx, double dT);
 //<STATE TRANSITION PROTOTYPE:END>
 
 //<MEASUREMENT PROTOTYPE:BEGIN>
-static void Hy1(Matrix_t * pu, Matrix_t * pX_m, Matrix_t * pY_m,uint8_t sigmaIdx);
+static void Hy1(Matrix_t * pu, Matrix_t * pX_m, Matrix_t * pY_m,ptrdiff_t sigmaIdx);
 //<MEASUREMENT PROTOTYPE:END>
 
 //<STATE TRANSITION PTR ARRAY:BEGIN>
@@ -114,23 +114,23 @@ UkfMatrix_t UkfMatrixCfg2 =
 };
 
 //<STATE TRANSITION:BEGIN>
-void Fx1(Matrix_t *pu_p, Matrix_t *pX_p, Matrix_t *pX_m, uint8_t sigmaIdx, double dT)
+void Fx1(Matrix_t *pu_p, Matrix_t *pX_p, Matrix_t *pX_m, ptrdiff_t sigmaIdx, double dT)
 {
-	const uint8_t nCol = pX_m->ncol;
+	const ptrdiff_t nCol = pX_m->ncol;
 	pX_m->val[nCol * 0 + sigmaIdx] = pX_p->val[nCol * 0 + sigmaIdx] + pX_p->val[nCol * 1 + sigmaIdx] * dT;
 }
-void Fx2(Matrix_t *pu_p, Matrix_t *pX_p, Matrix_t *pX_m, uint8_t sigmaIdx, double dT)
+void Fx2(Matrix_t *pu_p, Matrix_t *pX_p, Matrix_t *pX_m, ptrdiff_t sigmaIdx, double dT)
 {
-	const uint8_t nCol = pX_m->ncol;
+	const ptrdiff_t nCol = pX_m->ncol;
 	pX_m->val[nCol * 1 + sigmaIdx] = pX_p->val[nCol * 1 + sigmaIdx] +
 		(1 - pX_p->val[nCol * 0 + sigmaIdx] * pX_p->val[nCol * 0 + sigmaIdx]) * pX_p->val[nCol * 1 + sigmaIdx] * dT - pX_p->val[nCol * 0 + sigmaIdx] * dT;
 }
 //<STATE TRANSITION:END>
 
 //<MEASUREMENT FUNCTION:BEGIN>
-void Hy1(Matrix_t *pu, Matrix_t *pX_m, Matrix_t *pY_m, uint8_t sigmaIdx)
+void Hy1(Matrix_t *pu, Matrix_t *pX_m, Matrix_t *pY_m, ptrdiff_t sigmaIdx)
 {
-	const uint8_t nCol = pY_m->ncol;
+	const ptrdiff_t nCol = pY_m->ncol;
 	pY_m->val[nCol * 0 + sigmaIdx] = pX_m->val[nCol * 0 + sigmaIdx];
 }
 //<MEASUREMENT FUNCTION:END>

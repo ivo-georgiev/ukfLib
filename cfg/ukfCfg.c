@@ -42,13 +42,13 @@
 \******************************************************************************************************************************************************************************************************/
 #include "ukfCfg.h"
 
-static void Fx1(Matrix_t *pu_p, Matrix_t *pX_p, Matrix_t *pX_m, uint8_t sigmaIdx, double dT);
-static void Fx2(Matrix_t *pu_p, Matrix_t *pX_p, Matrix_t *pX_m, uint8_t sigmaIdx, double dT);
-static void Fx3(Matrix_t *pu_p, Matrix_t *pX_p, Matrix_t *pX_m, uint8_t sigmaIdx, double dT);
-static void Fx4(Matrix_t *pu_p, Matrix_t *pX_p, Matrix_t *pX_m, uint8_t sigmaIdx, double dT);
+static void Fx1(Matrix_t *pu_p, Matrix_t *pX_p, Matrix_t *pX_m, ptrdiff_t sigmaIdx, double dT);
+static void Fx2(Matrix_t *pu_p, Matrix_t *pX_p, Matrix_t *pX_m, ptrdiff_t sigmaIdx, double dT);
+static void Fx3(Matrix_t *pu_p, Matrix_t *pX_p, Matrix_t *pX_m, ptrdiff_t sigmaIdx, double dT);
+static void Fx4(Matrix_t *pu_p, Matrix_t *pX_p, Matrix_t *pX_m, ptrdiff_t sigmaIdx, double dT);
 
-static void Hy1(Matrix_t *pu, Matrix_t *pX_m, Matrix_t *pY_m, uint8_t sigmaIdx);
-static void Hy2(Matrix_t *pu, Matrix_t *pX_m, Matrix_t *pY_m, uint8_t sigmaIdx);
+static void Hy1(Matrix_t *pu, Matrix_t *pX_m, Matrix_t *pY_m, ptrdiff_t sigmaIdx);
+static void Hy2(Matrix_t *pu, Matrix_t *pX_m, Matrix_t *pY_m, ptrdiff_t sigmaIdx);
 
 static PredictFcn_t PredictFcn[4] = {&Fx1,&Fx2,&Fx3,&Fx4};
 static ObservFcn_t  ObservFcn[2] = {&Hy1,&Hy2};
@@ -223,9 +223,9 @@ UkfMatrix_t UkfMatrixCfg0 =
  * @param pX_m      Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
  * @param sigmaIdx  Sigma point index.
  */
-void Fx1(Matrix_t *pu_p, Matrix_t *pX_p, Matrix_t *pX_m, uint8_t sigmaIdx, double dT)
+void Fx1(Matrix_t *pu_p, Matrix_t *pX_p, Matrix_t *pX_m, ptrdiff_t sigmaIdx, double dT)
 {
-	const uint8_t nCol = pX_m->ncol; // pX_m->ncol == pX_p->ncol == 9
+	const ptrdiff_t nCol = pX_m->ncol; // pX_m->ncol == pX_p->ncol == 9
 
 	pX_m->val[nCol * 0 + sigmaIdx] = pX_p->val[nCol * 0 + sigmaIdx] + dT * pX_p->val[nCol * 2 + sigmaIdx];
 
@@ -241,9 +241,9 @@ void Fx1(Matrix_t *pu_p, Matrix_t *pX_p, Matrix_t *pX_m, uint8_t sigmaIdx, doubl
  * @param pX_m     Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
  * @param sigmaIdx Sigma point index.
  */
-void Fx2(Matrix_t * pu_p, Matrix_t * pX_p, Matrix_t * pX_m,uint8_t sigmaIdx, double dT)
+void Fx2(Matrix_t * pu_p, Matrix_t * pX_p, Matrix_t * pX_m,ptrdiff_t sigmaIdx, double dT)
 {
-    const uint8_t nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
+    const ptrdiff_t nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
 
     pX_m->val[nCol*1 + sigmaIdx] = pX_p->val[nCol*1 + sigmaIdx] + dT * pX_p->val[nCol*3 + sigmaIdx];
 
@@ -258,9 +258,9 @@ void Fx2(Matrix_t * pu_p, Matrix_t * pX_p, Matrix_t * pX_m,uint8_t sigmaIdx, dou
  * @param pX_m      to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
  * @param sigmaIdx  point index.
  */
-void Fx3(Matrix_t * pu_p, Matrix_t * pX_p, Matrix_t * pX_m,uint8_t sigmaIdx, double dT)
+void Fx3(Matrix_t * pu_p, Matrix_t * pX_p, Matrix_t * pX_m,ptrdiff_t sigmaIdx, double dT)
 {
-    const uint8_t nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
+    const ptrdiff_t nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
 
     pX_m->val[nCol*2 + sigmaIdx] = pX_p->val[nCol*2 + sigmaIdx];
 
@@ -276,9 +276,9 @@ void Fx3(Matrix_t * pu_p, Matrix_t * pX_p, Matrix_t * pX_m,uint8_t sigmaIdx, dou
  * @param pX_m     Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
  * @param sigmaIdx Sigma point index.
  */
-void Fx4(Matrix_t * pu_p, Matrix_t * pX_p, Matrix_t * pX_m,uint8_t sigmaIdx, double dT)
+void Fx4(Matrix_t * pu_p, Matrix_t * pX_p, Matrix_t * pX_m,ptrdiff_t sigmaIdx, double dT)
 {
-    const uint8_t nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
+    const ptrdiff_t nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
 
     pX_m->val[nCol*3 + sigmaIdx] = pX_p->val[nCol*3 + sigmaIdx];
 
@@ -294,13 +294,13 @@ void Fx4(Matrix_t * pu_p, Matrix_t * pX_p, Matrix_t * pX_m,uint8_t sigmaIdx, dou
  * @param pX_m Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
  * @param sigmaIdx Sigma point index.
  */
-void Hy1(Matrix_t * pu, Matrix_t * pX_m, Matrix_t * pY_m,uint8_t sigmaIdx)
+void Hy1(Matrix_t * pu, Matrix_t * pX_m, Matrix_t * pY_m,ptrdiff_t sigmaIdx)
 {
     static const double N1 = 20;
     static const double E1 = 0;
     double term1;
     double term2;
-    const uint8_t nCol = pY_m->ncol;
+    const ptrdiff_t nCol = pY_m->ncol;
 
     term1 = pX_m->val[nCol*0 + sigmaIdx] - N1;
     term1 *= term1;
@@ -322,13 +322,13 @@ void Hy1(Matrix_t * pu, Matrix_t * pX_m, Matrix_t * pY_m,uint8_t sigmaIdx)
  * @param pX_m Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
  * @param sigmaIdx Sigma point index.
  */
-void Hy2(Matrix_t * pu, Matrix_t * pX_m, Matrix_t * pY_m,uint8_t sigmaIdx)
+void Hy2(Matrix_t * pu, Matrix_t * pX_m, Matrix_t * pY_m,ptrdiff_t sigmaIdx)
 {
     static const double N2 = 0;
     static const double E2 = 20;
     double term1;
     double term2;
-    const uint8_t nCol = pY_m->ncol;
+    const ptrdiff_t nCol = pY_m->ncol;
 
     term1 = pX_m->val[nCol*0 + sigmaIdx] - N2;
     term1 *= term1;

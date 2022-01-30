@@ -1,8 +1,8 @@
 #include "ukfCfg.h"
 #include "ukfCfg1.h"
 
-#define cfg0 (uint8_t)0
-#define cfg1 (uint8_t)1
+#define cfg0 (ptrdiff_t)0
+#define cfg1 (ptrdiff_t)1
 
 /*---------------------------------------------*/
 /*           Function Prototype                */
