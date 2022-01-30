@@ -29,10 +29,10 @@
 \******************************************************************************************************************************************************************************************************/
 #include "ukfCfg1.h"
 
-static void Fx1(Matrix_t *pu_p, Matrix_t *pX_p, Matrix_t *pX_m, uint8_t sigmaIdx, double dT);
-static void Fx2(Matrix_t *pu_p, Matrix_t *pX_p, Matrix_t *pX_m, uint8_t sigmaIdx, double dT);
+static void Fx1(Matrix_t *pu_p, Matrix_t *pX_p, Matrix_t *pX_m, ptrdiff_t sigmaIdx, double dT);
+static void Fx2(Matrix_t *pu_p, Matrix_t *pX_p, Matrix_t *pX_m, ptrdiff_t sigmaIdx, double dT);
 
-static void Hy1(Matrix_t *pu, Matrix_t *pX_m, Matrix_t *pY_m, uint8_t sigmaIdx);
+static void Hy1(Matrix_t *pu, Matrix_t *pX_m, Matrix_t *pY_m, ptrdiff_t sigmaIdx);
 
 static PredictFcn_t PredictFcn[2] = { &Fx1, &Fx2 };
 static ObservFcn_t ObservFcn[1] = { &Hy1 };
@@ -161,9 +161,9 @@ UkfMatrix_t UkfMatrixCfg1 =
  * @param pX_m  Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
  * @param sigmaIdx Sigma point index.
  */
-void Fx1(Matrix_t *pu_p, Matrix_t *pX_p, Matrix_t *pX_m, uint8_t sigmaIdx, double dT)
+void Fx1(Matrix_t *pu_p, Matrix_t *pX_p, Matrix_t *pX_m, ptrdiff_t sigmaIdx, double dT)
 {
-    const uint8_t nCol = pX_m->ncol;
+    const ptrdiff_t nCol = pX_m->ncol;
 
     pX_m->val[nCol*0+sigmaIdx] = pX_p->val[nCol*0+sigmaIdx]+ dT*pX_p->val[nCol*1+sigmaIdx];
 
@@ -178,9 +178,9 @@ void Fx1(Matrix_t *pu_p, Matrix_t *pX_p, Matrix_t *pX_m, uint8_t sigmaIdx, doubl
  * @param pX_m     Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
  * @param sigmaIdx Sigma point index.
  */
-void Fx2(Matrix_t *pu_p, Matrix_t *pX_p, Matrix_t *pX_m, uint8_t sigmaIdx, double dT)
+void Fx2(Matrix_t *pu_p, Matrix_t *pX_p, Matrix_t *pX_m, ptrdiff_t sigmaIdx, double dT)
 {
-    const uint8_t nCol = pX_m->ncol;
+    const ptrdiff_t nCol = pX_m->ncol;
     const double B = 0.05; //kg*s/m
     const double l = 0.613;
     const double m = 0.5;
@@ -201,7 +201,7 @@ void Fx2(Matrix_t *pu_p, Matrix_t *pX_p, Matrix_t *pX_m, uint8_t sigmaIdx, doubl
  * @param pX_m     Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
  * @param sigmaIdx Sigma point index.
  */
-void Hy1(Matrix_t *pu, Matrix_t *pX_m, Matrix_t *pY_m, uint8_t sigmaIdx)
+void Hy1(Matrix_t *pu, Matrix_t *pX_m, Matrix_t *pY_m, ptrdiff_t sigmaIdx)
 {
     pY_m->val[sigmaIdx] = pX_m->val[sigmaIdx];
 

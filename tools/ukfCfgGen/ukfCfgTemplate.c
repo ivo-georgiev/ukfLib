@@ -31,10 +31,10 @@
 #include "ukfCfg<cfgId>.h"
 
 //<DEFINES:BEGIN>
-#define xL (uint8_t)<xL>
-#define yL (uint8_t)<yL>
-#define sL (uint8_t)<sL>
-#define uL (uint8_t)<uL>
+#define xL (ptrdiff_t)<xL>
+#define yL (ptrdiff_t)<yL>
+#define sL (ptrdiff_t)<sL>
+#define uL (ptrdiff_t)<uL>
 //<DEFINES:END>
 
 //<STATE TRANSITION PROTOTYPE:BEGIN>

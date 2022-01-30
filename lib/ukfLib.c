@@ -29,13 +29,13 @@
 
 #include "ukfLib.h"
 
-const uint8_t xMinIdx = 0;
-const uint8_t xMaxIdx = 1;
-const uint8_t xEpsIdx = 2;
+const ptrdiff_t xMinIdx = 0;
+const ptrdiff_t xMaxIdx = 1;
+const ptrdiff_t xEpsIdx = 2;
 
-const uint8_t alphaIdx = 0;
-const uint8_t bethaIdx = 1;
-const uint8_t kappaIdx = 2;
+const ptrdiff_t alphaIdx = 0;
+const ptrdiff_t bethaIdx = 1;
+const ptrdiff_t kappaIdx = 2;
 
 _Bool ukf_dimension_check(UKF_t *const pUkf);
 _Bool ukf_init(UKF_t *const pUkf, UkfMatrix_t *pUkfMatrix);
@@ -87,9 +87,9 @@ double ukf_state_limiter(const double state, const double min, const double max,
  */
 _Bool ukf_dimension_check(UKF_t *const pUkf)
 {
-	const uint8_t stateLen = pUkf->par.xLen;
-	// const uint8_t  measLen = pUkf->par.yLen;
-	const uint8_t sigmaLen = pUkf->par.sLen;
+	const ptrdiff_t stateLen = pUkf->par.xLen;
+	// const ptrdiff_t  measLen = pUkf->par.yLen;
+	const ptrdiff_t sigmaLen = pUkf->par.sLen;
 	_Bool Result = 0;
 
 	// check system input vector size if exist: (xLen x 1)
@@ -277,11 +277,11 @@ _Bool ukf_dimension_check(UKF_t *const pUkf)
  */
 _Bool ukf_init(UKF_t *const pUkf, UkfMatrix_t *pUkfMatrix)
 {
-	uint8_t xIdx;
+	ptrdiff_t xIdx;
 	UKFpar_t *const pPar = (UKFpar_t *)&pUkf->par;
 	UKFprev_t *const pPrev = (UKFprev_t *)&pUkf->prev;
-	const uint8_t WmLen = pUkfMatrix->Wm_weight_vector.ncol;
-	const uint8_t WcLen = pUkfMatrix->Wc_weight_vector.ncol;
+	const ptrdiff_t WmLen = pUkfMatrix->Wm_weight_vector.ncol;
+	const ptrdiff_t WcLen = pUkfMatrix->Wc_weight_vector.ncol;
 
 	pPar->xLim = pUkfMatrix->x_system_states_limits;
 	pPar->xLimEnbl = pUkfMatrix->x_system_states_limits_enable;
@@ -328,7 +328,7 @@ _Bool ukf_init(UKF_t *const pUkf, UkfMatrix_t *pUkfMatrix)
 	//#1.2'(begin) Calculate weight vectors
 	if (WmLen == pPar->sLen && WcLen == WmLen)
 	{
-		uint8_t col;
+		ptrdiff_t col;
 		const double Wm0 = pPar->lambda / (pPar->xLen + pPar->lambda);
 
 		pPar->Wm.val[0] = Wm0;
@@ -413,8 +413,8 @@ void ukf_step(UKF_t *const pUkf)
 	{
 		double *const pu_p = pUkf->prev.u_p.val;
 		const double *const pu = pUkf->input.u.val;
-		const uint8_t uLen = pUkf->prev.u_p.nrow;
-		uint8_t u8Idx;
+		const ptrdiff_t uLen = pUkf->prev.u_p.nrow;
+		ptrdiff_t u8Idx;
 
 		for (u8Idx = 0; u8Idx < uLen; u8Idx++)
 		{
@@ -437,10 +437,10 @@ void ukf_sigmapoint(UKF_t *const pUkf)
 	double *const pX_p = pUkf->prev.X_p.val;
 	double *const px_p = pUkf->prev.x_p.val;
 	const double lambda = pUkf->par.lambda;
-	const uint8_t sLen = pUkf->par.sLen;
-	const uint8_t xLen = pUkf->par.xLen;
-	uint8_t xIdx;
-	uint8_t sigmaIdx = 0;
+	const ptrdiff_t sLen = pUkf->par.sLen;
+	const ptrdiff_t xLen = pUkf->par.xLen;
+	ptrdiff_t xIdx;
+	ptrdiff_t sigmaIdx = 0;
 	enum mtxResultInfo mtxResult;
 
 	//#1.1(begin/end) Calculate error covariance matrix square root
@@ -510,12 +510,12 @@ void ukf_sigmapoint(UKF_t *const pUkf)
 void ukf_mean_pred_state(UKF_t *const pUkf)
 {
 	UKFpar_t const *const pPar = (UKFpar_t *)&pUkf->par;
-	const uint8_t xLen = pPar->xLen;
-	const uint8_t sigmaLen = pPar->sLen;
+	const ptrdiff_t xLen = pPar->xLen;
+	const ptrdiff_t sigmaLen = pPar->sLen;
 	double *const px_m = pUkf->predict.x_m.val;
 	double const *const pX_m = pUkf->predict.X_m.val;
 	double const *const pWm = pPar->Wm.val;
-	uint8_t sigmaIdx, xIdx;
+	ptrdiff_t sigmaIdx, xIdx;
 
 	for (xIdx = 0; xIdx < xLen; xIdx++)
 	{
@@ -552,10 +552,10 @@ void ukf_mean_pred_output(UKF_t *const pUkf)
 	double *const pP_m = pUkf->predict.P_m.val;
 	double *const px_m = pUkf->predict.x_m.val;
 	double *py_m = pUkf->predict.y_m.val;
-	const uint8_t sigmaLen = pPar->sLen;
-	const uint8_t xLen = pPar->xLen;
-	const uint8_t yLen = pPar->yLen;
-	uint8_t sigmaIdx, xIdx, xTrIdx, yIdx;
+	const ptrdiff_t sigmaLen = pPar->sLen;
+	const ptrdiff_t xLen = pPar->xLen;
+	const ptrdiff_t yLen = pPar->yLen;
+	ptrdiff_t sigmaIdx, xIdx, xTrIdx, yIdx;
 
 	mtx_zeros(&pUkf->predict.y_m);
 
@@ -611,10 +611,10 @@ void ukf_calc_covariances(UKF_t *const pUkf)
 	double *const pPxy = pUkf->update.Pxy.val;
 	double *const px_m = pUkf->predict.x_m.val;
 	double *py_m = pUkf->predict.y_m.val;
-	const uint8_t sigmaLen = pPar->sLen;
-	const uint8_t xLen = pPar->xLen;
-	const uint8_t yLen = pPar->yLen;
-	uint8_t sigmaIdx, xIdx, yIdx, yTrIdx;
+	const ptrdiff_t sigmaLen = pPar->sLen;
+	const ptrdiff_t xLen = pPar->xLen;
+	const ptrdiff_t yLen = pPar->yLen;
+	ptrdiff_t sigmaIdx, xIdx, yIdx, yTrIdx;
 
 	mtx_cpy(&pUkf->update.Pyy, &pPar->Ryy0); // Pyy(k|k-1) = R(k)
 
