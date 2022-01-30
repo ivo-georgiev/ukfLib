@@ -215,20 +215,21 @@ UkfMatrix_t UkfMatrixCfg0 =
     0.1
 };
 /**
- *    Calculate predicted state 0 for each sigma point. Note  that  this  problem  has  a  linear  prediction stage
+ * Calculate predicted state 0 for each sigma point. Note  that  this  problem  has  a  linear  prediction stage
  *    X_m[0][sigmaIdx] = f(X_p, u_p) = n(k)  = n(k-1) + dT * ndot(k-1)
+ *
  * @param pu_p      NULL for this system, be sure that is not used in calc
  * @param pX_p      Pointer to the sigma points array at (k-1) moment
  * @param pX_m      Pointer to the propagetad sigma points array at (k|k-1) moment (i.e prediction in moment k based on states in (k-1))
  * @param sigmaIdx  Sigma point index.
  */
-void Fx1(Matrix_t * pu_p, Matrix_t * pX_p, Matrix_t * pX_m,uint8_t sigmaIdx, double dT)
+void Fx1(Matrix_t *pu_p, Matrix_t *pX_p, Matrix_t *pX_m, uint8_t sigmaIdx, double dT)
 {
-    const uint8_t nCol = pX_m->ncol; //pX_m->ncol == pX_p->ncol == 9
+	const uint8_t nCol = pX_m->ncol; // pX_m->ncol == pX_p->ncol == 9
 
-    pX_m->val[nCol*0 + sigmaIdx] = pX_p->val[nCol*0 + sigmaIdx] + dT * pX_p->val[nCol*2 + sigmaIdx];
+	pX_m->val[nCol * 0 + sigmaIdx] = pX_p->val[nCol * 0 + sigmaIdx] + dT * pX_p->val[nCol * 2 + sigmaIdx];
 
-    pu_p = pu_p;
+	pu_p = pu_p;
 }
 /**
  *
