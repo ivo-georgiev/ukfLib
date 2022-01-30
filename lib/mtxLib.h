@@ -38,7 +38,7 @@
 #define NROWS(arr) sizeof(arr) / sizeof(arr[0])
 #define COLXROW(arr) sizeof(arr) / sizeof(arr[0][0])
 
-enum mtxResultInfo mtx_chol1(double *A, double *L, ptrdiff_t size);
+enum mtxResultInfo mtx_chol1(double *A, double *L, const ptrdiff_t size);
 
 enum mtxResultInfo
 {
@@ -66,8 +66,8 @@ typedef struct sMatrixBool
 	_Bool *val;
 } MatrixBool_t;
 
-extern enum mtxResultInfo mtx_init_bool(MatrixBool_t *const pSrc, _Bool *const pValue, const ptrdiff_t nrow, const ptrdiff_t ncol, const ptrdiff_t nelem);
-extern enum mtxResultInfo mtx_init(Matrix_t *const pSrc, double *const pValue, const ptrdiff_t nrow, const ptrdiff_t ncol, const ptrdiff_t nelem);
+extern void mtx_init_bool(MatrixBool_t *const pSrc, _Bool *const pValue, const ptrdiff_t nrow, const ptrdiff_t ncol, const ptrdiff_t nelem);
+extern void mtx_init(Matrix_t *const pSrc, double *const pValue, const ptrdiff_t nrow, const ptrdiff_t ncol, const ptrdiff_t nelem);
 extern enum mtxResultInfo mtx_mul(Matrix_t const *const pSrc1, Matrix_t const *const pSrc2, Matrix_t *const pDst);
 extern enum mtxResultInfo mtx_transp_square(Matrix_t *const pSrc);
 extern enum mtxResultInfo mtx_transp_dest(Matrix_t const *const pSrc, Matrix_t *const pDst);
@@ -77,9 +77,9 @@ extern enum mtxResultInfo mtx_chol_lower(Matrix_t *const pSrc);
 extern enum mtxResultInfo mtx_inv(Matrix_t *const pSrc, Matrix_t *const pDst);
 extern enum mtxResultInfo mtx_add(Matrix_t *const pDst, Matrix_t const *const pSrc);
 extern enum mtxResultInfo mtx_sub(Matrix_t *const pDst, Matrix_t const *const pSrc);
-extern enum mtxResultInfo mtx_mul_scalar(Matrix_t *const pSrc, const double scalar);
-extern enum mtxResultInfo mtx_add_scalar(Matrix_t *const pSrc, const double scalar);
-extern enum mtxResultInfo mtx_sub_scalar(Matrix_t *const pSrc, const double scalar);
+extern void mtx_mul_scalar(Matrix_t *const pSrc, const double scalar);
+extern void mtx_add_scalar(Matrix_t *const pSrc, const double scalar);
+extern void mtx_sub_scalar(Matrix_t *const pSrc, const double scalar);
 extern enum mtxResultInfo mtx_cpy(Matrix_t *const pDst, Matrix_t const *const pSrc);
 extern enum mtxResultInfo mtx_identity(Matrix_t *const pSrc);
 extern enum mtxResultInfo mtx_zeros(Matrix_t *const pSrc);
