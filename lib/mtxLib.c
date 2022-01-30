@@ -28,22 +28,22 @@
 
 #include "mtxLib.h"
 
-enum mtxResultInfo mtx_init_bool(MatrixBool_t *const pSrc, _Bool *const pValue, const ptrdiff_t nrow, const ptrdiff_t ncol, const ptrdiff_t nelem)
+void mtx_init_bool(MatrixBool_t *const pSrc, _Bool *const pValue, const ptrdiff_t nrow, const ptrdiff_t ncol, const ptrdiff_t nelem)
 {
 	pSrc->val = pValue;
 	pSrc->ncol = ncol;
 	pSrc->nrow = nrow;
 	pSrc->nelem = nelem;
-	return MTX_OPERATION_OK;
 }
-enum mtxResultInfo mtx_init(Matrix_t *const pSrc, double *const pValue, const ptrdiff_t nrow, const ptrdiff_t ncol, const ptrdiff_t nelem)
+
+void mtx_init(Matrix_t *const pSrc, double *const pValue, const ptrdiff_t nrow, const ptrdiff_t ncol, const ptrdiff_t nelem)
 {
 	pSrc->val = pValue;
 	pSrc->ncol = ncol;
 	pSrc->nrow = nrow;
 	pSrc->nelem = nelem;
-	return MTX_OPERATION_OK;
 }
+
 /**
  * For square matrix only
  */
@@ -217,7 +217,7 @@ enum mtxResultInfo mtx_chol_lower(Matrix_t *const pSrc)
 	const ptrdiff_t nrow = pSrc->nrow;
 	const ptrdiff_t ncol = pSrc->ncol;
 	ptrdiff_t col, row;
-	int8_t tmp;
+	ptrdiff_t tmp;
 	double sum = 0;
 
 	if (ncol == nrow)
@@ -230,7 +230,7 @@ enum mtxResultInfo mtx_chol_lower(Matrix_t *const pSrc)
 			{
 				sum = pSrcL[mtxSize * col + row];
 
-				for (tmp = (int8_t)(col - 1); tmp >= 0; tmp--)
+				for (tmp = (ptrdiff_t)(col - 1); tmp >= 0; tmp--)
 				{
 					sum -= pSrcL[mtxSize * row + tmp] * pSrcL[mtxSize * col + tmp];
 				}
@@ -258,7 +258,7 @@ enum mtxResultInfo mtx_chol_upper(Matrix_t *const pSrc)
 	const ptrdiff_t nrow = pSrc->nrow;
 	const ptrdiff_t ncol = pSrc->ncol;
 	ptrdiff_t col, row;
-	int8_t tmp;
+	ptrdiff_t tmp;
 	double sum = 0;
 
 	if (ncol == nrow)
@@ -269,7 +269,7 @@ enum mtxResultInfo mtx_chol_upper(Matrix_t *const pSrc)
 			{
 				sum = pSrcL[ncol * row + col];
 
-				for (tmp = (int8_t)(row - 1); tmp >= 0; tmp--) // tmp could be calc negative
+				for (tmp = row - 1; tmp >= 0; tmp--) // tmp could be calc negative
 				{
 					sum -= pSrcL[ncol * tmp + row] * pSrcL[ncol * tmp + col];
 				}
@@ -293,11 +293,11 @@ enum mtxResultInfo mtx_chol_upper(Matrix_t *const pSrc)
 /**
  * Upper cholesky decomposition variant 1
  */
-enum mtxResultInfo mtx_chol1(double *A, double *L, ptrdiff_t size)
+enum mtxResultInfo mtx_chol1(double *A, double *L, const ptrdiff_t size)
 {
 	ptrdiff_t Result = MTX_OPERATION_OK;
 	ptrdiff_t col, row;
-	int8_t tmp;
+	ptrdiff_t tmp;
 	double sum = 0;
 
 	for (row = 0; row < size; row++)
@@ -306,7 +306,7 @@ enum mtxResultInfo mtx_chol1(double *A, double *L, ptrdiff_t size)
 		{
 			sum = A[size * row + col];
 
-			for (tmp = (int8_t)(row - 1); tmp >= 0; tmp--)
+			for (tmp = row - 1; tmp >= 0; tmp--)
 			{
 				sum -= L[size * tmp + row] * L[size * tmp + col];
 			}
@@ -449,9 +449,8 @@ enum mtxResultInfo mtx_sub(Matrix_t *const pDst, Matrix_t const *const pSrc)
 
 	return Result;
 }
-enum mtxResultInfo mtx_mul_scalar(Matrix_t *const pSrc, const double scalar)
+void mtx_mul_scalar(Matrix_t *const pSrc, const double scalar)
 {
-	enum mtxResultInfo Result = MTX_OPERATION_OK;
 	double *const pDst = pSrc->val;
 	ptrdiff_t eIdx;
 
@@ -459,12 +458,9 @@ enum mtxResultInfo mtx_mul_scalar(Matrix_t *const pSrc, const double scalar)
 	{
 		pDst[eIdx] *= scalar;
 	}
-
-	return Result;
 }
-enum mtxResultInfo mtx_sub_scalar(Matrix_t *const pSrc, const double scalar)
+void mtx_sub_scalar(Matrix_t *const pSrc, const double scalar)
 {
-	enum mtxResultInfo Result = MTX_OPERATION_OK;
 	double *const pDst = pSrc->val;
 	ptrdiff_t eIdx;
 
@@ -472,12 +468,9 @@ enum mtxResultInfo mtx_sub_scalar(Matrix_t *const pSrc, const double scalar)
 	{
 		pDst[eIdx] -= scalar;
 	}
-
-	return Result;
 }
-enum mtxResultInfo mtx_add_scalar(Matrix_t *const pSrc, const double scalar)
+void mtx_add_scalar(Matrix_t *const pSrc, const double scalar)
 {
-	enum mtxResultInfo Result = MTX_OPERATION_OK;
 	double *const pDst = pSrc->val;
 	ptrdiff_t eIdx;
 
@@ -485,8 +478,6 @@ enum mtxResultInfo mtx_add_scalar(Matrix_t *const pSrc, const double scalar)
 	{
 		pDst[eIdx] += scalar;
 	}
-
-	return Result;
 }
 enum mtxResultInfo mtx_cpy(Matrix_t *const pDst, Matrix_t const *const pSrc)
 {
