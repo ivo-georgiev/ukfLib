@@ -28,7 +28,7 @@
 
 #include "mtxLib.h"
 
-void mtx_init_bool(MatrixBool_t *const pSrc, _Bool *const pValue, const ptrdiff_t nrow, const ptrdiff_t ncol, const ptrdiff_t nelem)
+void mtx_init_bool(MatrixBool_t *const pSrc, _Bool *const pValue, const int nrow, const int ncol, const int nelem)
 {
 	pSrc->val = pValue;
 	pSrc->ncol = ncol;
@@ -36,7 +36,7 @@ void mtx_init_bool(MatrixBool_t *const pSrc, _Bool *const pValue, const ptrdiff_
 	pSrc->nelem = nelem;
 }
 
-void mtx_init(Matrix_t *const pSrc, double *const pValue, const ptrdiff_t nrow, const ptrdiff_t ncol, const ptrdiff_t nelem)
+void mtx_init(Matrix_t *const pSrc, double *const pValue, const int nrow, const int ncol, const int nelem)
 {
 	pSrc->val = pValue;
 	pSrc->ncol = ncol;
@@ -51,15 +51,15 @@ enum mtxResultInfo mtx_diagsum(Matrix_t *pSrc, double *diagsum)
 {
 	enum mtxResultInfo Result = MTX_OPERATION_OK;
 	double const *const pSrcL = (double *)pSrc->val;
-	const ptrdiff_t ncol = pSrc->ncol;
-	ptrdiff_t eIdx;
+	const int ncol = pSrc->ncol;
+	int eIdx;
 	double sum = pSrcL[0];
 
 	if (pSrc->nrow == ncol)
 	{
 		for (eIdx = 1; eIdx < pSrc->nelem; eIdx++)
 		{
-			const ptrdiff_t cmpLeft = (ptrdiff_t)(eIdx / ncol);
+			const int cmpLeft = (int)(eIdx / ncol);
 
 			sum += eIdx < ncol ? 0 : cmpLeft == eIdx % (cmpLeft * ncol) ? pSrcL[eIdx] : 0;
 		}
@@ -79,10 +79,10 @@ enum mtxResultInfo mtx_diagsum(Matrix_t *pSrc, double *diagsum)
 enum mtxResultInfo mtx_transp_square(Matrix_t *const pSrc)
 {
 	enum mtxResultInfo ResultL = MTX_OPERATION_OK;
-	const ptrdiff_t nrow = pSrc->nrow;
-	const ptrdiff_t ncol = pSrc->ncol;
+	const int nrow = pSrc->nrow;
+	const int ncol = pSrc->ncol;
 	double *const pSrcL = (double *)pSrc->val;
-	ptrdiff_t row, col;
+	int row, col;
 	double temp;
 
 	if (nrow == ncol)
@@ -112,11 +112,11 @@ enum mtxResultInfo mtx_transp_dest(Matrix_t const *const pSrc, Matrix_t *const p
 	enum mtxResultInfo ResultL = MTX_OPERATION_OK;
 	double const *const pSrcL = (double *)pSrc->val;
 	double *const pDstL = (double *)pDst->val;
-	const ptrdiff_t nRowSrcL = pSrc->nrow;
-	const ptrdiff_t nColSrcL = pSrc->ncol;
-	const ptrdiff_t nRowDstL = pDst->nrow;
-	const ptrdiff_t nColDstL = pDst->ncol;
-	ptrdiff_t row, col;
+	const int nRowSrcL = pSrc->nrow;
+	const int nColSrcL = pSrc->ncol;
+	const int nRowDstL = pDst->nrow;
+	const int nColDstL = pDst->ncol;
+	int row, col;
 
 	if (nRowSrcL == nColDstL || nColSrcL == nRowDstL)
 	{
@@ -147,7 +147,7 @@ enum mtxResultInfo mtx_mul(Matrix_t const *const pSrc1, Matrix_t const *const pS
 	double const *const pSrc1L = (double *)pSrc1->val;
 	double const *const pSrc2L = (double *)pSrc2->val;
 	double *const pDstL = (double *)pDst->val;
-	ptrdiff_t row, col, k;
+	int row, col, k;
 	double sum;
 
 	if (pSrc1->ncol == pSrc2->nrow)
@@ -185,7 +185,7 @@ enum mtxResultInfo mtx_mul_src2tr(Matrix_t const *const pSrc1, Matrix_t const *c
 	double const *const pSrc1L = (double *)pSrc1->val;
 	double const *const pSrc2L = (double *)pSrc2->val;
 	double *const pDstL = (double *)pDst->val;
-	ptrdiff_t rowSrc1, rowSrc2, k;
+	int rowSrc1, rowSrc2, k;
 	double sum;
 
 	if (pSrc1->ncol == pSrc2->ncol)
@@ -214,15 +214,15 @@ enum mtxResultInfo mtx_chol_lower(Matrix_t *const pSrc)
 {
 	enum mtxResultInfo ResultL = MTX_OPERATION_OK;
 	double *const pSrcL = pSrc->val;
-	const ptrdiff_t nrow = pSrc->nrow;
-	const ptrdiff_t ncol = pSrc->ncol;
-	ptrdiff_t col, row;
-	ptrdiff_t tmp;
+	const int nrow = pSrc->nrow;
+	const int ncol = pSrc->ncol;
+	int col, row;
+	int tmp;
 	double sum = 0;
 
 	if (ncol == nrow)
 	{
-		const ptrdiff_t mtxSize = nrow;
+		const int mtxSize = nrow;
 
 		for (col = 0; col < mtxSize; col++)
 		{
@@ -230,7 +230,7 @@ enum mtxResultInfo mtx_chol_lower(Matrix_t *const pSrc)
 			{
 				sum = pSrcL[mtxSize * col + row];
 
-				for (tmp = (ptrdiff_t)(col - 1); tmp >= 0; tmp--)
+				for (tmp = (int)(col - 1); tmp >= 0; tmp--)
 				{
 					sum -= pSrcL[mtxSize * row + tmp] * pSrcL[mtxSize * col + tmp];
 				}
@@ -255,10 +255,10 @@ enum mtxResultInfo mtx_chol_upper(Matrix_t *const pSrc)
 {
 	enum mtxResultInfo ResultL = MTX_OPERATION_OK;
 	double *const pSrcL = pSrc->val;
-	const ptrdiff_t nrow = pSrc->nrow;
-	const ptrdiff_t ncol = pSrc->ncol;
-	ptrdiff_t col, row;
-	ptrdiff_t tmp;
+	const int nrow = pSrc->nrow;
+	const int ncol = pSrc->ncol;
+	int col, row;
+	int tmp;
 	double sum = 0;
 
 	if (ncol == nrow)
@@ -293,11 +293,11 @@ enum mtxResultInfo mtx_chol_upper(Matrix_t *const pSrc)
 /**
  * Upper cholesky decomposition variant 1
  */
-enum mtxResultInfo mtx_chol1(double *A, double *L, const ptrdiff_t size)
+enum mtxResultInfo mtx_chol1(double *A, double *L, const int size)
 {
-	ptrdiff_t Result = MTX_OPERATION_OK;
-	ptrdiff_t col, row;
-	ptrdiff_t tmp;
+	int Result = MTX_OPERATION_OK;
+	int col, row;
+	int tmp;
 	double sum = 0;
 
 	for (row = 0; row < size; row++)
@@ -344,11 +344,11 @@ enum mtxResultInfo mtx_chol1(double *A, double *L, const ptrdiff_t size)
 enum mtxResultInfo mtx_inv(Matrix_t *const pSrc, Matrix_t *const pDst)
 {
 	enum mtxResultInfo Result = MTX_OPERATION_OK;
-	const ptrdiff_t nrow = pSrc->nrow;
-	const ptrdiff_t ncol = pSrc->ncol;
-	ptrdiff_t j, i;
-	ptrdiff_t k = 0;
-	ptrdiff_t l = 0;
+	const int nrow = pSrc->nrow;
+	const int ncol = pSrc->ncol;
+	int j, i;
+	int k = 0;
+	int l = 0;
 	double s = 0;
 	double t = 0;
 
@@ -409,10 +409,10 @@ enum mtxResultInfo mtx_inv(Matrix_t *const pSrc, Matrix_t *const pDst)
 }
 enum mtxResultInfo mtx_add(Matrix_t *const pDst, Matrix_t const *const pSrc)
 {
-	ptrdiff_t Result = MTX_OPERATION_OK;
+	int Result = MTX_OPERATION_OK;
 	double *const pDstL = (double *)pDst->val;
 	double const *const pSrcL = (double *)pSrc->val;
-	ptrdiff_t eIdx;
+	int eIdx;
 
 	if (pDst->ncol == pSrc->ncol && pDst->nrow == pSrc->nrow)
 	{
@@ -430,10 +430,10 @@ enum mtxResultInfo mtx_add(Matrix_t *const pDst, Matrix_t const *const pSrc)
 }
 enum mtxResultInfo mtx_sub(Matrix_t *const pDst, Matrix_t const *const pSrc)
 {
-	ptrdiff_t Result = MTX_OPERATION_OK;
+	int Result = MTX_OPERATION_OK;
 	double *const pDstL = (double *)pDst->val;
 	double const *const pSrcL = (double *)pSrc->val;
-	ptrdiff_t eIdx;
+	int eIdx;
 
 	if (pDst->ncol == pSrc->ncol && pDst->nrow == pSrc->nrow)
 	{
@@ -452,7 +452,7 @@ enum mtxResultInfo mtx_sub(Matrix_t *const pDst, Matrix_t const *const pSrc)
 void mtx_mul_scalar(Matrix_t *const pSrc, const double scalar)
 {
 	double *const pDst = pSrc->val;
-	ptrdiff_t eIdx;
+	int eIdx;
 
 	for (eIdx = 0; eIdx < pSrc->nelem; eIdx++)
 	{
@@ -462,7 +462,7 @@ void mtx_mul_scalar(Matrix_t *const pSrc, const double scalar)
 void mtx_sub_scalar(Matrix_t *const pSrc, const double scalar)
 {
 	double *const pDst = pSrc->val;
-	ptrdiff_t eIdx;
+	int eIdx;
 
 	for (eIdx = 0; eIdx < pSrc->nelem; eIdx++)
 	{
@@ -472,7 +472,7 @@ void mtx_sub_scalar(Matrix_t *const pSrc, const double scalar)
 void mtx_add_scalar(Matrix_t *const pSrc, const double scalar)
 {
 	double *const pDst = pSrc->val;
-	ptrdiff_t eIdx;
+	int eIdx;
 
 	for (eIdx = 0; eIdx < pSrc->nelem; eIdx++)
 	{
@@ -484,7 +484,7 @@ enum mtxResultInfo mtx_cpy(Matrix_t *const pDst, Matrix_t const *const pSrc)
 	enum mtxResultInfo Result = MTX_OPERATION_OK;
 	double *const pDstL = pDst->val;
 	double const *const pSrcL = pSrc->val;
-	ptrdiff_t eIdx;
+	int eIdx;
 
 	if (pDst->ncol == pSrc->ncol && pDst->nrow == pSrc->nrow)
 	{
@@ -504,8 +504,8 @@ enum mtxResultInfo mtx_identity(Matrix_t *const pSrc)
 {
 	enum mtxResultInfo Result = MTX_OPERATION_OK;
 	double *const pDst = (double *)pSrc->val;
-	const ptrdiff_t nCol = pSrc->ncol;
-	ptrdiff_t eIdx;
+	const int nCol = pSrc->ncol;
+	int eIdx;
 
 	if (pSrc->nrow == nCol)
 	{
@@ -513,7 +513,7 @@ enum mtxResultInfo mtx_identity(Matrix_t *const pSrc)
 
 		for (eIdx = 1; eIdx < pSrc->nelem; eIdx++)
 		{
-			const ptrdiff_t cmpLeft = (ptrdiff_t)(eIdx / nCol);
+			const int cmpLeft = (int)(eIdx / nCol);
 
 			pDst[eIdx] = eIdx < nCol ? 0 : cmpLeft == eIdx % (cmpLeft * nCol) ? 1 : 0;
 		}
@@ -529,7 +529,7 @@ enum mtxResultInfo mtx_zeros(Matrix_t *const pSrc)
 {
 	enum mtxResultInfo Result = MTX_OPERATION_OK;
 	double *const pDst = (double *)pSrc->val;
-	ptrdiff_t eIdx;
+	int eIdx;
 
 	for (eIdx = 0; eIdx < pSrc->nelem; eIdx++)
 	{
