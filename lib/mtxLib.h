@@ -30,6 +30,7 @@
 
 #include "System_Types.h"
 #include <math.h>
+#include <stdlib.h>
 /*---------------------------------------------*/
 /*         Macros definiton                    */
 /*---------------------------------------------*/
@@ -37,7 +38,7 @@
 #define NROWS(arr) sizeof(arr) / sizeof(arr[0])
 #define COLXROW(arr) sizeof(arr) / sizeof(arr[0][0])
 
-enum mtxResultInfo mtx_chol1(double *A, double *L, uint8_t size);
+enum mtxResultInfo mtx_chol1(double *A, double *L, size_t size);
 
 enum mtxResultInfo
 {
@@ -51,7 +52,7 @@ enum mtxResultInfo
 
 typedef struct sMatrix
 {
-	uint16_t nelem;
+	ptrdiff_t nelem;
 	uint8_t nrow;
 	uint8_t ncol;
 	double *val;
@@ -59,14 +60,14 @@ typedef struct sMatrix
 
 typedef struct sMatrixBool
 {
-	uint16_t nelem;
+	ptrdiff_t nelem;
 	uint8_t nrow;
 	uint8_t ncol;
 	_Bool *val;
 } MatrixBool_t;
 
-extern enum mtxResultInfo mtx_init_bool(MatrixBool_t *const pSrc, _Bool *const pValue, const uint8_t nrow, const uint8_t ncol, const uint16_t nelem);
-extern enum mtxResultInfo mtx_init(Matrix_t *const pSrc, double *const pValue, const uint8_t nrow, const uint8_t ncol, const uint16_t nelem);
+extern enum mtxResultInfo mtx_init_bool(MatrixBool_t *const pSrc, _Bool *const pValue, const uint8_t nrow, const uint8_t ncol, const ptrdiff_t nelem);
+extern enum mtxResultInfo mtx_init(Matrix_t *const pSrc, double *const pValue, const uint8_t nrow, const uint8_t ncol, const ptrdiff_t nelem);
 extern enum mtxResultInfo mtx_mul(Matrix_t const *const pSrc1, Matrix_t const *const pSrc2, Matrix_t *const pDst);
 extern enum mtxResultInfo mtx_transp_square(Matrix_t *const pSrc);
 extern enum mtxResultInfo mtx_transp_dest(Matrix_t const *const pSrc, Matrix_t *const pDst);
