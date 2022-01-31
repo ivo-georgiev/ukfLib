@@ -295,7 +295,7 @@ enum mtxResultInfo mtx_chol_upper(Matrix_t *const pSrc)
  */
 enum mtxResultInfo mtx_chol1(double *A, double *L, const int size)
 {
-	int Result = MTX_OPERATION_OK;
+	enum mtxResultInfo Result = MTX_OPERATION_OK;
 	int col, row;
 	int tmp;
 	double sum = 0;
