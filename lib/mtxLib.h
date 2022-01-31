@@ -34,11 +34,9 @@
 /*---------------------------------------------*/
 /*         Macros definiton                    */
 /*---------------------------------------------*/
-#define NCOL(arr) sizeof(arr[0]) / sizeof(arr[0][0])
-#define NROWS(arr) sizeof(arr) / sizeof(arr[0])
-#define COLXROW(arr) sizeof(arr) / sizeof(arr[0][0])
-
-enum mtxResultInfo mtx_chol1(double *A, double *L, const int size);
+#define NCOL(arr) 			(sizeof(arr[0]) / sizeof(arr[0][0]))
+#define NROWS(arr) 			(sizeof(arr) / sizeof(arr[0]))
+#define COLXROW(arr)		(sizeof(arr) / sizeof(arr[0][0]))
 
 enum mtxResultInfo
 {
@@ -74,6 +72,7 @@ extern enum mtxResultInfo mtx_transp_dest(Matrix_t const *const pSrc, Matrix_t *
 extern enum mtxResultInfo mtx_diagsum(Matrix_t *pSrc, double *diagsum);
 extern enum mtxResultInfo mtx_chol_upper(Matrix_t *const pSrc);
 extern enum mtxResultInfo mtx_chol_lower(Matrix_t *const pSrc);
+extern enum mtxResultInfo mtx_chol1(double *A, double *L, const int size);
 extern enum mtxResultInfo mtx_inv(Matrix_t *const pSrc, Matrix_t *const pDst);
 extern enum mtxResultInfo mtx_add(Matrix_t *const pDst, Matrix_t const *const pSrc);
 extern enum mtxResultInfo mtx_sub(Matrix_t *const pDst, Matrix_t const *const pSrc);
