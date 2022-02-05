@@ -150,7 +150,7 @@ for i = 1:xL
     %State transition prototype
     endIdx = find(~cellfun(@isempty,strfind(c, '<STATE TRANSITION PROTOTYPE:END>')));
     c(endIdx+1:end+1,:) = c(endIdx:end,:);
-    c(endIdx,:) = {['static void Fx' num2str(i) '(Matrix_t * pu_p, Matrix_t * pX_p, Matrix_t * pX_m,int sigmaIdx, float64 dT);']};
+    c(endIdx,:) = {['static void Fx' num2str(i) '(Matrix_t * pu_p, Matrix_t * pX_p, Matrix_t * pX_m,int sigmaIdx, double dT);']};
     
     % state transition ptr array
     ptrString = [ptrString '&Fx' num2str(i) ','];
@@ -158,7 +158,7 @@ for i = 1:xL
     %State transition body
     endIdx = find(~cellfun(@isempty,strfind(c, '<STATE TRANSITION:END>')));
     c(endIdx+1:end+1,:) = c(endIdx:end,:);
-    c(endIdx,:) = {['void Fx' num2str(i) '(Matrix_t * pu_p, Matrix_t * pX_p, Matrix_t * pX_m,int sigmaIdx, float64 dT)']};
+    c(endIdx,:) = {['void Fx' num2str(i) '(Matrix_t * pu_p, Matrix_t * pX_p, Matrix_t * pX_m,int sigmaIdx, double dT)']};
     
     endIdx = endIdx+1;
     c(endIdx+1:end+1,:) = c(endIdx:end,:);
