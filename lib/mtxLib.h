@@ -1,22 +1,22 @@
 /******************************************************************************************************************************************************************************************************\
- *** 
+ ***
  *** Description       : IMPLEMENTATION OF BASIC MATRIX OPERATION
  *** Codefile          : mtxLib.h
  ***
  *** MIT License
  ***
  *** Copyright (c) 2017 ivo-georgiev
- ***  
+ ***
  *** Permission is hereby granted, free of charge, to any person obtaining a copy
  *** of this software and associated documentation files (the "Software"), to deal
  *** in the Software without restriction, including without limitation the rights
  *** to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *** copies of the Software, and to permit persons to whom the Software is
  *** furnished to do so, subject to the following conditions:
- ***    
+ ***
  *** The above copyright notice and this permission notice shall be included in all
  *** copies or substantial portions of the Software.
- ***      
+ ***
  *** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *** IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *** FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -29,58 +29,59 @@
 #define MTXLIB_FILE
 
 #include "System_Types.h"
-#include<math.h>
+#include <math.h>
+#include <stdlib.h>
 /*---------------------------------------------*/
 /*         Macros definiton                    */
 /*---------------------------------------------*/
-#define NCOL(arr) sizeof(arr[0])/sizeof(arr[0][0])
-#define NROWS(arr)    sizeof(arr)/sizeof(arr[0])
-#define COLXROW(arr) sizeof(arr)/sizeof(arr[0][0])
+#define NCOL(arr) 			(sizeof(arr[0]) / sizeof(arr[0][0]))
+#define NROWS(arr) 			(sizeof(arr) / sizeof(arr[0]))
+#define COLXROW(arr)		(sizeof(arr) / sizeof(arr[0][0]))
 
-int mtx_chol1_f64(double* mtxA, double* mtxL,uint8 mtxSize);
-
-typedef int mtxResultInfo;
-#define MTX_OPERATION_OK (mtxResultInfo)0
-#define MTX_SINGULAR (mtxResultInfo)251
-#define MTX_SIZE_MISMATCH (mtxResultInfo)252
-#define MTX_NOT_SQUARE (mtxResultInfo)253
-#define MTX_NOT_POS_DEFINED (mtxResultInfo)254
-#define MTX_OPERATION_ERROR (mtxResultInfo)255
+enum mtxResultInfo
+{
+	MTX_OPERATION_OK = 0,
+	MTX_SINGULAR = 251,
+	MTX_SIZE_MISMATCH = 252,
+	MTX_NOT_SQUARE = 253,
+	MTX_NOT_POS_DEFINED = 254,
+	MTX_OPERATION_ERROR = 255,
+};
 
 typedef struct sMatrix
 {
-    uint16 nelem;
-    uint8 nrow;
-    uint8 ncol;
-    double* val;
-}tMatrix;
+	int nelem;
+	int nrow;
+	int ncol;
+	double *val;
+} Matrix_t;
 
 typedef struct sMatrixBool
 {
-    uint16 nelem;
-    uint8 nrow;
-    uint8 ncol;
-    boolean* val;
-}tMatrixBool;
+	int nelem;
+	int nrow;
+	int ncol;
+	_Bool *val;
+} MatrixBool_t;
 
-extern mtxResultInfo mtx_init_bool(tMatrixBool * const pSrc, boolean * const pValue, const uint8 nrow, const uint8 ncol,const uint16 nelem);
-extern mtxResultInfo mtx_init_f64(tMatrix * const pSrc, float64 * const pValue,const uint8 nrow,const uint8 ncol,const uint16 nelem);
-extern mtxResultInfo mtx_mul_f64(tMatrix const * const pSrc1, tMatrix const * const pSrc2, tMatrix * const pDst);
-extern mtxResultInfo mtx_transp_square_f64(tMatrix * const pSrc);
-extern mtxResultInfo mtx_transp_dest_f64(tMatrix const * const pSrc,tMatrix * const pDst);
-extern mtxResultInfo mtx_diagsum_f64(tMatrix * pSrc, double * diagsum);
-extern mtxResultInfo mtx_chol_upper_f64(tMatrix * const pSrc);
-extern mtxResultInfo mtx_chol_lower_f64(tMatrix * const pSrc);
-extern mtxResultInfo mtx_inv_f64(tMatrix * const pSrc, tMatrix * const pDst);
-extern mtxResultInfo mtx_add_f64(tMatrix * const pDst,tMatrix const * const pSrc);
-extern mtxResultInfo mtx_sub_f64(tMatrix * const pDst,tMatrix const * const pSrc);
-extern mtxResultInfo mtx_mul_scalar_f64(tMatrix * const pSrc,const float64 scalar);
-extern mtxResultInfo mtx_add_scalar_f64(tMatrix * const pSrc,const float64 scalar);
-extern mtxResultInfo mtx_sub_scalar_f64(tMatrix * const pSrc,const float64 scalar);
-extern mtxResultInfo mtx_cpy_f64(tMatrix * const pDst,tMatrix const * const pSrc);
-extern mtxResultInfo mtx_identity_f64(tMatrix * const pSrc);
-extern mtxResultInfo mtx_zeros_f64(tMatrix * const pSrc);
-extern mtxResultInfo mtx_mul_src2tr_f64(tMatrix const * const pSrc1, tMatrix const * const pSrc2, tMatrix * const pDst);
+extern void mtx_init_bool(MatrixBool_t *const pSrc, _Bool *const pValue, const int nrow, const int ncol, const int nelem);
+extern void mtx_init(Matrix_t *const pSrc, double *const pValue, const int nrow, const int ncol, const int nelem);
+extern enum mtxResultInfo mtx_mul(Matrix_t const *const pSrc1, Matrix_t const *const pSrc2, Matrix_t *const pDst);
+extern enum mtxResultInfo mtx_transp_square(Matrix_t *const pSrc);
+extern enum mtxResultInfo mtx_transp_dest(Matrix_t const *const pSrc, Matrix_t *const pDst);
+extern enum mtxResultInfo mtx_diagsum(Matrix_t *pSrc, double *diagsum);
+extern enum mtxResultInfo mtx_chol_upper(Matrix_t *const pSrc);
+extern enum mtxResultInfo mtx_chol_lower(Matrix_t *const pSrc);
+extern enum mtxResultInfo mtx_chol1(double *A, double *L, const int size);
+extern enum mtxResultInfo mtx_inv(Matrix_t *const pSrc, Matrix_t *const pDst);
+extern enum mtxResultInfo mtx_add(Matrix_t *const pDst, Matrix_t const *const pSrc);
+extern enum mtxResultInfo mtx_sub(Matrix_t *const pDst, Matrix_t const *const pSrc);
+extern void mtx_mul_scalar(Matrix_t *const pSrc, const double scalar);
+extern void mtx_add_scalar(Matrix_t *const pSrc, const double scalar);
+extern void mtx_sub_scalar(Matrix_t *const pSrc, const double scalar);
+extern enum mtxResultInfo mtx_cpy(Matrix_t *const pDst, Matrix_t const *const pSrc);
+extern enum mtxResultInfo mtx_identity(Matrix_t *const pSrc);
+extern enum mtxResultInfo mtx_zeros(Matrix_t *const pSrc);
+extern enum mtxResultInfo mtx_mul_src2tr(Matrix_t const *const pSrc1, Matrix_t const *const pSrc2, Matrix_t *const pDst);
 
 #endif
-

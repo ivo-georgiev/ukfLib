@@ -11,5 +11,14 @@ clean:
 test: 
 	cd build; make test
 
+.PHONY: doc
+doc: 
+	doxygen
+
 .PHONY: dry
 dry: clean all test
+
+.PHONY: deepclean
+deepclean:
+	-rm -r build doc
+

@@ -150,7 +150,7 @@ for i = 1:xL
     %State transition prototype
     endIdx = find(~cellfun(@isempty,strfind(c, '<STATE TRANSITION PROTOTYPE:END>')));
     c(endIdx+1:end+1,:) = c(endIdx:end,:);
-    c(endIdx,:) = {['static void Fx' num2str(i) '(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 dT);']};
+    c(endIdx,:) = {['static void Fx' num2str(i) '(Matrix_t * pu_p, Matrix_t * pX_p, Matrix_t * pX_m,int sigmaIdx, double dT);']};
     
     % state transition ptr array
     ptrString = [ptrString '&Fx' num2str(i) ','];
@@ -158,7 +158,7 @@ for i = 1:xL
     %State transition body
     endIdx = find(~cellfun(@isempty,strfind(c, '<STATE TRANSITION:END>')));
     c(endIdx+1:end+1,:) = c(endIdx:end,:);
-    c(endIdx,:) = {['void Fx' num2str(i) '(tMatrix * pu_p, tMatrix * pX_p, tMatrix * pX_m,uint8 sigmaIdx, float64 dT)']};
+    c(endIdx,:) = {['void Fx' num2str(i) '(Matrix_t * pu_p, Matrix_t * pX_p, Matrix_t * pX_m,int sigmaIdx, double dT)']};
     
     endIdx = endIdx+1;
     c(endIdx+1:end+1,:) = c(endIdx:end,:);
@@ -166,7 +166,7 @@ for i = 1:xL
     
     endIdx = endIdx+1;
     c(endIdx+1:end+1,:) = c(endIdx:end,:);
-    c(endIdx,:) = {['    ' 'const uint8 nCol = pX_m->ncol;']};
+    c(endIdx,:) = {['    ' 'const int nCol = pX_m->ncol;']};
     
     endIdx = endIdx+1;
     c(endIdx+1:end+1,:) = c(endIdx:end,:);
@@ -189,7 +189,7 @@ for j = 1:yL
     %measurement prototype
     endIdx = find(~cellfun(@isempty,strfind(c, '<MEASUREMENT PROTOTYPE:END>')));
     c(endIdx+1:end+1,:) = c(endIdx:end,:);
-    c(endIdx,:) = {['static void Hy' num2str(j) '(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx);']};
+    c(endIdx,:) = {['static void Hy' num2str(j) '(Matrix_t * pu, Matrix_t * pX_m, Matrix_t * pY_m,int sigmaIdx);']};
     
     %measurement ptr array
      ptrString = [ptrString '&Hy' num2str(j) ','];
@@ -197,7 +197,7 @@ for j = 1:yL
     %measurement body
     endIdx = find(~cellfun(@isempty,strfind(c, '<MEASUREMENT FUNCTION:END>')));
     c(endIdx+1:end+1,:) = c(endIdx:end,:);
-    c(endIdx,:) = {['void Hy' num2str(j) '(tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx)']};
+    c(endIdx,:) = {['void Hy' num2str(j) '(Matrix_t * pu, Matrix_t * pX_m, Matrix_t * pY_m,int sigmaIdx)']};
     
     endIdx = endIdx+1;
     c(endIdx+1:end+1,:) = c(endIdx:end,:);
@@ -205,7 +205,7 @@ for j = 1:yL
     
     endIdx = endIdx+1;
     c(endIdx+1:end+1,:) = c(endIdx:end,:);
-    c(endIdx,:) = {['    ' 'const uint8 nCol = pY_m->ncol;']}
+    c(endIdx,:) = {['    ' 'const int nCol = pY_m->ncol;']}
     
     endIdx = endIdx+1;
     c(endIdx+1:end+1,:) = c(endIdx:end,:);

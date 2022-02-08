@@ -11,32 +11,24 @@
 
 /*----------------------------------------------------------------------------*\
   DEFINES
-\*----------------------------------------------------------------------------*/ 
+\*----------------------------------------------------------------------------*/
 
-/* Definitions for TRUE and FALSE. */
-#ifndef TRUE
-#define TRUE 1 
-#endif 
-#ifndef FALSE
-#define FALSE 0 
-#endif 
 /*----------------------------------------------------------------------------*\
   TYPEDEFS
 \*----------------------------------------------------------------------------*/
 
-typedef unsigned char boolean;
+#include <stdint.h>
+#include <stddef.h>
 
-/* Integer data types. */
-typedef unsigned char uint8;
-typedef unsigned short int uint16;
-typedef unsigned long int uint32;
-typedef signed char sint8;
-typedef signed short int sint16;
-typedef signed long int sint32;
+#if !defined(__DOXYGEN__)
 
 /* Floating point types. */
-typedef float float32;
-typedef double float64;
+union ac_check_sizeof_floats_u
+{
+	int nfloat64__[1 - 2 * !(sizeof(double) == 8)];
+	int nfloat32__[1 - 2 * !(sizeof(float) == 4)];
+};
+#endif	/* !__DOXYGEN__ */
 /*----------------------------------------------------------------------------*\
   ENUMS
 \*----------------------------------------------------------------------------*/
@@ -53,8 +45,7 @@ typedef double float64;
   FUNCTION PROTOTYPES
 \*----------------------------------------------------------------------------*/
 
-
-#endif/*SYSTEM_TYPES_H */
+#endif /*SYSTEM_TYPES_H */
 /*----------------------------------------------------------------------------*\
  END OF FILE
 \*----------------------------------------------------------------------------*/

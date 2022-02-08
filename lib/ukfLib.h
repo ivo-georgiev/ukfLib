@@ -6,118 +6,120 @@
 #ifndef UKFLIB_FILE
 #define UKFLIB_FILE
 
-#define xMinIdx (uint8)0
-#define xMaxIdx (uint8)1
-#define xEpsIdx (uint8)2
+extern const int xMinIdx;
+extern const int xMaxIdx;
+extern const int xEpsIdx;
 
-#define alphaIdx   (uint8)0
-#define bethaIdx   (uint8)1
-#define kappaIdx   (uint8)2
+extern const int alphaIdx;
+extern const int bethaIdx;
+extern const int kappaIdx;
 
-typedef void (* tPredictFcn) (tMatrix * pu_p, tMatrix * px_p, tMatrix * pX_m,uint8 sigmaIdx, float64 dT);
-typedef void (* tObservFcn) (tMatrix * pu, tMatrix * pX_m, tMatrix * pY_m,uint8 sigmaIdx);
+typedef void (*PredictFcn_t)(Matrix_t *pu_p, Matrix_t *px_p, Matrix_t *pX_m, int sigmaIdx, double dT);
+typedef void (*ObservFcn_t)(Matrix_t *pu, Matrix_t *pX_m, Matrix_t *pY_m, int sigmaIdx);
 
 typedef struct ukfMatrix
 {
-    tMatrix Sc_vector;
-    tMatrix Wm_weight_vector;
-    tMatrix Wc_weight_vector;
-    tMatrix x_system_states;
-    tMatrix x_system_states_ic;
-    tMatrix x_system_states_limits;              //NOT MANDATORY assign NULL if not required
-    tMatrixBool x_system_states_limits_enable;   //NOT MANDATORY assign NULL if not required
-    tMatrix x_system_states_correction;
-    tMatrix u_system_input;                      //NOT MANDATORY assign NULL if not required
-    tMatrix u_prev_system_input;                 //NOT MANDATORY assign NULL if not required
-    tMatrix X_sigma_points;
-    tMatrix Y_sigma_points;
-    tMatrix y_predicted_mean;
-    tMatrix y_meas;
-    tMatrix Pyy_out_covariance;
-    tMatrix Pyy_out_covariance_copy;
-    tMatrix Ryy0_init_out_covariance;
-    tMatrix Pxy_cross_covariance;
-    tMatrix Pxx_error_covariance;
-    tMatrix Pxx0_init_error_covariance;
-    tMatrix Qxx_process_noise_cov;
-    tMatrix K_kalman_gain;
-    //tMatrix K_kalman_gain_transp;
-    tMatrix I_identity_matrix;
-    tMatrix Pxx_covariance_correction; 
-    tPredictFcn * fcnPredict;
-    tObservFcn * fcnObserve;
-    float64 dT;
+	Matrix_t Sc_vector;
+	Matrix_t Wm_weight_vector;
+	Matrix_t Wc_weight_vector;
+	Matrix_t x_system_states;
+	Matrix_t x_system_states_ic;
+	Matrix_t x_system_states_limits;			/**< NOT MANDATORY assign NULL if not required */
+	MatrixBool_t x_system_states_limits_enable; /**< NOT MANDATORY assign NULL if not required */
+	Matrix_t x_system_states_correction;
+	Matrix_t u_system_input;	  /**< NOT MANDATORY assign NULL if not required */
+	Matrix_t u_prev_system_input; /**< NOT MANDATORY assign NULL if not required */
+	Matrix_t X_sigma_points;
+	Matrix_t Y_sigma_points;
+	Matrix_t y_predicted_mean;
+	Matrix_t y_meas;
+	Matrix_t Pyy_out_covariance;
+	Matrix_t Pyy_out_covariance_copy;
+	Matrix_t Ryy0_init_out_covariance;
+	Matrix_t Pxy_cross_covariance;
+	Matrix_t Pxx_error_covariance;
+	Matrix_t Pxx0_init_error_covariance;
+	Matrix_t Qxx_process_noise_cov;
+	Matrix_t K_kalman_gain;
+#if 0
+    Matrix_t K_kalman_gain_transp;
+#endif
+	Matrix_t I_identity_matrix;
+	Matrix_t Pxx_covariance_correction;
+	PredictFcn_t *fcnPredict;
+	ObservFcn_t *fcnObserve;
+	double dT;
 
-}tUkfMatrix;
+} UkfMatrix_t;
 
 typedef struct uKFpar
 {
-    uint8 xLen;//length of state vector
-    uint8 yLen;//length of measurement vector
-    uint8 sLen;//length of sigma point
-    float64 alpha;//Range:[10e-4 : 1].Smaller alpha leads to a tighter (closer) selection of sigma-points,
-    float64 betha;//Contain information about the prior distribution (for Gaussian, beta = 2 is optimal).
-    float64 kappa; //tertiary scaling parameter, usual value 0.
-    float64 lambda;
-    float64 dT;
-    tMatrix Wm;
-    tMatrix Wc;
-    tMatrix Qxx;
-    tMatrix Ryy0;
-    tMatrix Pxx0;
-    tMatrix x0;
-    tMatrix xLim;
-    tMatrixBool xLimEnbl;
-}tUKFpar;
+	int xLen; /**< length of state vector */
+	int yLen; /**< length of measurement vector */
+	int sLen; /**< length of sigma point */
+	double alpha; /**< Range:[10e-4 : 1].Smaller alpha leads to a tighter (closer) selection of sigma-points, */
+	double betha; /**< Contain information about the prior distribution (for Gaussian, beta = 2 is optimal). */
+	double kappa; /**< tertiary scaling parameter, usual value 0. */
+	double lambda;
+	double dT;
+	Matrix_t Wm;
+	Matrix_t Wc;
+	Matrix_t Qxx;
+	Matrix_t Ryy0;
+	Matrix_t Pxx0;
+	Matrix_t x0;
+	Matrix_t xLim;
+	MatrixBool_t xLimEnbl;
+} UKFpar_t;
 
 typedef struct uKFin
 {
-    tMatrix u;    // u(k)   Current inputs
-    tMatrix y;    // y(k)   Current measurement
-}tUKFin;
+	Matrix_t u; /**< \f$ u_k\f$   Current inputs */
+	Matrix_t y; /**< \f$ y_k\f$   Current measurement */
+} UKFin_t;
 
 typedef struct uKFprev
 {
-    tMatrix u_p;    // u(k-1)   Previous inputs
-    tMatrix x_p;    // x(k-1)   Previous states
-    tMatrix X_p;    // X(k-1)   Calculate the sigma-points
-    tMatrix Pxx_p;  // P(k-1)    Previous error covariance 
-}tUKFprev;
+	Matrix_t u_p;   /**< \f$ u_{k-1}\f$   Previous inputs */
+	Matrix_t x_p;   /**< \f$ x_{k-1}\f$   Previous states */
+	Matrix_t X_p;   /**< \f$ X_{k-1}\f$   Calculate the sigma-points */
+	Matrix_t Pxx_p; /**< \f$ P_{k-1}\f$   Previous error covariance  */
+} UKFprev_t;
 
-typedef struct uKFpredict //p(previous)==k-1, m(minus)=(k|k-1)
+typedef struct uKFpredict /**< p(previous)==k-1, m(minus)=(k|k-1) */
 {
-    tMatrix X_m;    //X(k|k-1) Propagate each sigma-point through prediction f(Chi)
-    tMatrix x_m;    //x(k|k-1) Calculate mean of predicted state
-    tMatrix P_m;    //P(k|k-1) Calculate covariance of predicted state  
-    tMatrix Y_m;    //Y(k|k-1) Propagate each sigma-point through observation
-    tMatrix y_m;    //y(k|k-1) Calculate mean of predicted output
-    tPredictFcn * pFcnPredict;
-    tObservFcn * pFcnObserv;
-}tUKFpredict;
+	Matrix_t X_m; /**< \f$X_{k|k-1}\f$ Propagate each sigma-point through prediction \f$f(\chi)\f$ */
+	Matrix_t x_m; /**< \f$x_{k|k-1}\f$ Calculate mean of predicted state */
+	Matrix_t P_m; /**< \f$P_{k|k-1}\f$ Calculate covariance of predicted state   */
+	Matrix_t Y_m; /**< \f$Y_{k|k-1}\f$ Propagate each sigma-point through observation */
+	Matrix_t y_m; /**< \f$y_{k|k-1}\f$ Calculate mean of predicted output */
+	PredictFcn_t *pFcnPredict;
+	ObservFcn_t *pFcnObserv;
+} UKFpredict_t;
 
 typedef struct uKFupdate
 {
-    tMatrix Pyy;    //Calculate covariance of predicted output
-    tMatrix Pyy_cpy; 
-    tMatrix Pxy;     //Calculate cross-covariance of state and output
-    tMatrix K;       //K(k) Calculate gain
-    tMatrix x;       //x(k) Update state estimate
-    tMatrix x_corr;
-    tMatrix Pxx;     //P(k) Update error covariance
-    tMatrix Pxx_corr;
-    tMatrix Iyy;     //tmp buffer initialized as identity matrix stor result from inversion and other operation  
-}tUKFupdate;
+	Matrix_t Pyy; /**< Calculate covariance of predicted output */
+	Matrix_t Pyy_cpy;
+	Matrix_t Pxy; /**< Calculate cross-covariance of state and output */
+	Matrix_t K;   /**< \f$K_{k}\f$ Calculate gain */
+	Matrix_t x;   /**< \f$x_{k}\f$ Update state estimate */
+	Matrix_t x_corr;
+	Matrix_t Pxx; /**< \f$P_{k}\f$ Update error covariance */
+	Matrix_t Pxx_corr;
+	Matrix_t Iyy; /**< tmp buffer initialized as identity matrix stor result from inversion and other operation */
+} UKFupdate_t;
 
 typedef struct uKF
 {
-    tUKFpar     par;
-    tUKFprev    prev;
-    tUKFin      input;
-    tUKFpredict predict;
-    tUKFupdate  update;
-}tUKF;
+	UKFpar_t par;
+	UKFprev_t prev;
+	UKFin_t input;
+	UKFpredict_t predict;
+	UKFupdate_t update;
+} UKF_t;
 
 #endif
 
-extern boolean ukf_init(tUKF * const pUkf, tUkfMatrix * pUkfMatrix);
-extern void ukf_step(tUKF * const pUkf);
+extern _Bool ukf_init(UKF_t *const pUkf, UkfMatrix_t *pUkfMatrix);
+extern void ukf_step(UKF_t *const pUkf);
