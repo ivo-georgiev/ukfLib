@@ -8,7 +8,7 @@ What is included:
 - mtxLib.c, mtxLib.h : Library with some basic matrix functions required for UKF implementation(cholesky decomposition, matrix inversion, matrix operation, i.e).
 - ukfLib.c, ukfLib.h : Unscented Kalman filter implementation.
 - ukfCfg.c,ukfCfg.h : These files contain UKF matrix and mathematical state space models/equation(state and measurement equations).They are specific for every different nonlinear filtering problem. In current project these files adress the issue from Matthew B Rhudy tutorial(Understanding Nonlinear Kalman Filters, Part II:An Implementation Guide):
-https://web.statler.wvu.edu/~irl/IRL_WVU_Online_UKF_Implementation_V1.0_06_28_2013.pdf
+https://yugu.faculty.wvu.edu/files/d/2cbb566f-9936-4033-bb1c-6d887c30d45a/irl_wvu_online_ukf_implementation_v1-0_06_28_2013.pdf
 - ukfCfg1.c,ukfCfg1.h : This configuration is used for estimation of angle and angular speed of free pendulum.
 - ukfCfg2.c,ukfCfg2.h : nonlinear state estimation for the Van der Pol oscillator.
 - test2.c : file is used for both simulation and unit testing. It also show how filter should be initialized and used in practice.
