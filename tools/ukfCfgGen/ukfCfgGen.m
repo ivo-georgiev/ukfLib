@@ -231,7 +231,7 @@ for k = 1:length(ukfMatrix)
         v = ukfMatrix{k}(2);
         row = v{1}(1);
         col = v{1}(2);
-        replace(:) = {mtx2carr(cell2mat(ukfMatrix{k}(3)))};      
+        replace(:) = {mtx2arr(cell2mat(ukfMatrix{k}(3)))};      
         c = cellfun(@strrep, c, l,replace,'UniformOutput',false);
     else
         %comment array definition if not required
@@ -277,14 +277,14 @@ fprintf(fidH,'%s\n',h{:});
 fclose(fidH);
 end
 
-function str = mtx2carr(mtx)
+function str = mtx2arr(mtx)
 % convert numeric matrix in string ready for initialization of C arrays
 % Example:
 % in = [1 2 3; 4 5 6]
 % out = {{1,2,3,},{4,5,6}}
 
 [r,c]=size(mtx);
-str = arrayfun(@num2str, mtx, 'UniformOutput', false);
+str = arrayfun(@num2str, mtx, repmat(20,r,c), 'UniformOutput', false);
 if c > 1    
     str = cellfun(@strcat,str, repmat({','},r,c),'UniformOutput',false);
     str(:,1) = cellfun(@strcat,repmat({'{'},r,1),str(:,1),'UniformOutput',false);
