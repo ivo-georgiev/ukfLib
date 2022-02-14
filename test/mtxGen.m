@@ -1,5 +1,5 @@
 %square positive defined matrix
-max_size = 20;
+max_size = 10;
 max_num = 100;
 mtx_cell = {};
 k=1;c=1;
@@ -12,7 +12,7 @@ for i=2:max_size %matrix size i x i
         mtx_inv = inv(mtx);
         mtx_name_inv = [mtx_name '_inv'];
         
-        mtx_chol = chol(mtx);
+        mtx_chol = chol(mtx,'lower');
         mtx_name_chol = [mtx_name '_chol'];
             
         mtx_cell(j+(i-2)*max_num+(k-1)+(c-1),:) = {mtx2arr(mtx,mtx_name)};
