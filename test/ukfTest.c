@@ -286,6 +286,7 @@ void report_compiler(void)
 			8 * __SIZEOF_LONG_DOUBLE__);
 }
 
+void test_mtx_cpy(Matrix_t const *const a, Matrix_t *const b);
 double distance1(Matrix_t *a, Matrix_t *b);
 double distance2(Matrix_t *a, Matrix_t *b);
 double distance_inf(Matrix_t *a, Matrix_t *b);
@@ -295,6 +296,8 @@ double distance_inf(Matrix_t *a, Matrix_t *b);
 
 double m_temp[12][12];
 Matrix_t o_temp={12*12,12,12,(double*) m_temp};
+double m_temp2[12][12];
+Matrix_t o_temp2={12*12,12,12,(double*) m_temp2};
 
 int mtxlib_test2(void)
 {
@@ -304,34 +307,14 @@ int mtxlib_test2(void)
 
 	for (i=0;i<n;i++)
 	{
-		int r,c;
-
-		o_temp.nelem = allinv[i]->nelem;
-		o_temp.nrow = allinv[i]->nrow;
-		o_temp.ncol = allinv[i]->ncol;
-		for (r=0;r<allinv[i]->nrow;r++)
-		{
-			int o = allinv[i]->ncol * r;
-			for (c=0;c<allinv[i]->ncol;c++)
-			{
-				o_temp.val[o + c] = allinv[i]->val[o + c];
-			}
-		}
-
-		double d1 = distance1(allinv[i], &o_temp);
-		double d2 = distance2(allinv[i], &o_temp);
-		double d3 = distance_inf(allinv[i], &o_temp);
-		// fprintf(stderr, "%3d d = %G\n", i, d);
-		fprintf(stdout, "slf: %3d d1 = %G\td2 = %G\td3 = %G\n", i, d1, d2, d3);
-	}
-	for (i=0;i<n;i++)
-	{
 		// allobj[i]; allchol[i]; allinv[i];
 		res |= !(allobj[i]->nelem == allchol[i]->nelem && allinv[i]->nelem == allchol[i]->nelem);
 		o_temp.nelem = allobj[i]->nelem;
 		o_temp.nrow = allobj[i]->nrow;
 		o_temp.ncol = allobj[i]->ncol;
-		res |= (MTX_OPERATION_OK != mtx_inv(allobj[i], &o_temp));
+		mtx_identity(&o_temp);
+		test_mtx_cpy(allobj[i], &o_temp2);
+		res |= (MTX_OPERATION_OK != mtx_inv(&o_temp2, &o_temp));
 		double d1 = distance1(allinv[i], &o_temp);
 		double d2 = distance2(allinv[i], &o_temp);
 		double d3 = distance_inf(allinv[i], &o_temp);
@@ -339,8 +322,49 @@ int mtxlib_test2(void)
 		fprintf(stdout, "inv: %3d d1 = %G\td2 = %G\td3 = %G\n", i, d1, d2, d3);
 	}
 
+	for (i=0;i<n;i++)
+	{
+		test_mtx_cpy(allobj[i], &o_temp);
+
+		res |= (MTX_OPERATION_OK != mtx_chol_lower(&o_temp));
+		double d1 = distance1(allchol[i], &o_temp);
+		double d2 = distance2(allchol[i], &o_temp);
+		double d3 = distance_inf(allchol[i], &o_temp);
+		fprintf(stdout, "cho: %3d d1 = %G\td2 = %G\td3 = %G\n", i, d1, d2, d3);
+		show_matrix_obj(o_temp);
+	}
+
+	for (i=0;i<n;i++)
+	{
+		test_mtx_cpy(allobj[i], &o_temp);
+
+		res |= (MTX_OPERATION_OK != mtx_chol_upper(&o_temp));
+		double d1 = distance1(allchol[i], &o_temp);
+		double d2 = distance2(allchol[i], &o_temp);
+		double d3 = distance_inf(allchol[i], &o_temp);
+		fprintf(stdout, "ch2: %3d d1 = %G\td2 = %G\td3 = %G\n", i, d1, d2, d3);
+		show_matrix_obj(o_temp);
+	}
 
 	return res;
+}
+
+void test_mtx_cpy(Matrix_t const *const a, Matrix_t *const b)
+{
+	int i, j;
+
+	b->ncol = a->ncol;
+	b->nrow = a->nrow;
+	b->nelem = a->nelem;
+
+	for (i=0;i<a->nrow;i++)
+	{
+		int o = a->ncol * i;
+		for (j=0;j<a->ncol;j++)
+		{
+			b->val[o + j] = a->val[o + j];
+		}
+	}
 }
 
 double distance1(Matrix_t *a, Matrix_t *b)
