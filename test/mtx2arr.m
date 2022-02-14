@@ -20,5 +20,5 @@ arr = strjoin(arr');
 arr = ['{' arr(1:end-1) '}'];
 arr = arr(~isspace(arr));
 arr = regexprep(arr,',}}','}}');
-arr = ['const double ' name '[' num2str(r) '][' num2str(c) ']' ' = ' arr ';' ];
+arr = ['double ' name '[' num2str(r) '][' num2str(c) ']' ' = ' arr ';' ];
 end

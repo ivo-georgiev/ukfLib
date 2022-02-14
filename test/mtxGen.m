@@ -25,6 +25,9 @@ for i=2:max_size %matrix size i x i
 end
 %%%
 k=1;c=1;
+allobj_cell = {'Matrix_t *allobj[] = {'};
+invobj_cell = {'Matrix_t *invobj[] = {'};
+cholobj_cell = {'Matrix_t *cholobj[] = {'};
 for i=2:max_size %matrix size i x i
     for j = 1:max_num %matrix number
         mtx_name = ['mtx_' num2str(j) '_' num2str(i) 'x' num2str(i)];
@@ -39,10 +42,19 @@ for i=2:max_size %matrix size i x i
         mtx_cell(offset+j+(i-2)*max_num+k+(c-1),:) = {['Matrix_t ' obj_name_inv '={' num2str(i*i) ',' num2str(i) ',' num2str(i) ',&' mtx_name_inv '[0][0]};'; ]};
         mtx_cell(offset+j+(i-2)*max_num+k+c,:) = {['Matrix_t ' obj_name_chol '={' num2str(i*i) ',' num2str(i) ',' num2str(i) ',&' mtx_name_chol '[0][0]};'; ]};
         
+        allobj_cell(j+(i-2)*max_num+1,:) = {['&' obj_name ','; ]};
+        invobj_cell(j+(i-2)*max_num+1,:) = {['&' obj_name_inv ','; ]};
+        cholobj_cell(j+(i-2)*max_num+1,:) = {['&' obj_name_chol ','; ]};
+        
         k=k+1;
         c=c+1;
     end
 end
+allobj_cell(j+(i-2)*max_num+2,:) = {'};'};
+invobj_cell(j+(i-2)*max_num+2,:) = {'};'};
+cholobj_cell(j+(i-2)*max_num+2,:) = {'};'};
+
+mtx_cell = [mtx_cell;allobj_cell;invobj_cell;cholobj_cell];
 fidS = fopen('mtxGen.c','w');
 fprintf(fidS,'%s\n',mtx_cell{:});  
 fclose(fidS);
