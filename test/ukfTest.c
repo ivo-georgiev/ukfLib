@@ -9,19 +9,24 @@
 /*---------------------------------------------*/
 void show_matrix_obj(Matrix_t A);
 void show_matrix(double *A, int n, int m);
-void ukf_test(void);
-void mtxlib_test(void);
+int ukf_test(void);
+int mtxlib_test(void);
+int mtxlib_test2(void);
 void report_compiler(void);
 
 int main(void)
 {
+	int error = 0;
+
 	report_compiler();
 
 	// generic matrix operation test
-	mtxlib_test();
+	error |= mtxlib_test();
+
+	error |= mtxlib_test2();
 
 	// UKF test start here
-	ukf_test();
+	error |= ukf_test();
 
 	return 0;
 }
@@ -60,7 +65,7 @@ void show_matrix(double *A, int n, int m)
  * Initialize and test UKF C implementation against expected result. Filter is tested in the loop from 15 steps.
  * Total root square error is accumulated in the same loop for each state in order to show deviation from reference matlab solution.
  */
-void ukf_test(void)
+int ukf_test(void)
 {
 	_Bool tfInitCfg0 = 0;
 	_Bool tfInitCfg1 = 0;
@@ -183,14 +188,16 @@ void ukf_test(void)
 	{
 		// initialization fail
 		// TBD
+		return -1;
 	}
+	return 0;
 }
 /**
  *
  * Test some generic matrix operations from mtxLib.c
  *
  */
-void mtxlib_test(void)
+int mtxlib_test(void)
 {
 	/*------------------------------------------------*/
 	/*             Sample Matrix not related with UKF */
@@ -266,6 +273,7 @@ void mtxlib_test(void)
 	// show_matrix_obj(myTestMatx);
 	// mtx_transp_dest(&myTestMatx,&oTestMatrixDest_3x2);
 	// show_matrix_obj(oTestMatrixDest_3x2);*/
+	return 0; // OK
 }
 
 /**
@@ -277,3 +285,120 @@ void report_compiler(void)
 	fprintf(stderr, "sizeof float = %d bits\nsizeof double = %d bits\nsizeof long double = %d bits\n", 8 * __SIZEOF_FLOAT__, 8 * __SIZEOF_DOUBLE__,
 			8 * __SIZEOF_LONG_DOUBLE__);
 }
+
+double distance1(Matrix_t *a, Matrix_t *b);
+double distance2(Matrix_t *a, Matrix_t *b);
+double distance_inf(Matrix_t *a, Matrix_t *b);
+
+#include "mtxGen.c"
+#include "mtxtest2.c"
+
+double m_temp[12][12];
+Matrix_t o_temp={12*12,12,12,(double*) m_temp};
+
+int mtxlib_test2(void)
+{
+	int i;
+	int n = (int)sizeof(allobj)/(int)sizeof(*allobj);
+	int res = 0;
+
+	for (i=0;i<n;i++)
+	{
+		int r,c;
+
+		o_temp.nelem = allinv[i]->nelem;
+		o_temp.nrow = allinv[i]->nrow;
+		o_temp.ncol = allinv[i]->ncol;
+		for (r=0;r<allinv[i]->nrow;r++)
+		{
+			int o = allinv[i]->ncol * r;
+			for (c=0;c<allinv[i]->ncol;c++)
+			{
+				o_temp.val[o + c] = allinv[i]->val[o + c];
+			}
+		}
+
+		double d1 = distance1(allinv[i], &o_temp);
+		double d2 = distance2(allinv[i], &o_temp);
+		double d3 = distance_inf(allinv[i], &o_temp);
+		// fprintf(stderr, "%3d d = %G\n", i, d);
+		fprintf(stdout, "slf: %3d d1 = %G\td2 = %G\td3 = %G\n", i, d1, d2, d3);
+	}
+	for (i=0;i<n;i++)
+	{
+		// allobj[i]; allchol[i]; allinv[i];
+		res |= !(allobj[i]->nelem == allchol[i]->nelem && allinv[i]->nelem == allchol[i]->nelem);
+		o_temp.nelem = allobj[i]->nelem;
+		o_temp.nrow = allobj[i]->nrow;
+		o_temp.ncol = allobj[i]->ncol;
+		res |= (MTX_OPERATION_OK != mtx_inv(allobj[i], &o_temp));
+		double d1 = distance1(allinv[i], &o_temp);
+		double d2 = distance2(allinv[i], &o_temp);
+		double d3 = distance_inf(allinv[i], &o_temp);
+		// fprintf(stderr, "%3d d = %G\n", i, d);
+		fprintf(stdout, "inv: %3d d1 = %G\td2 = %G\td3 = %G\n", i, d1, d2, d3);
+	}
+
+
+	return res;
+}
+
+double distance1(Matrix_t *a, Matrix_t *b)
+{
+	double d = 0;
+	int i, j;
+
+	for (i=0;i<a->nrow;i++)
+	{
+		int o = a->ncol * i;
+		for (j=0;j<a->ncol;j++)
+		{
+			double aa = a->val[o + j];
+			double bb = b->val[o + j];
+
+			d += fabs(aa - bb);
+		}
+	}
+	return d;
+}
+
+
+double distance2(Matrix_t *a, Matrix_t *b)
+{
+	double d = 0;
+	int i, j;
+
+	for (i=0;i<a->nrow;i++)
+	{
+		int o = a->ncol * i;
+		for (j=0;j<a->ncol;j++)
+		{
+			double aa = a->val[o + j];
+			double bb = b->val[o + j];
+			double t = (aa - bb);
+			d += t*t;
+		}
+	}
+	return sqrt(d);
+}
+
+
+double distance_inf(Matrix_t *a, Matrix_t *b)
+{
+	double d = 0;
+	int i, j;
+
+	for (i=0;i<a->nrow;i++)
+	{
+		int o = a->ncol * i;
+		for (j=0;j<a->ncol;j++)
+		{
+			double aa = a->val[o + j];
+			double bb = b->val[o + j];
+			double t = fabs(aa - bb);
+			d = fmax(d,t);
+		}
+	}
+	return sqrt(d);
+}
+
