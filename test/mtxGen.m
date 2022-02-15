@@ -35,7 +35,7 @@ for i=2:max_size %matrix size i x i
         mtx_cell(j+(i-2)*max_num,:) = {mtx2arr(mtx_sym,mtx_sym_name)};
         mtx_inv_cell(j+(i-2)*max_num,:) = {mtx2arr(mtx_inv,mtx_name_inv)};
         mtx_chol_low_cell(j+(i-2)*max_num,:) = {mtx2arr(mtx_chol_low,mtx_name_chol_low)};
-        mtx_chol_up_cell(j+(i-2)*max_num,:) = {mtx2arr(mtx_chol_low,mtx_name_chol_up)};
+        mtx_chol_up_cell(j+(i-2)*max_num,:) = {mtx2arr(mtx_chol_up,mtx_name_chol_up)};
     end
 end
 file_cell = [mtx_cell; mtx_inv_cell; mtx_chol_low_cell; mtx_chol_up_cell;mtx_magic_cell;mtx_magic_transp_cell];
