@@ -29,7 +29,7 @@ for i=2:max_size %matrix size i x i
         mtx_chol_low = chol(mtx_sym,'lower');
         mtx_name_chol_low = [mtx_sym_name '_chol_low'];
         
-        mtx_chol_up = chol(mtx_sym,'lower');
+        mtx_chol_up = chol(mtx_sym,'upper');
         mtx_name_chol_up = [mtx_sym_name '_chol_up'];
             
         mtx_cell(j+(i-2)*max_num,:) = {mtx2arr(mtx_sym,mtx_sym_name)};
