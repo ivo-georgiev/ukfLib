@@ -26,7 +26,7 @@ int verbose = 0;
 int main(int argc, char *argv[])
 {
 	int error = 0;
-	int opt;
+	int opt, index;
 
 	while ((opt = getopt(argc, argv, "v")) != -1)
 		switch(opt)
@@ -36,6 +36,8 @@ int main(int argc, char *argv[])
             fprintf(stderr, "Usage: %s [-v] [file...]\n", argv[0]);
             exit(EXIT_FAILURE);
 	}
+	for (index = optind; index < argc; index++)
+		printf ("Non-option argument %s\n", argv[index]);
 
 	if ((strlen(fname) < 1) || (stream_log = fopen(fname, "wt")) == 0)
 	{
@@ -373,6 +375,23 @@ int mtxlib_test2(void)
 		double d2 = distance2(upCholSym[i], &o_temp);
 		double d3 = distance_inf(upCholSym[i], &o_temp);
 		fprintf(stream_log, "chU: %3d d1 = %G\td2 = %G\td3 = %G\n", i, d1, d2, d3);
+		if (verbose > 1)
+		{
+			show_matrix_obj(*upCholSym[i]);
+			show_matrix_obj(o_temp);
+		}
+	}
+	n = sizeof(allMagic)/sizeof(*allMagic);
+
+	for (i=0;i<n;i++)
+	{
+		test_mtx_cpy(allMagic[i], &o_temp);
+
+		res |= (MTX_OPERATION_OK != mtx_transp_square(&o_temp));
+		double d1 = distance1(transpMagic[i], &o_temp);
+		double d2 = distance2(transpMagic[i], &o_temp);
+		double d3 = distance_inf(transpMagic[i], &o_temp);
+		fprintf(stream_log, "trn: %3d d1 = %G\td2 = %G\td3 = %G\n", i, d1, d2, d3);
 		if (verbose > 1)
 		{
 			show_matrix_obj(*upCholSym[i]);
