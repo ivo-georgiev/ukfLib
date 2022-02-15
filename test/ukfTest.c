@@ -292,7 +292,6 @@ double distance2(Matrix_t *a, Matrix_t *b);
 double distance_inf(Matrix_t *a, Matrix_t *b);
 
 #include "mtxGen.c"
-#include "mtxtest2.c"
 
 double m_temp[12][12];
 Matrix_t o_temp={12*12,12,12,(double*) m_temp};
@@ -302,46 +301,46 @@ Matrix_t o_temp2={12*12,12,12,(double*) m_temp2};
 int mtxlib_test2(void)
 {
 	int i;
-	int n = (int)sizeof(allobj)/(int)sizeof(*allobj);
+	int n = (int)sizeof(allSym)/(int)sizeof(*allSym);
 	int res = 0;
 
 	for (i=0;i<n;i++)
 	{
-		// allobj[i]; allchol[i]; allinv[i];
-		res |= !(allobj[i]->nelem == allchol[i]->nelem && allinv[i]->nelem == allchol[i]->nelem);
-		o_temp.nelem = allobj[i]->nelem;
-		o_temp.nrow = allobj[i]->nrow;
-		o_temp.ncol = allobj[i]->ncol;
+		// allSym[i]; loCholSym[i]; invSym[i];
+		res |= !(allSym[i]->nelem == loCholSym[i]->nelem && invSym[i]->nelem == loCholSym[i]->nelem);
+		o_temp.nelem = allSym[i]->nelem;
+		o_temp.nrow = allSym[i]->nrow;
+		o_temp.ncol = allSym[i]->ncol;
 		mtx_identity(&o_temp);
-		test_mtx_cpy(allobj[i], &o_temp2);
+		test_mtx_cpy(allSym[i], &o_temp2);
 		res |= (MTX_OPERATION_OK != mtx_inv(&o_temp2, &o_temp));
-		double d1 = distance1(allinv[i], &o_temp);
-		double d2 = distance2(allinv[i], &o_temp);
-		double d3 = distance_inf(allinv[i], &o_temp);
+		double d1 = distance1(invSym[i], &o_temp);
+		double d2 = distance2(invSym[i], &o_temp);
+		double d3 = distance_inf(invSym[i], &o_temp);
 		// fprintf(stderr, "%3d d = %G\n", i, d);
 		fprintf(stdout, "inv: %3d d1 = %G\td2 = %G\td3 = %G\n", i, d1, d2, d3);
 	}
 
 	for (i=0;i<n;i++)
 	{
-		test_mtx_cpy(allobj[i], &o_temp);
+		test_mtx_cpy(allSym[i], &o_temp);
 
 		res |= (MTX_OPERATION_OK != mtx_chol_lower(&o_temp));
-		double d1 = distance1(allchol[i], &o_temp);
-		double d2 = distance2(allchol[i], &o_temp);
-		double d3 = distance_inf(allchol[i], &o_temp);
+		double d1 = distance1(loCholSym[i], &o_temp);
+		double d2 = distance2(loCholSym[i], &o_temp);
+		double d3 = distance_inf(loCholSym[i], &o_temp);
 		fprintf(stdout, "cho: %3d d1 = %G\td2 = %G\td3 = %G\n", i, d1, d2, d3);
 		show_matrix_obj(o_temp);
 	}
 
 	for (i=0;i<n;i++)
 	{
-		test_mtx_cpy(allobj[i], &o_temp);
+		test_mtx_cpy(allSym[i], &o_temp);
 
 		res |= (MTX_OPERATION_OK != mtx_chol_upper(&o_temp));
-		double d1 = distance1(allchol[i], &o_temp);
-		double d2 = distance2(allchol[i], &o_temp);
-		double d3 = distance_inf(allchol[i], &o_temp);
+		double d1 = distance1(upCholSym[i], &o_temp);
+		double d2 = distance2(upCholSym[i], &o_temp);
+		double d3 = distance_inf(upCholSym[i], &o_temp);
 		fprintf(stdout, "ch2: %3d d1 = %G\td2 = %G\td3 = %G\n", i, d1, d2, d3);
 		show_matrix_obj(o_temp);
 	}
