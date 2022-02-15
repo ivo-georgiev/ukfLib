@@ -1,6 +1,6 @@
 %square positive defined matrix
 max_size = 10;
-max_num = 10;
+max_num = 100;
 mtx_cell = cell((max_size-1)*max_num,1);
 mtx_inv_cell = cell((max_size-1)*max_num,1);
 mtx_chol_up_cell = cell((max_size-1)*max_num,1);
