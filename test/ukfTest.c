@@ -1,3 +1,4 @@
+#define _GNU_SOURCE 1
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,32 +21,41 @@ int mtxlib_test2(void);
 void report_compiler(void);
 FILE *stream_log;
 
-char *fname = "results.txt";
 int verbose = 0;
 
 int main(int argc, char *argv[])
 {
+	char *fname = NULL;
 	int error = 0;
 	int opt, index;
 
-	while ((opt = getopt(argc, argv, "v")) != -1)
+	while ((opt = getopt(argc, argv, "vo::")) != -1)
 		switch(opt)
-	{
-		case 'v': verbose++; break;
-		default:
-            fprintf(stderr, "Usage: %s [-v] [file...]\n", argv[0]);
-            exit(EXIT_FAILURE);
-	}
+		{
+			case 'v': verbose++; break;
+			case 'o':
+					  fname = (optarg)?strdupa(optarg):strdupa(argv[optind++]);
+					  break;
+			default:
+					  fprintf(stderr, "Usage: %s [-v] [-ofile]\n", argv[0]);
+					  exit(EXIT_FAILURE);
+		}
 	for (index = optind; index < argc; index++)
 		printf ("Non-option argument %s\n", argv[index]);
+	if (!fname)
+		fname = strdupa("results.txt");
 
 	if ((strlen(fname) < 1) || (stream_log = fopen(fname, "wt")) == 0)
 	{
 		perror(fname);
 		stream_log = stderr;
 	}
-
-	report_compiler();
+	if (verbose)
+	{
+		printf("verbose = %d\n", verbose);
+		printf("output: %s\n", fname);
+		report_compiler();
+	}
 
 	// generic matrix operation test
 	error |= mtxlib_test();
