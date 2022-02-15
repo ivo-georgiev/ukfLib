@@ -1,3 +1,8 @@
+#include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
+#include <getopt.h>
+
 #include "ukfCfg.h"
 #include "ukfCfg1.h"
 
@@ -13,10 +18,30 @@ int ukf_test(void);
 int mtxlib_test(void);
 int mtxlib_test2(void);
 void report_compiler(void);
+FILE *stream_log;
 
-int main(void)
+char *fname = "results.txt";
+int verbose = 0;
+
+int main(int argc, char *argv[])
 {
 	int error = 0;
+	int opt;
+
+	while ((opt = getopt(argc, argv, "v")) != -1)
+		switch(opt)
+	{
+		case 'v': verbose++; break;
+		default:
+            fprintf(stderr, "Usage: %s [-v] [file...]\n", argv[0]);
+            exit(EXIT_FAILURE);
+	}
+
+	if ((strlen(fname) < 1) || (stream_log = fopen(fname, "wt")) == 0)
+	{
+		perror(fname);
+		stream_log = stderr;
+	}
 
 	report_compiler();
 
@@ -27,6 +52,8 @@ int main(void)
 
 	// UKF test start here
 	error |= ukf_test();
+
+	fclose(stream_log);
 
 	return 0;
 }
@@ -39,11 +66,11 @@ void show_matrix_obj(Matrix_t A)
 	{
 		for (j = 0; j < A.ncol; j++)
 		{
-			printf("%2.14f ", A.val[A.ncol * i + j]);
+			fprintf(stream_log, "%2.14f ", A.val[A.ncol * i + j]);
 		}
-		printf("\n");
+		fprintf(stream_log, "\n");
 	}
-	printf("\n");
+	fprintf(stream_log, "\n");
 }
 
 void show_matrix(double *A, int n, int m)
@@ -54,11 +81,11 @@ void show_matrix(double *A, int n, int m)
 	{
 		for (j = 0; j < m; j++)
 		{
-			printf("%2.14f ", A[m * i + j]);
+			fprintf(stream_log, "%2.14f ", A[m * i + j]);
 		}
-		printf("\n");
+		fprintf(stream_log, "\n");
 	}
-	printf("\n");
+	fprintf(stream_log, "\n");
 }
 /**
  *
@@ -124,11 +151,11 @@ int ukf_test(void)
 			err[2] = fabs(ukfIo[cfg0].update.x.val[2] - x_exp[simLoop - 1][2]);
 			err[3] = fabs(ukfIo[cfg0].update.x.val[3] - x_exp[simLoop - 1][3]);
 
-			printf("Loop: %d |system states : ukf.m | system states : est | system states : impl. diff \n", (int)simLoop);
-			printf("          %2.14f        %2.14f       %2.14f\n", x_exp[simLoop - 1][0], ukfIo[cfg0].update.x.val[0], err[0]);
-			printf("          %2.14f        %2.14f       %2.14f\n", x_exp[simLoop - 1][1], ukfIo[cfg0].update.x.val[1], err[1]);
-			printf("          %2.14f        %2.14f       %2.14f\n", x_exp[simLoop - 1][2], ukfIo[cfg0].update.x.val[2], err[2]);
-			printf("          %2.14f        %2.14f       %2.14f\n", x_exp[simLoop - 1][3], ukfIo[cfg0].update.x.val[3], err[3]);
+			fprintf(stream_log, "Loop: %d |system states : ukf.m | system states : est | system states : impl. diff \n", (int)simLoop);
+			fprintf(stream_log, "          %2.14f        %2.14f       %2.14f\n", x_exp[simLoop - 1][0], ukfIo[cfg0].update.x.val[0], err[0]);
+			fprintf(stream_log, "          %2.14f        %2.14f       %2.14f\n", x_exp[simLoop - 1][1], ukfIo[cfg0].update.x.val[1], err[1]);
+			fprintf(stream_log, "          %2.14f        %2.14f       %2.14f\n", x_exp[simLoop - 1][2], ukfIo[cfg0].update.x.val[2], err[2]);
+			fprintf(stream_log, "          %2.14f        %2.14f       %2.14f\n", x_exp[simLoop - 1][3], ukfIo[cfg0].update.x.val[3], err[3]);
 
 			// accumulate the differennce between reference matlab implementation and results from C code execution
 			absErrAccum[0] += err[0];
@@ -136,8 +163,8 @@ int ukf_test(void)
 			absErrAccum[2] += err[2];
 			absErrAccum[3] += err[3];
 		}
-		printf("Accumulated error: CFG0 \n");
-		printf("%2.16f  \n%2.16f  \n%2.16f  \n%2.16f \n", absErrAccum[0], absErrAccum[1], absErrAccum[2], absErrAccum[3]);
+		fprintf(stream_log, "Accumulated error: CFG0 \n");
+		fprintf(stream_log, "%2.16f  \n%2.16f  \n%2.16f  \n%2.16f \n", absErrAccum[0], absErrAccum[1], absErrAccum[2], absErrAccum[3]);
 
 		// UKF simulation CFG0: END
 	}
@@ -178,9 +205,9 @@ int ukf_test(void)
 			err[0] = fabs(ukfIo[cfg1].update.x.val[0] - tetha);
 			err[1] = fabs(ukfIo[cfg1].update.x.val[1] - tetha_dot);
 
-			printf("Loop: %d |system states : real | system states : est | system states : err \n", (int)simLoop);
-			printf("          %2.14f       %2.14f      %2.14f\n", tetha, ukfIo[1].update.x.val[0], err[0]);
-			printf("          %2.14f      %2.14f     %2.14f\n", tetha_dot, ukfIo[1].update.x.val[1], err[1]);
+			fprintf(stream_log, "Loop: %d |system states : real | system states : est | system states : err \n", (int)simLoop);
+			fprintf(stream_log, "          %2.14f       %2.14f      %2.14f\n", tetha, ukfIo[1].update.x.val[0], err[0]);
+			fprintf(stream_log, "          %2.14f      %2.14f     %2.14f\n", tetha_dot, ukfIo[1].update.x.val[1], err[1]);
 		}
 		// UKF simulation: END
 	}
@@ -255,20 +282,20 @@ int mtxlib_test(void)
 	// show_matrix(&symMtx[0][0],5,5);
 
 	(void)mtx_chol_lower(&myFactMatrix);
-	show_matrix_obj(myFactMatrix);
+	if (verbose > 1) show_matrix_obj(myFactMatrix);
 
 	/*show_matrix_obj(myChol);
 	  mtx_transp_square(&myChol);
 	  show_matrix_obj(myChol);
 	  */
 
-	show_matrix_obj(Im);
-	show_matrix_obj(oTestMatrix_0_4x4);
+	if (verbose > 1) show_matrix_obj(Im);
+	if (verbose > 1) show_matrix_obj(oTestMatrix_0_4x4);
 	mtx_inv(&oTestMatrix_0_4x4, &Im);
-	show_matrix_obj(Im);
+	if (verbose > 1) show_matrix_obj(Im);
 
 	mtx_identity(&Im);
-	show_matrix_obj(Im);
+	if (verbose > 1) show_matrix_obj(Im);
 
 	// show_matrix_obj(myTestMatx);
 	// mtx_transp_dest(&myTestMatx,&oTestMatrixDest_3x2);
@@ -318,7 +345,7 @@ int mtxlib_test2(void)
 		double d2 = distance2(invSym[i], &o_temp);
 		double d3 = distance_inf(invSym[i], &o_temp);
 		// fprintf(stderr, "%3d d = %G\n", i, d);
-		fprintf(stdout, "inv: %3d d1 = %G\td2 = %G\td3 = %G\n", i, d1, d2, d3);
+		fprintf(stream_log, "inv: %3d d1 = %G\td2 = %G\td3 = %G\n", i, d1, d2, d3);
 	}
 
 	for (i=0;i<n;i++)
@@ -329,8 +356,12 @@ int mtxlib_test2(void)
 		double d1 = distance1(loCholSym[i], &o_temp);
 		double d2 = distance2(loCholSym[i], &o_temp);
 		double d3 = distance_inf(loCholSym[i], &o_temp);
-		fprintf(stdout, "cho: %3d d1 = %G\td2 = %G\td3 = %G\n", i, d1, d2, d3);
-		show_matrix_obj(o_temp);
+		fprintf(stream_log, "chL: %3d d1 = %G\td2 = %G\td3 = %G\n", i, d1, d2, d3);
+		if (verbose > 1)
+		{
+			show_matrix_obj(*loCholSym[i]);
+			show_matrix_obj(o_temp);
+		}
 	}
 
 	for (i=0;i<n;i++)
@@ -341,8 +372,12 @@ int mtxlib_test2(void)
 		double d1 = distance1(upCholSym[i], &o_temp);
 		double d2 = distance2(upCholSym[i], &o_temp);
 		double d3 = distance_inf(upCholSym[i], &o_temp);
-		fprintf(stdout, "ch2: %3d d1 = %G\td2 = %G\td3 = %G\n", i, d1, d2, d3);
-		show_matrix_obj(o_temp);
+		fprintf(stream_log, "chU: %3d d1 = %G\td2 = %G\td3 = %G\n", i, d1, d2, d3);
+		if (verbose > 1)
+		{
+			show_matrix_obj(*upCholSym[i]);
+			show_matrix_obj(o_temp);
+		}
 	}
 
 	return res;
