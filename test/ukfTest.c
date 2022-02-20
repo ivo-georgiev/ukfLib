@@ -1,3 +1,9 @@
+#define _GNU_SOURCE 1
+#include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
+#include <getopt.h>
+
 #include "ukfCfg.h"
 #include "ukfCfg1.h"
 
@@ -9,19 +15,57 @@
 /*---------------------------------------------*/
 void show_matrix_obj(Matrix_t A);
 void show_matrix(double *A, int n, int m);
-void ukf_test(void);
-void mtxlib_test(void);
+int ukf_test(void);
+int mtxlib_test(void);
+int mtxlib_test2(void);
 void report_compiler(void);
+FILE *stream_log;
 
-int main(void)
+int verbose = 0;
+
+int main(int argc, char *argv[])
 {
-	report_compiler();
+	char *fname = NULL;
+	int error = 0;
+	int opt, index;
+
+	while ((opt = getopt(argc, argv, "vo::")) != -1)
+		switch(opt)
+		{
+			case 'v': verbose++; break;
+			case 'o':
+					  fname = (optarg)?strdupa(optarg):strdupa(argv[optind++]);
+					  break;
+			default:
+					  fprintf(stderr, "Usage: %s [-v] [-ofile]\n", argv[0]);
+					  exit(EXIT_FAILURE);
+		}
+	for (index = optind; index < argc; index++)
+		printf ("Non-option argument %s\n", argv[index]);
+	if (!fname)
+		fname = strdupa("results.txt");
+
+	if ((strlen(fname) < 1) || (stream_log = fopen(fname, "wt")) == 0)
+	{
+		perror(fname);
+		stream_log = stderr;
+	}
+	if (verbose)
+	{
+		printf("verbose = %d\n", verbose);
+		printf("output: %s\n", fname);
+		report_compiler();
+	}
 
 	// generic matrix operation test
-	mtxlib_test();
+	error |= mtxlib_test();
+
+	error |= mtxlib_test2();
 
 	// UKF test start here
-	ukf_test();
+	error |= ukf_test();
+
+	fclose(stream_log);
 
 	return 0;
 }
@@ -34,11 +78,11 @@ void show_matrix_obj(Matrix_t A)
 	{
 		for (j = 0; j < A.ncol; j++)
 		{
-			printf("%2.14f ", A.val[A.ncol * i + j]);
+			fprintf(stream_log, "%2.14f ", A.val[A.ncol * i + j]);
 		}
-		printf("\n");
+		fprintf(stream_log, "\n");
 	}
-	printf("\n");
+	fprintf(stream_log, "\n");
 }
 
 void show_matrix(double *A, int n, int m)
@@ -49,18 +93,18 @@ void show_matrix(double *A, int n, int m)
 	{
 		for (j = 0; j < m; j++)
 		{
-			printf("%2.14f ", A[m * i + j]);
+			fprintf(stream_log, "%2.14f ", A[m * i + j]);
 		}
-		printf("\n");
+		fprintf(stream_log, "\n");
 	}
-	printf("\n");
+	fprintf(stream_log, "\n");
 }
 /**
  *
  * Initialize and test UKF C implementation against expected result. Filter is tested in the loop from 15 steps.
  * Total root square error is accumulated in the same loop for each state in order to show deviation from reference matlab solution.
  */
-void ukf_test(void)
+int ukf_test(void)
 {
 	_Bool tfInitCfg0 = 0;
 	_Bool tfInitCfg1 = 0;
@@ -119,11 +163,11 @@ void ukf_test(void)
 			err[2] = fabs(ukfIo[cfg0].update.x.val[2] - x_exp[simLoop - 1][2]);
 			err[3] = fabs(ukfIo[cfg0].update.x.val[3] - x_exp[simLoop - 1][3]);
 
-			printf("Loop: %d |system states : ukf.m | system states : est | system states : impl. diff \n", (int)simLoop);
-			printf("          %2.14f        %2.14f       %2.14f\n", x_exp[simLoop - 1][0], ukfIo[cfg0].update.x.val[0], err[0]);
-			printf("          %2.14f        %2.14f       %2.14f\n", x_exp[simLoop - 1][1], ukfIo[cfg0].update.x.val[1], err[1]);
-			printf("          %2.14f        %2.14f       %2.14f\n", x_exp[simLoop - 1][2], ukfIo[cfg0].update.x.val[2], err[2]);
-			printf("          %2.14f        %2.14f       %2.14f\n", x_exp[simLoop - 1][3], ukfIo[cfg0].update.x.val[3], err[3]);
+			fprintf(stream_log, "Loop: %d |system states : ukf.m | system states : est | system states : impl. diff \n", (int)simLoop);
+			fprintf(stream_log, "          %2.14f        %2.14f       %2.14f\n", x_exp[simLoop - 1][0], ukfIo[cfg0].update.x.val[0], err[0]);
+			fprintf(stream_log, "          %2.14f        %2.14f       %2.14f\n", x_exp[simLoop - 1][1], ukfIo[cfg0].update.x.val[1], err[1]);
+			fprintf(stream_log, "          %2.14f        %2.14f       %2.14f\n", x_exp[simLoop - 1][2], ukfIo[cfg0].update.x.val[2], err[2]);
+			fprintf(stream_log, "          %2.14f        %2.14f       %2.14f\n", x_exp[simLoop - 1][3], ukfIo[cfg0].update.x.val[3], err[3]);
 
 			// accumulate the differennce between reference matlab implementation and results from C code execution
 			absErrAccum[0] += err[0];
@@ -131,8 +175,8 @@ void ukf_test(void)
 			absErrAccum[2] += err[2];
 			absErrAccum[3] += err[3];
 		}
-		printf("Accumulated error: CFG0 \n");
-		printf("%2.16f  \n%2.16f  \n%2.16f  \n%2.16f \n", absErrAccum[0], absErrAccum[1], absErrAccum[2], absErrAccum[3]);
+		fprintf(stream_log, "Accumulated error: CFG0 \n");
+		fprintf(stream_log, "%2.16f  \n%2.16f  \n%2.16f  \n%2.16f \n", absErrAccum[0], absErrAccum[1], absErrAccum[2], absErrAccum[3]);
 
 		// UKF simulation CFG0: END
 	}
@@ -173,9 +217,9 @@ void ukf_test(void)
 			err[0] = fabs(ukfIo[cfg1].update.x.val[0] - tetha);
 			err[1] = fabs(ukfIo[cfg1].update.x.val[1] - tetha_dot);
 
-			printf("Loop: %d |system states : real | system states : est | system states : err \n", (int)simLoop);
-			printf("          %2.14f       %2.14f      %2.14f\n", tetha, ukfIo[1].update.x.val[0], err[0]);
-			printf("          %2.14f      %2.14f     %2.14f\n", tetha_dot, ukfIo[1].update.x.val[1], err[1]);
+			fprintf(stream_log, "Loop: %d |system states : real | system states : est | system states : err \n", (int)simLoop);
+			fprintf(stream_log, "          %2.14f       %2.14f      %2.14f\n", tetha, ukfIo[1].update.x.val[0], err[0]);
+			fprintf(stream_log, "          %2.14f      %2.14f     %2.14f\n", tetha_dot, ukfIo[1].update.x.val[1], err[1]);
 		}
 		// UKF simulation: END
 	}
@@ -183,14 +227,16 @@ void ukf_test(void)
 	{
 		// initialization fail
 		// TBD
+		return -1;
 	}
+	return 0;
 }
 /**
  *
  * Test some generic matrix operations from mtxLib.c
  *
  */
-void mtxlib_test(void)
+int mtxlib_test(void)
 {
 	/*------------------------------------------------*/
 	/*             Sample Matrix not related with UKF */
@@ -248,24 +294,25 @@ void mtxlib_test(void)
 	// show_matrix(&symMtx[0][0],5,5);
 
 	(void)mtx_chol_lower(&myFactMatrix);
-	show_matrix_obj(myFactMatrix);
+	if (verbose > 1) show_matrix_obj(myFactMatrix);
 
 	/*show_matrix_obj(myChol);
 	  mtx_transp_square(&myChol);
 	  show_matrix_obj(myChol);
 	  */
 
-	show_matrix_obj(Im);
-	show_matrix_obj(oTestMatrix_0_4x4);
+	if (verbose > 1) show_matrix_obj(Im);
+	if (verbose > 1) show_matrix_obj(oTestMatrix_0_4x4);
 	mtx_inv(&oTestMatrix_0_4x4, &Im);
-	show_matrix_obj(Im);
+	if (verbose > 1) show_matrix_obj(Im);
 
 	mtx_identity(&Im);
-	show_matrix_obj(Im);
+	if (verbose > 1) show_matrix_obj(Im);
 
 	// show_matrix_obj(myTestMatx);
 	// mtx_transp_dest(&myTestMatx,&oTestMatrixDest_3x2);
 	// show_matrix_obj(oTestMatrixDest_3x2);*/
+	return 0; // OK
 }
 
 /**
@@ -277,3 +324,168 @@ void report_compiler(void)
 	fprintf(stderr, "sizeof float = %d bits\nsizeof double = %d bits\nsizeof long double = %d bits\n", 8 * __SIZEOF_FLOAT__, 8 * __SIZEOF_DOUBLE__,
 			8 * __SIZEOF_LONG_DOUBLE__);
 }
+
+void test_mtx_cpy(Matrix_t const *const a, Matrix_t *const b);
+double distance1(Matrix_t *a, Matrix_t *b);
+double distance2(Matrix_t *a, Matrix_t *b);
+double distance_inf(Matrix_t *a, Matrix_t *b);
+
+#include "mtxGen.c"
+
+double m_temp[12][12];
+Matrix_t o_temp={12*12,12,12,(double*) m_temp};
+double m_temp2[12][12];
+Matrix_t o_temp2={12*12,12,12,(double*) m_temp2};
+
+int mtxlib_test2(void)
+{
+	int i;
+	int n = (int)sizeof(allSym)/(int)sizeof(*allSym);
+	int res = 0;
+
+	for (i=0;i<n;i++)
+	{
+		// allSym[i]; loCholSym[i]; invSym[i];
+		res |= !(allSym[i]->nelem == loCholSym[i]->nelem && invSym[i]->nelem == loCholSym[i]->nelem);
+		o_temp.nelem = allSym[i]->nelem;
+		o_temp.nrow = allSym[i]->nrow;
+		o_temp.ncol = allSym[i]->ncol;
+		mtx_identity(&o_temp);
+		test_mtx_cpy(allSym[i], &o_temp2);
+		res |= (MTX_OPERATION_OK != mtx_inv(&o_temp2, &o_temp));
+		double d1 = distance1(invSym[i], &o_temp);
+		double d2 = distance2(invSym[i], &o_temp);
+		double d3 = distance_inf(invSym[i], &o_temp);
+		// fprintf(stderr, "%3d d = %G\n", i, d);
+		fprintf(stream_log, "inv: %3d d1 = %G\td2 = %G\td3 = %G\n", i, d1, d2, d3);
+	}
+
+	for (i=0;i<n;i++)
+	{
+		test_mtx_cpy(allSym[i], &o_temp);
+
+		res |= (MTX_OPERATION_OK != mtx_chol_lower(&o_temp));
+		double d1 = distance1(loCholSym[i], &o_temp);
+		double d2 = distance2(loCholSym[i], &o_temp);
+		double d3 = distance_inf(loCholSym[i], &o_temp);
+		fprintf(stream_log, "chL: %3d d1 = %G\td2 = %G\td3 = %G\n", i, d1, d2, d3);
+		if (verbose > 1)
+		{
+			show_matrix_obj(*loCholSym[i]);
+			show_matrix_obj(o_temp);
+		}
+	}
+
+	for (i=0;i<n;i++)
+	{
+		test_mtx_cpy(allSym[i], &o_temp);
+
+		res |= (MTX_OPERATION_OK != mtx_chol_upper(&o_temp));
+		double d1 = distance1(upCholSym[i], &o_temp);
+		double d2 = distance2(upCholSym[i], &o_temp);
+		double d3 = distance_inf(upCholSym[i], &o_temp);
+		fprintf(stream_log, "chU: %3d d1 = %G\td2 = %G\td3 = %G\n", i, d1, d2, d3);
+		if (verbose > 1)
+		{
+			show_matrix_obj(*upCholSym[i]);
+			show_matrix_obj(o_temp);
+		}
+	}
+	n = sizeof(allMagic)/sizeof(*allMagic);
+
+	for (i=0;i<n;i++)
+	{
+		test_mtx_cpy(allMagic[i], &o_temp);
+
+		res |= (MTX_OPERATION_OK != mtx_transp_square(&o_temp));
+		double d1 = distance1(transpMagic[i], &o_temp);
+		double d2 = distance2(transpMagic[i], &o_temp);
+		double d3 = distance_inf(transpMagic[i], &o_temp);
+		fprintf(stream_log, "trn: %3d d1 = %G\td2 = %G\td3 = %G\n", i, d1, d2, d3);
+		if (verbose > 1)
+		{
+			show_matrix_obj(*upCholSym[i]);
+			show_matrix_obj(o_temp);
+		}
+	}
+
+	return res;
+}
+
+void test_mtx_cpy(Matrix_t const *const a, Matrix_t *const b)
+{
+	int i, j;
+
+	b->ncol = a->ncol;
+	b->nrow = a->nrow;
+	b->nelem = a->nelem;
+
+	for (i=0;i<a->nrow;i++)
+	{
+		int o = a->ncol * i;
+		for (j=0;j<a->ncol;j++)
+		{
+			b->val[o + j] = a->val[o + j];
+		}
+	}
+}
+
+double distance1(Matrix_t *a, Matrix_t *b)
+{
+	double d = 0;
+	int i, j;
+
+	for (i=0;i<a->nrow;i++)
+	{
+		int o = a->ncol * i;
+		for (j=0;j<a->ncol;j++)
+		{
+			double aa = a->val[o + j];
+			double bb = b->val[o + j];
+
+			d += fabs(aa - bb);
+		}
+	}
+	return d;
+}
+
+
+double distance2(Matrix_t *a, Matrix_t *b)
+{
+	double d = 0;
+	int i, j;
+
+	for (i=0;i<a->nrow;i++)
+	{
+		int o = a->ncol * i;
+		for (j=0;j<a->ncol;j++)
+		{
+			double aa = a->val[o + j];
+			double bb = b->val[o + j];
+			double t = (aa - bb);
+			d += t*t;
+		}
+	}
+	return sqrt(d);
+}
+
+
+double distance_inf(Matrix_t *a, Matrix_t *b)
+{
+	double d = 0;
+	int i, j;
+
+	for (i=0;i<a->nrow;i++)
+	{
+		int o = a->ncol * i;
+		for (j=0;j<a->ncol;j++)
+		{
+			double aa = a->val[o + j];
+			double bb = b->val[o + j];
+			double t = fabs(aa - bb);
+			d = fmax(d,t);
+		}
+	}
+	return sqrt(d);
+}
+
