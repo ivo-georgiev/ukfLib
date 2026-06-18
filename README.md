@@ -17,4 +17,9 @@ Why this project is useful:
 
 For more information please see UKF wiki page: https://github.com/ivo-georgiev/ukfLib/wiki
 
+## Contact
+
+For technical questions, architectural discussions regarding `ukfLib`, please reach out to the author at:
+* **Email:** ivo.pl.georgiev@gmail.com
+
 [![View ivo-georgiev/ukfLib on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://nl.mathworks.com/matlabcentral/fileexchange/65092-ivo-georgiev-ukflib)
