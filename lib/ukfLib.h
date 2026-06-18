@@ -1,6 +1,7 @@
-#include "System_Types.h"
-#include "stdio.h"
-#include "math.h"
+#include <stdint.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <math.h>
 #include "lib/mtxLib/mtxLib.h"
 
 #ifndef UKFLIB_FILE
