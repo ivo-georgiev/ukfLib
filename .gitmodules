@@ -1,0 +1,3 @@
+[submodule "lib/mtxLib"]
+	path = lib/mtxLib
+	url = git@github.com:ivo-georgiev/mtxLib.git
